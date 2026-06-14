@@ -1,0 +1,10 @@
+# ambiente virtual 'venv'
+ocr_guild_rank/
+
+# arquivos compilados python
+__pycache__/
+*.pyc
+
+# pasta de saída gerada localmente
+output/*
+!output/.gitkeep

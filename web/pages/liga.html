@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Liga Avalon • Portal Avalon</title>
+  <meta name="description" content="Liga Avalon: torneios internos, sorteio de participantes, mapas por fase e pódio dos campeões." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body data-page="liga" data-root="../">
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="Voltar ao Salão de Avalon">
+      <img src="../assets/img/brand/avalon-logo-small.png" alt="Símbolo da Guilda Avalon" class="brand-logo" />
+      <div class="brand-text">
+        <strong>Portal Avalon</strong>
+        <span>Portal dos Guardiões</span>
+      </div>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <nav class="main-nav" aria-label="Navegação principal">
+      <a class="" href="../index.html"><span class="material-symbols-outlined" aria-hidden="true">home</span>Salão</a>
+      <a class="" href="../pages/hall.html"><span class="material-symbols-outlined" aria-hidden="true">military_tech</span>Hall</a>
+      <a class="" href="../pages/oraculo.html"><span class="material-symbols-outlined" aria-hidden="true">search</span>Buscar</a>
+      <a class="" href="../pages/registro.html"><span class="material-symbols-outlined" aria-hidden="true">table_chart</span>Registro</a>
+      <a class="" href="../pages/raid.html"><span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>Raid</a>
+      <a class="" href="../pages/galeria.html"><span class="material-symbols-outlined" aria-hidden="true">photo_library</span>Galeria</a>
+      <a class="active" href="../pages/liga.html"><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Liga</a>
+    </nav>
+  </header>
+
+  <main class="page-shell liga-page">
+    <section class="section-block page-title-stage reveal">
+      <div class="page-hero-mascots liga-hero-mascots">
+        <div class="page-hero-mascot left cley">
+          <img src="../assets/img/mascots/cley-liga.png" alt="Cley, mascote da Avalon" />
+        </div>
+
+        <div class="page-title-card medieval-card gold-frame solo-title-card">
+        <p class="eyebrow">Liga Avalon</p>
+        <h1>Torneios dos Guardiões</h1>
+        <p>
+          Crie disputas internas, adicione convidados especiais, sorteie participantes,
+          defina mapas por fase e registre os campeões da guilda.
+        </p>
+      </div>
+
+        <div class="page-hero-mascot right olimpio">
+          <img src="../assets/img/mascots/olimpio-liga.png" alt="Olimpio, mascote da Avalon" />
+        </div>
+      </div>
+    </section>
+<section class="section-block reveal liga-step" aria-labelledby="liga-participantes-title">
+      <div class="medieval-card gold-frame league-panel league-builder-panel">
+        <div class="league-panel-head">
+          <div>
+            <p class="eyebrow">Etapa 1</p>
+            <h2 id="liga-participantes-title">Participantes confirmados</h2>
+            <p>
+              Busque membros da Avalon pelo nick ou adicione convidados especiais.
+              A lista grande foi substituída por uma busca compacta para deixar a Liga mais leve.
+            </p>
+          </div>
+          <div class="league-counter" id="league-counter">0 confirmados</div>
+        </div>
+
+        <div class="league-add-grid">
+          <div class="member-search-box">
+            <label for="member-search">Adicionar membro da Avalon</label>
+            <div class="search-row">
+              <input id="member-search" type="search" autocomplete="off" placeholder="Digite o nick do membro..." />
+            </div>
+            <div id="member-suggestions" class="member-suggestions" aria-live="polite"></div>
+          </div>
+
+          <div class="member-search-box">
+            <label for="guest-name">Adicionar convidado especial</label>
+            <div class="guest-row">
+              <input id="guest-name" type="text" maxlength="24" placeholder="Nick do convidado especial" />
+              <button class="btn btn-secondary" type="button" id="add-guest">
+                <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
+                Adicionar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="selected-participants" class="selected-participants compact-selected"></div>
+
+        <div class="league-summary-card medieval-card blue-frame">
+          <div class="league-summary-heading">
+            <p class="eyebrow">Etapa 2</p>
+            <h2>Resumo da Liga</h2>
+            <p>Defina o modo, organize equipes quando necessário e gere a estrutura da competição.</p>
+          </div>
+
+          <div class="league-mode-section">
+            <p class="eyebrow">Definição do modo da Liga</p>
+            <div id="league-mode-grid" class="league-mode-grid compact-mode-grid"></div>
+          </div>
+
+          <div>
+            <p class="eyebrow">Modo selecionado</p>
+            <h2 id="league-selected-mode-title">Nenhum modo escolhido</h2>
+            <p id="league-selected-mode-desc">Escolha um modo para preparar as regras da disputa.</p>
+          </div>
+          <div id="league-selected-mode-meta" class="league-meta-list"></div>
+          <div id="league-team-controls" class="league-team-controls"></div>
+          <div class="league-actions-row">
+            <button class="btn btn-primary" type="button" id="shuffle-participants">
+              <span class="material-symbols-outlined" aria-hidden="true">shuffle</span>
+              Sortear participantes
+            </button>
+            <button class="btn btn-secondary" type="button" id="generate-bracket">
+              <span class="material-symbols-outlined" aria-hidden="true">account_tree</span>
+              Gerar chaves
+            </button>
+            <button class="btn btn-ghost" type="button" id="draw-all-maps">
+              <span class="material-symbols-outlined" aria-hidden="true">casino</span>
+              Sortear mapas
+            </button>
+            <button class="btn btn-ghost danger" type="button" id="reset-league">
+              <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              Limpar Liga
+            </button>
+          </div>
+          <p id="league-feedback" class="league-feedback" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block reveal liga-step" aria-labelledby="liga-ordem-title">
+      <div class="medieval-card league-panel blue-frame">
+        <p class="eyebrow">Sorteio</p>
+        <h2 id="liga-ordem-title">Ordem sorteada</h2>
+        <p class="league-muted">A ordem sorteada alimenta a montagem das chaves e deixa a seleção mais transparente.</p>
+        <div id="drawn-order" class="drawn-order"></div>
+      </div>
+    </section>
+
+    <section class="section-block reveal liga-step" aria-labelledby="liga-chaves-title">
+      <div class="medieval-card gold-frame league-panel league-bracket-stage">
+        <div id="league-bracket" class="league-bracket"></div>
+      </div>
+    </section>
+
+    <section class="section-block reveal liga-step" aria-labelledby="liga-podio-title">
+      <div class="medieval-card gold-frame league-podium-panel">
+        <div class="league-panel-head">
+          <div>
+            <p class="eyebrow">Resultado final</p>
+            <h2 id="liga-podio-title">Pódio dos Campeões</h2>
+            <p>Quando a final for concluída, os troféus da Liga aparecem aqui.</p>
+          </div>
+          <div class="league-podium-actions podium-panel-top-actions">
+            <button class="btn btn-secondary" type="button" id="copy-league-result">
+              <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+              Copiar resultado
+            </button>
+          </div>
+        </div>
+        <div id="league-podium" class="league-podium"></div>
+      </div>
+    </section>
+  </main>
+
+  <button class="site-back-top hidden" type="button" aria-label="Voltar ao topo da página">
+    <span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>
+    <span>Voltar ao topo</span>
+  </button>
+
+  <footer class="site-footer">
+    <span>Portal Avalon</span>
+    <span>Registros, memórias e disputas da guilda Avalon.</span>
+  </footer>
+
+  <script src="../assets/js/ui.js"></script>
+  <script src="../assets/js/liga.js"></script>
+</body>
+</html>

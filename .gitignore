@@ -1,0 +1,96 @@
+# ============================================================
+# Portal Avalon — arquivos locais e gerados
+# ============================================================
+
+# Sistema operacional
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.code-workspace
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Python
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Node / ferramentas web opcionais
+node_modules/
+dist/
+build/
+.vite/
+.parcel-cache/
+
+# Temporários, caches e logs
+.temp/
+temp/
+tmp/
+.cache/
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp
+*.swo
+*~
+
+# Pacotes e entregas geradas localmente
+*.zip
+*.7z
+*.rar
+
+# Relatórios locais de ferramentas
+coverage/
+reports-local/
+
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+
+# ============================================================
+# Arquivos que pertencem ao projeto e NÃO devem ser ignorados
+# ============================================================
+# - web/data/ e os JSONs publicados
+# - web/assets/ e as imagens usadas pelo Portal
+# - docs/ e suas evidências oficiais
+# - tests/ e tools/
+# - fontes e scripts necessários do OCR
+#
+# Screenshots brutos do OCR só devem ser ignorados por uma regra
+# específica após confirmar que não são necessários para auditoria.
+# Exemplo opcional, desativado por segurança:
+# ocr/guild-rank-ocr/images/
+
+# Screenshots brutos temporários utilizados pelo OCR
+ocr/guild-rank-ocr/images/*
+!ocr/guild-rank-ocr/images/.gitkeep
+
+# Saídas locais geradas pelo OCR
+ocr/guild-rank-ocr/output/*
+!ocr/guild-rank-ocr/output/.gitkeep
+
+# Recortes de depuração do OCR
+ocr/guild-rank-ocr/debug/

@@ -1,0 +1,231 @@
+{
+  "resumo": {
+    "guilda": "Avalon",
+    "observacao": "Raid anterior derivada da coluna Dano 3 da planilha histórica. Frequências desconhecidas permanecem nulas.",
+    "dano_total_guilda": 113284128418,
+    "participantes": 27,
+    "ausentes": 1,
+    "membros_cadastrados": 28,
+    "vagas_estimadas": 2,
+    "source": "seed_planilha",
+    "confidence": "estimada"
+  },
+  "membros": [
+    {
+      "nome": "Cley",
+      "frequencia": null,
+      "dano": 6618562791,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Hela",
+      "frequencia": null,
+      "dano": 6567639847,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Krelian",
+      "frequencia": null,
+      "dano": 6408754098,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Leon",
+      "frequencia": null,
+      "dano": 5945833813,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Sr_Mendes",
+      "frequencia": null,
+      "dano": 5599980674,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Gashak",
+      "frequencia": null,
+      "dano": 5746861784,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Lux",
+      "frequencia": null,
+      "dano": 5683507817,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "SkyLord",
+      "frequencia": null,
+      "dano": 5467336854,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Kanao",
+      "frequencia": null,
+      "dano": 5118394914,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "SirAudino",
+      "frequencia": null,
+      "dano": 4525854529,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Aurora",
+      "frequencia": null,
+      "dano": 4333349353,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Snowers",
+      "frequencia": null,
+      "dano": 4123940555,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Ger",
+      "frequencia": null,
+      "dano": 5434544159,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Capibara",
+      "frequencia": null,
+      "dano": 3962532640,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Wagnero",
+      "frequencia": "6/21",
+      "dano": 1754302805,
+      "status": "seed_planilha",
+      "status_participacao": "baixa_participacao",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "ヴァルディネイ",
+      "frequencia": null,
+      "dano": 5433353646,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Dennis",
+      "frequencia": null,
+      "dano": 5695801229,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "カミナリ",
+      "frequencia": null,
+      "dano": 3821939468,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Ino",
+      "frequencia": null,
+      "dano": 2468041244,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Cosmos",
+      "frequencia": null,
+      "dano": 2848686013,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "math",
+      "frequencia": null,
+      "dano": 2789735157,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "kia",
+      "frequencia": null,
+      "dano": 1316947299,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Ramigam",
+      "frequencia": null,
+      "dano": 3352084895,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "Drymus",
+      "frequencia": null,
+      "dano": 1213733459,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "CAPETTINI",
+      "frequencia": null,
+      "dano": 3886096157,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "PeSH",
+      "frequencia": null,
+      "dano": 1096174518,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    },
+    {
+      "nome": "utiago",
+      "frequencia": null,
+      "dano": 2070138700,
+      "status": "seed_planilha",
+      "status_participacao": "historico_sem_frequencia",
+      "source": "seed_planilha"
+    }
+  ]
+}

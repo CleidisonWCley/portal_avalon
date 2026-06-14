@@ -1,0 +1,87 @@
+
+[1/9] Sintaxe JavaScript
+
+[2/9] Regressão funcional V7.3.1
+PASS | regras matemáticas e posições da V7.3 permanecem preservadas
+PASS | motivo público de frequência não revela ataques nem limite mínimo
+PASS | ranking de dano é dinâmico e Cley lidera apenas pelos dados atuais
+PASS | desempate do dano usa frequência e depois nome
+PASS | membro ausente permanece registrado com ranking incalculável
+PASS | card horizontal usa valores abreviados e rankings independentes
+PASS | Hall e ranking de dano continuam classificações independentes
+PASS | percentuais validados e integridade dos dados são preservados
+PASS | HTML público do Hall não contém cards nem anúncios numéricos de frequência
+PASS | Registro possui os três modos atuais, dez colunas e botão de topo
+PASS | bases parciais e insuficientes continuam na lógica, mas não ficam fixas no HTML
+
+Resultado: 11/11 testes aprovados.
+
+[3/9] Regressão estrutural V7.4
+PASS | canvas da Liga possui tema centralizado
+PASS | motor possui um renderizador principal e um componente de duelo
+PASS | 1v1, 2v2 e 3v3 compartilham normalização e resolvedor adaptativo
+PASS | download da rodada usa o renderizador unificado
+PASS | API de teste e manutenção do canvas está exposta
+PASS | Portal identifica a V7.4 ou versão posterior
+PASS | documentação oficial foi centralizada
+
+Resultado V7.4: 7/7 testes aprovados.
+
+[4/9] Estrutura e refatoração V7.5
+PASS | pódio possui tema, modelo e resolvedor centralizados
+PASS | pódio completo e card individual usam o mesmo renderer
+PASS | não existem renderizadores completos separados por colocação
+PASS | bronze mantém título em duas linhas e margem segura calculada
+PASS | API do pódio está disponível para manutenção e testes
+PASS | CSS do pódio foi consolidado sem seletores órfãos conhecidos
+PASS | Portal e documentação identificam a V7.5
+
+Resultado V7.5: 7/7 testes aprovados.
+
+[5/9] Validação do histórico
+Raids: 4 | erros: 0 | avisos: 83
+AVISO: Base estimada: raid_seed_dano_3 / Cley
+AVISO: Base estimada: raid_seed_dano_3 / Hela
+AVISO: Base estimada: raid_seed_dano_3 / Krelian
+AVISO: Base estimada: raid_seed_dano_3 / Leon
+AVISO: Base estimada: raid_seed_dano_3 / Sr_Mendes
+AVISO: Base estimada: raid_seed_dano_3 / Gashak
+AVISO: Base estimada: raid_seed_dano_3 / Lux
+AVISO: Base estimada: raid_seed_dano_3 / SkyLord
+AVISO: Base estimada: raid_seed_dano_3 / Kanao
+AVISO: Base estimada: raid_seed_dano_3 / SirAudino
+AVISO: Base estimada: raid_seed_dano_3 / Aurora
+AVISO: Base estimada: raid_seed_dano_3 / Snowers
+AVISO: Base estimada: raid_seed_dano_3 / Ger
+AVISO: Base estimada: raid_seed_dano_3 / Capibara
+AVISO: Excluído da média por frequência: raid_seed_dano_3 / Wagnero (6/21)
+AVISO: Base estimada: raid_seed_dano_3 / ヴァルディネイ
+AVISO: Base estimada: raid_seed_dano_3 / Dennis
+AVISO: Base estimada: raid_seed_dano_3 / カミナリ
+AVISO: Base estimada: raid_seed_dano_3 / Ino
+AVISO: Base estimada: raid_seed_dano_3 / Cosmos
+... e mais 63 avisos de base estimada.
+
+[6/9] Regressão visual do canvas PvP V7.4
+PASS | Canvas 1v1 compacto e centralizado
+PASS | Canvas 2v2 adaptado pelo mesmo renderer
+PASS | Canvas 3v3 com quebra e altura adaptativas
+PASS | Grade com quatro confrontos reutiliza o mesmo componente
+PASS | Salas de sobrevivência preservadas com painel compartilhado
+Resultado visual V7.4: 5/5 cenários aprovados.
+
+[7/9] Testes visuais do pódio V7.5
+PASS | Pódio 1v1 usa o renderer adaptativo
+PASS | Pódio 2v2 permanece equilibrado
+PASS | Bronze 3v3 mantém todos os membros dentro da moldura
+PASS | Nomes extensos são ajustados sem invadir o rodapé
+PASS | Card individual reutiliza modelo e resolvedor do pódio
+Resultado visual V7.5: 5/5 cenários aprovados.
+
+[8/9] JSON, HTML e referências locais
+JSON válidos e referências HTML locais existentes.
+
+[9/9] Documentação e links Markdown
+Documentação V7.5 validada.
+
+Todos os testes da V7.5 foram aprovados.

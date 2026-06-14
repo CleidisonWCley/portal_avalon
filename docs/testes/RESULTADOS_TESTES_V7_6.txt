@@ -1,0 +1,40 @@
+PORTAL AVALON V7.6 — RESULTADOS DOS TESTES
+
+1. Sintaxe e estrutura
+- JavaScript: todos os arquivos aprovados por `node --check`.
+- JSON: todos os arquivos válidos.
+- HTML: referências locais existentes.
+- CSS: balanceamento estrutural válido e componentes globais presentes.
+
+2. Regressão funcional
+- V7.3.1: 11/11 testes aprovados.
+- V7.4 estrutural: 7/7 testes aprovados.
+- V7.5 estrutural: 7/7 testes aprovados.
+- Canvas PvP V7.4: 5/5 cenários aprovados.
+- Pódio adaptativo V7.5: 5/5 cenários aprovados em execução individual.
+
+3. Testes estruturais V7.6
+- 6/6 aprovados.
+- Botão global em Hall, Registro, Raid e Liga.
+- Plataforma global presente nas sete abas.
+- Registro migrado sem estrutura legada.
+- Resumo técnico do Hall removido.
+- Raid e Liga usando o mesmo feedback global.
+- Classes antigas removidas.
+
+4. Testes visuais V7.6
+- 6/6 aprovados.
+- Plataforma renderizada nas sete abas.
+- Camadas do Registro: plataforma 0, card 2, mascotes 3.
+- Hall simplificado e botão global funcional.
+- Feedback da Raid no padrão da Liga.
+- Feedback da Liga com ações.
+- Mobile sem overflow e botão compacto.
+
+5. Histórico
+- 4 raids verificadas.
+- 0 erros estruturais.
+- 83 avisos esperados de bases históricas estimadas e do caso conhecido de Wagnero.
+
+Observação de ambiente:
+A suíte agregada antiga excedeu o limite da sessão durante a segunda execução do Chromium. Os testes visuais V7.4 e V7.5 foram executados e aprovados individualmente, e a suíte V7.6 foi aprovada integralmente.

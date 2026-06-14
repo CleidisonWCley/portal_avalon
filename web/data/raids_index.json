@@ -1,0 +1,19 @@
+{
+  "guilda": "Avalon",
+  "ultima_raid": "raid_atual.json",
+  "raid_anterior": "raid_anterior.json",
+  "raids": [
+    {
+      "id": "raid_atual",
+      "nome": "Raid atual",
+      "arquivo": "data/raids/raid_atual.json",
+      "tipo": "atual"
+    },
+    {
+      "id": "raid_anterior",
+      "nome": "Raid anterior",
+      "arquivo": "data/raids/raid_anterior.json",
+      "tipo": "comparacao"
+    }
+  ]
+}

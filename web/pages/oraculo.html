@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buscar Ficha • Portal Avalon</title>
+  <meta name="description" content="Busca individual de membros da Guilda Avalon com dano, presença, evolução e patente registrada." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body data-page="oraculo" data-root="../">
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="Voltar ao Salão de Avalon">
+      <img src="../assets/img/brand/avalon-logo-small.png" alt="Símbolo da Guilda Avalon" class="brand-logo" />
+      <div class="brand-text">
+        <strong>Portal Avalon</strong>
+        <span>Portal dos Guardiões</span>
+      </div>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+    <nav class="main-nav" aria-label="Navegação principal">
+      <a class="" href="../index.html"><span class="material-symbols-outlined" aria-hidden="true">home</span>Salão</a>
+      <a class="" href="../pages/hall.html"><span class="material-symbols-outlined" aria-hidden="true">military_tech</span>Hall</a>
+      <a class="active" href="../pages/oraculo.html"><span class="material-symbols-outlined" aria-hidden="true">search</span>Buscar</a>
+      <a class="" href="../pages/registro.html"><span class="material-symbols-outlined" aria-hidden="true">table_chart</span>Registro</a>
+      <a class="" href="../pages/raid.html"><span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>Raid</a>
+      <a class="" href="../pages/galeria.html"><span class="material-symbols-outlined" aria-hidden="true">photo_library</span>Galeria</a>
+      <a class="" href="../pages/liga.html"><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Liga</a>
+    </nav>
+  </header>
+
+  <main class="page-shell oraculo-page">
+
+    <section class="section-block page-title-stage reveal">
+      <div class="page-hero-mascots buscar-hero-mascots">
+        <div class="page-hero-mascot left cley">
+          <img src="../assets/img/mascots/cley-buscar.png" alt="Cley, mascote da Avalon" />
+        </div>
+
+        <div class="page-title-card medieval-card gold-frame solo-title-card">
+        <p class="eyebrow">Buscar Ficha</p>
+        <h1>Perfil do Guardião</h1>
+        <p>
+          Digite seu nick para consultar posição, presença, dano atual, média histórica, percentual evolutivo e patente registrada.
+        </p>
+      </div>
+
+        <div class="page-hero-mascot right olimpio">
+          <img src="../assets/img/mascots/olimpio-buscar.png" alt="Olimpio, mascote da Avalon" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block reveal">
+      <div class="search-shell medieval-card gold-frame">
+        <label for="member-search">Buscar ficha do guardião</label>
+        <div class="search-row">
+          <input id="member-search" type="search" placeholder="Ex.: Cley, Ino, Hela..." autocomplete="off" />
+          <button id="clear-search" class="btn btn-ghost" type="button">Limpar</button>
+        </div>
+        <div id="suggestions" class="suggestions" aria-live="polite"></div>
+      </div>
+      <div id="member-card" class="member-card empty-state medieval-card">
+        <h3>Busque sua ficha.</h3>
+        <p>Digite seu nick para consultar dano atual, média histórica, percentual evolutivo e patente no Portal Avalon.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <span>Portal Avalon</span>
+    <span>Registros, memórias e disputas da guilda Avalon.</span>
+  </footer>
+
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/hall-rules.js"></script>
+  <script src="../assets/js/app.js"></script>
+</body>
+</html>

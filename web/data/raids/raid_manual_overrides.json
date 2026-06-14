@@ -1,0 +1,13 @@
+{
+  "version": "7.3",
+  "description": "Correções históricas confirmadas manualmente. Frequência desconhecida permanece null; raids conhecidas abaixo de 15/21 não entram na base.",
+  "members": {
+    "Wagnero": {
+      "raid_seed_dano_3": {
+        "frequency": "6/21",
+        "attacks": 6,
+        "note": "Frequência histórica informada pelo líder; esta raid não entra na média do Hall."
+      }
+    }
+  }
+}

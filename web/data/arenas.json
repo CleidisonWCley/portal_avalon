@@ -1,0 +1,158 @@
+{
+  "modos": [
+    {
+      "id": "1v1_arena",
+      "nome": "Arena",
+      "titulo": "Duelo dos Guardiões",
+      "formato": "1v1",
+      "jogadoresPorSala": 2,
+      "descricao": "Confronto direto entre dois jogadores. Cada guardião luta com sua equipe de personagens.",
+      "minimo": 8,
+      "mapas": [
+        {
+          "nome": "Estádio",
+          "imagem": "assets/img/maps/arena-1v1/estadio.png",
+          "descricao": "Arena clássica com paredes que favorecem estratégia e cobertura."
+        },
+        {
+          "nome": "Mata-Mata",
+          "imagem": "assets/img/maps/arena-1v1/mata-mata.png",
+          "descricao": "Arena direta sem obstáculos, focada em confronto aberto.",
+          "aliases": [
+            "Mata-mata"
+          ]
+        },
+        {
+          "nome": "Treinamento Infinito",
+          "imagem": "assets/img/maps/arena-1v1/treinamento-infinito.png",
+          "descricao": "Dojo com obstáculos que favorece ataques à distância e controle de espaço."
+        },
+        {
+          "nome": "Jogo de Sobrevivência",
+          "imagem": "assets/img/maps/arena-1v1/jogo-sobrevivencia.png",
+          "descricao": "Arena desértica ampla com muros curtos e caixas no centro."
+        },
+        {
+          "nome": "Anel de Cidade de Shen",
+          "imagem": "assets/img/maps/arena-1v1/anel-cidade-shen.png",
+          "descricao": "Pequeno ringue com becos nos cantos e foco em combate corporal.",
+          "aliases": [
+            "Anel de Cidade Shen"
+          ]
+        },
+        {
+          "nome": "Coliseu de Refugiados",
+          "imagem": "assets/img/maps/arena-1v1/coliseu-refugiados.png",
+          "descricao": "Arena estreita com becos sem saída e alto risco de encurralamento."
+        },
+        {
+          "nome": "Ruínas Antigas",
+          "imagem": "assets/img/maps/arena-1v1/ruinas-antigas.png",
+          "descricao": "Ruínas com pilares e caminhos estreitos para planejamento estratégico."
+        },
+        {
+          "nome": "Sala de Aula Fechada",
+          "imagem": "assets/img/maps/arena-1v1/sala-aula-fechada.png",
+          "descricao": "Arena fechada com paredes longas para movimentação e ataques por cobertura."
+        },
+        {
+          "nome": "Clube da Luta",
+          "imagem": "assets/img/maps/arena-1v1/clube-da-luta.png",
+          "descricao": "Arena de curta distância que força aproximação rápida e decisões diretas."
+        },
+        {
+          "nome": "Set de Estúdio do Guardião",
+          "imagem": "assets/img/maps/arena-1v1/set-estudio-guardiao.png",
+          "descricao": "Cenário amplo com carros e estruturas para esconderijo e controle de distância."
+        }
+      ]
+    },
+    {
+      "id": "1v5_briga",
+      "nome": "Briga",
+      "titulo": "Provação dos Seis",
+      "formato": "1v5",
+      "jogadoresPorSala": 6,
+      "descricao": "Sala de sobrevivência com até seis jogadores. O Top 3 de cada grupo avança para a final.",
+      "minimo": 6,
+      "mapas": [
+        {
+          "nome": "Burywood City",
+          "imagem": "assets/img/maps/briga-1v5/burywood-city.png",
+          "descricao": "Cenário urbano com obstáculos e equipamentos que exige movimentação cuidadosa."
+        },
+        {
+          "nome": "Floresta das Ruínas Antigas",
+          "imagem": "assets/img/maps/briga-1v5/floresta-ruinas-antigas.png",
+          "descricao": "Ruínas enevoadas com pilares e corredores estreitos que favorecem emboscadas."
+        },
+        {
+          "nome": "O Templo Secreto",
+          "imagem": "assets/img/maps/briga-1v5/templo-secreto.png",
+          "descricao": "Templo com portais e área central estratégica para controle de território."
+        },
+        {
+          "nome": "Campo de Treinamento de Batalha de Heavenhold",
+          "imagem": "assets/img/maps/briga-1v5/campo-heavenhold.png",
+          "descricao": "Campo simulado com estruturas mutáveis que exige adaptação constante.",
+          "aliases": [
+            "Campo de Heavenhold"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1v5_frenesi",
+      "nome": "Frenesi",
+      "titulo": "Frenesi da Masmorra",
+      "formato": "1v5",
+      "jogadoresPorSala": 6,
+      "descricao": "Modo survival em sala especial. O Top 3 de cada grupo avança para a decisão final.",
+      "minimo": 6,
+      "mapas": [
+        {
+          "nome": "Octógono do Reino da Masmorra",
+          "imagem": "assets/img/maps/frenesi-1v5/octogono-reino-masmorra.png",
+          "descricao": "Arena com lava e mecanismos que punem posicionamento ruim."
+        }
+      ]
+    },
+    {
+      "id": "3v3_equipe",
+      "nome": "Equipe",
+      "titulo": "Batalha de Esquadrões",
+      "formato": "3v3",
+      "jogadoresPorSala": 6,
+      "descricao": "Times de três jogadores se enfrentam em chave por equipe. Caso a quantidade não feche bem, o Portal pode organizar 2v2 adaptado.",
+      "minimo": 6,
+      "mapas": [
+        {
+          "nome": "Estádio da Batalha",
+          "imagem": "assets/img/maps/equipe-3v3/estadio-da-batalha.png",
+          "descricao": "Campo amplo de equipe com obstáculos equilibrados para combates livres."
+        },
+        {
+          "nome": "Oásis",
+          "imagem": "assets/img/maps/equipe-3v3/oasis.png",
+          "descricao": "Campo espaçoso com bastante cobertura para batalhas em equipe."
+        }
+      ]
+    },
+    {
+      "id": "3v3_captura",
+      "nome": "Captura",
+      "titulo": "Captura dos Guardiões",
+      "formato": "3v3",
+      "jogadoresPorSala": 6,
+      "descricao": "Times de três jogadores em modo de captura, com mapa próprio. Caso a quantidade não feche bem, o Portal pode organizar 2v2 adaptado.",
+      "minimo": 6,
+      "mapas": [
+        {
+          "nome": "Escola de Magia de Batalha",
+          "imagem": "assets/img/maps/captura-3v3/escola-magia-batalha.png",
+          "descricao": "Mapa de captura com portais e áreas estratégicas para controle de território."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "eventos": [
+    {
+      "id": "feliz-2023-avalon",
+      "titulo": "Feliz 2023 Avalon",
+      "ano": "2022",
+      "tipo": "Foto comemorativa",
+      "descricao": "Registro da virada para 2023 com a guilda reunida em clima de celebração.",
+      "imagem": "assets/img/gallery/eventos/2022/feliz2023.png",
+      "download": "assets/img/gallery/eventos/2022/feliz2023.png"
+    },
+    {
+      "id": "halloween-avalon-2022",
+      "titulo": "Halloween da Avalon",
+      "ano": "2022",
+      "tipo": "Evento temático",
+      "descricao": "Registro temático de Halloween da guilda Avalon.",
+      "imagem": "assets/img/gallery/eventos/2022/halloween2022.png",
+      "download": "assets/img/gallery/eventos/2022/halloween2022.png"
+    },
+    {
+      "id": "halloween-avalon-2023",
+      "titulo": "Halloween da Avalon",
+      "ano": "2023",
+      "tipo": "Evento temático",
+      "descricao": "Memória de Halloween com os guardiões reunidos em um cenário especial.",
+      "imagem": "assets/img/gallery/eventos/2023/halloween.png",
+      "download": "assets/img/gallery/eventos/2023/halloween.png"
+    },
+    {
+      "id": "natal-avalon-2023",
+      "titulo": "Natal da Avalon",
+      "ano": "2023",
+      "tipo": "Foto comemorativa",
+      "descricao": "Celebração natalina da Avalon registrada como memória da guilda.",
+      "imagem": "assets/img/gallery/eventos/2023/natal.png",
+      "download": "assets/img/gallery/eventos/2023/natal.png"
+    },
+    {
+      "id": "casa-assombrada-avalon-2024",
+      "titulo": "Casa Assombrada da Avalon",
+      "ano": "2024",
+      "tipo": "Evento temático",
+      "descricao": "Registro especial em clima sombrio e festivo da guilda.",
+      "imagem": "assets/img/gallery/eventos/2024/casaassombrada.png",
+      "download": "assets/img/gallery/eventos/2024/casaassombrada.png"
+    },
+    {
+      "id": "fest-motori-avalon-2024",
+      "titulo": "Fest Motori Avalon",
+      "ano": "2024",
+      "tipo": "Evento temático",
+      "descricao": "Momento comemorativo da guilda em evento temático de 2024.",
+      "imagem": "assets/img/gallery/eventos/2024/FestMotori.png",
+      "download": "assets/img/gallery/eventos/2024/FestMotori.png"
+    },
+    {
+      "id": "rats-avalon-2024",
+      "titulo": "Rats da Avalon",
+      "ano": "2024",
+      "tipo": "Registro histórico",
+      "descricao": "Registro divertido e temático com membros da Avalon.",
+      "imagem": "assets/img/gallery/eventos/2024/Rats.png",
+      "download": "assets/img/gallery/eventos/2024/Rats.png"
+    },
+    {
+      "id": "beach-day-avalon-2025",
+      "titulo": "Beach Day Avalon",
+      "ano": "2025",
+      "tipo": "Evento temático",
+      "descricao": "Dia de praia da Avalon, reunindo membros em um cenário de verão.",
+      "imagem": "assets/img/gallery/eventos/2025/beachday.png",
+      "download": "assets/img/gallery/eventos/2025/beachday.png"
+    },
+    {
+      "id": "salao-beach-avalon-2025",
+      "titulo": "Salão Beach Avalon",
+      "ano": "2025",
+      "tipo": "Foto comemorativa",
+      "descricao": "Registro leve e descontraído do tema de verão da guilda.",
+      "imagem": "assets/img/gallery/eventos/2025/salaobeach.jpg",
+      "download": "assets/img/gallery/eventos/2025/salaobeach.jpg"
+    }
+  ]
+}
