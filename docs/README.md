@@ -44,5 +44,9 @@ Esta é a fonte técnica consolidada do projeto. A V7.6 é a versão funcional f
 - [`evidencias/`](evidencias/)
 - [`archive/`](archive/)
 
+### Firebase da Liga 
+
+- [`arquitetura/FIREBASE_LIGA.md`](arquitetura/FIREBASE_LIGA.md) — autenticação dos organizadores, Firestore, publicação da Liga, sincronização em tempo real, encerramento, segurança e testes.
+
 **Fonte oficial atual:** V7.6.1 Maintenance Edition.  
 **Núcleo funcional congelado:** V7.6 Final.

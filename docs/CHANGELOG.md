@@ -105,3 +105,53 @@ As alterações detalhadas permanecem em [`releases/`](releases/).
 
 ## V4.x e anteriores
 - fundação das páginas, mascotes, Hall, Galeria, Liga e identidade medieval.
+
+## Liga Firebase em tempo real
+
+### Adicionado
+
+- Firebase Authentication para contas de organizadores;
+- Cloud Firestore como fonte compartilhada da Liga publicada;
+- acesso de participante sem login;
+- validação administrativa por `admins/{UID}`;
+- rascunho local antes da publicação;
+- botão `Publicar Liga`;
+- sincronização automática depois da publicação;
+- botão `Sincronizar agora`;
+- listener em tempo real com `onSnapshot()`;
+- botão próprio `Encerrar Liga`;
+- proteção ao navegar durante uma transmissão;
+- opção de sair mantendo a Liga;
+- opção de encerrar a Liga e sair;
+- proteção de alterações pendentes com `beforeunload`;
+- card de acesso Participante/Organizador;
+- card de estado integrado ao conteúdo da Liga;
+- mensagens genéricas sem exposição do nome ou e-mail do organizador;
+- documentação técnica em `docs/arquitetura/FIREBASE_LIGA.md`.
+
+### Alterado
+
+- `localStorage` passou a funcionar como rascunho e contingência;
+- o Firestore passou a ser a fonte oficial da Liga publicada;
+- controles administrativos passaram a ser marcados com `data-liga-admin-only`;
+- cards de modalidade usam `data-liga-admin-locked` no modo participante;
+- o participante mantém visualização e downloads, mas não pode alterar o torneio;
+- a Liga somente é exibida quando `publicada: true`;
+- a conclusão do pódio não encerra automaticamente a transmissão;
+- a saída para outras páginas agora exige decisão quando existe uma Liga ao vivo.
+
+### Segurança
+
+- escrita no Firestore restrita a administradores autenticados e ativos;
+- coleção `admins` não pode ser alterada pelo frontend;
+- dados da Liga permanecem públicos para leitura;
+- credenciais administrativas não são armazenadas no Firestore nem no repositório.
+
+### Arquivos principais
+
+```text
+web/assets/js/firebase-config.js
+web/assets/js/liga-firebase.js
+web/pages/liga.html
+docs/arquitetura/FIREBASE_LIGA.md
+```

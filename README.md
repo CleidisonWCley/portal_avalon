@@ -167,3 +167,13 @@ A **V7.6.1 Maintenance Edition** preserva o comportamento público da V7.6 e adi
 O manifesto abaixo registra os hashes do núcleo funcional congelado:
 
 [`docs/manutencao/MANIFESTO_BASELINE_V7_6.json`](docs/manutencao/MANIFESTO_BASELINE_V7_6.json)
+
+## Liga em tempo real
+
+A Liga Avalon utiliza Firebase Authentication para os organizadores e Cloud Firestore para sincronizar chaves, mapas, resultados e pódio em tempo real.
+
+Participantes acompanham o torneio sem login e possuem acesso somente à visualização e aos downloads.
+
+Documentação técnica:
+
+[`docs/arquitetura/FIREBASE_LIGA.md`](docs/arquitetura/FIREBASE_LIGA.md)

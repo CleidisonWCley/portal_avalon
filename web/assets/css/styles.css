@@ -65,6 +65,7 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -6221,3 +6222,97 @@ button.league-unit {
     display: none;
   }
 }
+
+/* ============================================================
+   LOADER GLOBAL SIMPLES — PORTAL AVALON
+   Anel de carregamento + mensagem única.
+============================================================ */
+
+body.avalon-loader-lock {
+  overflow: hidden;
+  padding-right: var(--avalon-loader-scrollbar-compensation, 0px);
+}
+
+.avalon-page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  isolation: isolate;
+  contain: layout paint style;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.9rem;
+  min-height: 100svh;
+  color: var(--text);
+  background: rgba(4, 7, 15, 0.985);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateZ(0);
+  transition: opacity 0.16s ease, visibility 0.16s ease;
+}
+
+.avalon-page-loader[hidden] {
+  display: none !important;
+}
+
+.avalon-page-loader.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.avalon-page-loader.is-hiding {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.avalon-page-loader__spinner {
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 3px solid rgba(79, 140, 255, 0.18);
+  border-top-color: var(--gold, #f2c766);
+  border-right-color: var(--blue, #4f8cff);
+  border-radius: 50%;
+  box-shadow: 0 0 28px rgba(79, 140, 255, 0.14);
+  transform: translateZ(0) rotate(0deg);
+  transform-origin: center;
+  backface-visibility: hidden;
+  will-change: transform;
+  animation: avalonLoaderSpin 0.8s linear infinite;
+}
+
+.avalon-page-loader__text {
+  min-width: 10rem;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: clamp(0.98rem, 2vw, 1.08rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes avalonLoaderSpin {
+  from {
+    transform: translateZ(0) rotate(0deg);
+  }
+
+  to {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avalon-page-loader {
+    transition-duration: 0.01ms !important;
+  }
+
+  .avalon-page-loader__spinner {
+    animation-duration: 1.8s;
+  }
+}
+

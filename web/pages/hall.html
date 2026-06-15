@@ -12,6 +12,19 @@
   <link rel="stylesheet" href="../assets/css/styles.css" />
 </head>
 <body data-page="hall" data-root="../">
+  <!-- Loader global simples: manter imediatamente após a abertura do <body>. -->
+  <div
+    id="avalon-page-loader"
+    class="avalon-page-loader is-visible"
+    role="status"
+    aria-live="polite"
+    aria-label="Carregando"
+  >
+    <span class="avalon-page-loader__spinner" aria-hidden="true"></span>
+    <span class="avalon-page-loader__text">Carregando...</span>
+  </div>
+
+
   <div class="ambient ambient-one"></div>
   <div class="ambient ambient-two"></div>
 
@@ -81,7 +94,7 @@
   </footer>
 
   <script src="../assets/js/ui.js"></script>
-  <script src="../assets/js/data.js"></script>
+<script src="../assets/js/data.js"></script>
   <script src="../assets/js/hall-rules.js"></script>
   <script src="../assets/js/app.js"></script>
 </body>

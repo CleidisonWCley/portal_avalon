@@ -37,3 +37,84 @@
 ## Regra de proteção
 
 Quanto maior o risco, menor deve ser a alteração e maior o número de testes. Não aprove uma mudança crítica apenas porque “a página abriu”.
+
+```markdown
+## Firebase da Liga — risco alto
+
+Arquivos e recursos sensíveis:
+
+```text
+web/assets/js/firebase-config.js
+web/assets/js/liga-firebase.js
+web/assets/js/liga.js
+Firestore Security Rules
+admins/{UID}
+ligas/dev_local
+ligas/liga_atual
+````
+
+### Riscos principais
+
+* liberar gravação pública no Firestore;
+* cadastrar UID incorreto em `admins`;
+* usar `ativo` como string em vez de booleano;
+* trocar `dev_local` por `liga_atual` antes dos testes;
+* alterar a estrutura de `state` sem compatibilidade;
+* mudar a chave do `localStorage`;
+* duplicar regras de competição em `liga-firebase.js`;
+* remover o patch de `saveLiga()` sem validar sincronização;
+* ocultar downloads no modo participante;
+* publicar senhas ou credenciais administrativas;
+* permitir edição simultânea sem controle entre organizadores.
+
+### Regras obrigatórias
+
+Nunca utilizar:
+
+```javascript
+allow read, write: if true;
+```
+
+A escrita deve continuar restrita a:
+
+usuário autenticado
++
+admins/{UID}
++
+ativo == true
+
+Não versionar:
+service-account.json
+*.pem
+*.key
+.env com segredos
+senhas
+tokens administrativos
+
+### Testes obrigatórios após alteração
+
+* login administrativo;
+* conta não autorizada;
+* participante sem login;
+* publicação inicial;
+* sincronização automática;
+* sincronização manual;
+* encerramento;
+* navegação protegida;
+* falha de conexão;
+* retorno da conexão;
+* downloads;
+* canvas;
+* pódio;
+* regras do Firestore.
+
+### Conflito entre organizadores
+
+A implementação atual salva o estado completo da Liga em um documento.
+
+Caso dois organizadores alterem o torneio simultaneamente, a última gravação poderá prevalecer.
+
+Regra operacional:
+
+um organizador principal realiza as alterações;
+os demais acompanham ou assumem quando necessário.
