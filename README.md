@@ -1,195 +1,186 @@
 # Portal Avalon
 
-Portal estático da Guilda Avalon para acompanhamento de raids, Hall da Evolução, fichas de guardiões, estratégias e torneios internos.
+Portal estático da Guilda Avalon para acompanhar raids, evolução dos guardiões, histórico de desempenho, estratégias e torneios internos.
 
-**Versão funcional atual:** V7.7.4 — Desempenho, Carregamento e Zoom  
-**Base técnica de manutenção:** V7.6.1 Maintenance Edition
+**Versão funcional atual:** V7.8.1 — refinamento da experiência de usuário em Ligas.  
+**Revisão de manutenção:** V7.8.1.1 — suíte de regressão e README consolidados.
 
-> Este é o README oficial e a entrada principal do projeto. A documentação detalhada fica em `docs/`; não duplique instruções gerais dentro de `web/`.
+> Este é o README oficial e a entrada principal do projeto. A documentação técnica consolidada está em [`docs/`](docs/README.md).
 
----
+## Recursos principais
 
-## Refinamento de desempenho V7.7.4
-
-A área funcional continua usando caminhos canônicos (`styles.css`, `ui.js`, `app.js`, `raid.js` e `liga.js`), sem parâmetros ou comentários de release. O loader agora aguarda apenas recursos críticos declarados, cada página carrega somente seus próprios dados, a Liga inicia localmente antes do Firebase e imagens WebP de exibição reduzem o peso inicial. O histórico de versões permanece restrito à documentação e ao Git.
+- Salão com apresentação e identidade da Guilda Avalon;
+- Hall da Evolução baseado em frequência, dano, histórico e crescimento pessoal;
+- busca individual e fichas dos guardiões;
+- Registro com ranking de dano, Hall evolutivo e membros ausentes;
+- Raid com estratégias, times, mapas e consulta externa;
+- Galeria histórica da guilda;
+- Liga Avalon com modos competitivos, chaves, mapas, pódio e exportações;
+- transmissão da Liga em tempo real com Firebase;
+- acesso persistente de participante e sessão administrativa controlada;
+- rascunhos e arquivos locais exclusivos do organizador.
 
 ## Executar localmente
 
-O Portal carrega arquivos JSON com `fetch`, portanto deve ser executado por um servidor HTTP.
+O Portal usa `fetch`, módulos JavaScript e Firebase. Execute por HTTP, nunca diretamente por `file://`.
 
-Na raiz do projeto, execute:
+Na raiz do repositório:
 
 ```bash
 python -m http.server 8000 --directory web
 ```
 
-Depois acesse:
+Acesse:
 
 ```text
 http://localhost:8000
 ```
 
-Também é possível abrir a pasta `web/` com a extensão **Live Server** do Visual Studio Code.
+A extensão **Live Server** do Visual Studio Code também é compatível.
 
-Não abra as páginas diretamente por `file://`, pois o navegador pode bloquear o carregamento dos JSONs e de outros recursos locais.
-
----
-
-## Primeira leitura para manutenção
-
-Um novo mantenedor deve consultar os documentos nesta ordem:
-
-1. [`docs/manutencao/INICIO_RAPIDO.md`](docs/manutencao/INICIO_RAPIDO.md)
-2. [`docs/manutencao/MAPA_DO_PROJETO.md`](docs/manutencao/MAPA_DO_PROJETO.md)
-3. [`docs/manutencao/GUIA_DE_MANUTENCAO.md`](docs/manutencao/GUIA_DE_MANUTENCAO.md)
-4. [`docs/manutencao/CHECKLIST_NOVA_RAID.md`](docs/manutencao/CHECKLIST_NOVA_RAID.md)
-5. [`docs/manutencao/AREAS_SENSIVEIS.md`](docs/manutencao/AREAS_SENSIVEIS.md)
-6. [`docs/README.md`](docs/README.md)
-
-O manual específico do OCR permanece no README do próprio subprojeto em `ocr/`.
-
----
-
-## Estrutura principal
+## Estrutura do repositório
 
 ```text
 raid_hall/
-├── README.md              # entrada oficial do projeto
-├── web/                   # aplicação estática publicada
-├── ocr/                   # extração e tratamento dos screenshots
-├── tools/                 # promoção de raids, validações e utilitários
-├── tests/                 # testes automatizados e regressões
-└── docs/                  # documentação técnica e histórica
+├── README.md          # entrada oficial
+├── web/               # aplicação estática publicada
+├── docs/              # documentação técnica consolidada
+├── tools/             # manutenção de raids e testes de regressão
+└── ocr/               # leitura e tratamento dos screenshots
 ```
 
 ### `web/`
 
-Aplicação publicada: páginas HTML, CSS, JavaScript, imagens e dados JSON consumidos pelo Portal.
-
-### `ocr/`
-
-Ferramentas responsáveis pela leitura dos screenshots do ranking e pela preparação dos dados brutos.
-
-### `tools/`
-
-Utilitários para promoção de uma nova raid, validação de dados, preparação de versões e manutenção do projeto.
-
-### `tests/`
-
-Testes funcionais, estruturais, visuais e de regressão.
+HTML, CSS, JavaScript, imagens e JSONs utilizados pelo Portal publicado.
 
 ### `docs/`
 
-Fonte oficial da documentação técnica. Contém arquitetura, regras, manutenção, releases, auditorias, evidências e resultados de testes.
+Sete documentos essenciais:
 
----
+- [`docs/README.md`](docs/README.md): índice e início rápido;
+- [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md): páginas, scripts, componentes e dependências;
+- [`docs/REGRAS_E_DADOS.md`](docs/REGRAS_E_DADOS.md): Hall, raids, histórico e fontes da verdade;
+- [`docs/LIGA_FIREBASE.md`](docs/LIGA_FIREBASE.md): acesso, sincronização, arquivos e segurança da Liga;
+- [`docs/MANUTENCAO_E_DEPLOY.md`](docs/MANUTENCAO_E_DEPLOY.md): alteração segura, Git e publicação;
+- [`docs/TESTES.md`](docs/TESTES.md): suíte atual e critérios de aprovação;
+- [`docs/CHANGELOG.md`](docs/CHANGELOG.md): histórico resumido das versões.
 
-## Fluxo resumido de atualização de Raid
+### `tools/`
 
-```text
-Screenshot da raid
-→ OCR
-→ revisão manual
-→ atualização dos membros, danos e frequências
-→ validação dos JSONs
-→ promoção do histórico
-→ testes do Hall, Busca e Registro
-→ commit no Git
-→ envio ao GitHub
-→ deploy no Cloudflare Pages
-```
+Ferramentas permanentes para promover e validar raids, além da suíte consolidada de regressão. Consulte [`tools/README.md`](tools/README.md).
 
-O procedimento completo está em:
+### `ocr/`
 
-[`docs/manutencao/CHECKLIST_NOVA_RAID.md`](docs/manutencao/CHECKLIST_NOVA_RAID.md)
+Subprojeto de extração de rankings por imagem. Possui ambiente e README próprios.
 
----
+## Testes de regressão
 
-## Fontes oficiais
-
-| Informação | Fonte oficial |
-|---|---|
-| Aplicação publicada | `web/` |
-| Dados da raid atual | arquivos JSON em `web/data/` |
-| Histórico de raids | `raid_history.json` |
-| Extração dos screenshots | `ocr/` |
-| Ferramentas de atualização | `tools/` |
-| Regras do Portal | `docs/regras/` |
-| Guia de manutenção | `docs/manutencao/` |
-| Histórico das versões | `docs/CHANGELOG.md` |
-
-Antes de editar qualquer dado, consulte a documentação para confirmar qual arquivo é a fonte da verdade.
-
----
-
-## Regras de manutenção
-
-Antes de criar uma classe, função ou componente:
-
-1. pesquise o projeto inteiro;
-2. confirme se já existe uma implementação equivalente;
-3. consulte [`docs/arquitetura/COMPONENTES.md`](docs/arquitetura/COMPONENTES.md);
-4. verifique elementos criados dinamicamente pelo JavaScript;
-5. teste todas as páginas consumidoras.
-
-Não altere dados históricos sem evidência da raid correspondente. Ao remover um membro da lista atual, preserve seu histórico.
-
----
-
-## Política de documentação
-
-- `README.md` da raiz: visão geral, execução e entrada oficial do projeto;
-- `docs/README.md`: índice da documentação técnica;
-- README do OCR: instruções específicas do subprojeto;
-- READMEs em pastas de evidências ou releases: índices locais e históricos.
-
-Não crie outro README geral dentro de `web/`. Documentos antigos devem ser movidos para `docs/archive/` e marcados como históricos.
-
----
-
-## Testes de desempenho e resiliência
-
-Para validar carregamento, imagens, zoom, responsividade e sintaxe:
+Teste rápido, sem navegador:
 
 ```bash
-./tools/run_performance_tests.sh
+python tools/run_tests.py --quick
 ```
 
-A suíte também confirma que a Galeria não baixa dados de Raid, que o Firebase não bloqueia a Liga e que Registro, Raid e Liga não geram overflow nas larguras testadas.
+Suíte padrão, executando Playwright quando estiver disponível:
 
----
+```bash
+python tools/run_tests.py
+```
 
-## Publicação
+Suíte completa, exigindo Playwright:
 
-O projeto não possui etapa obrigatória de build, backend ou banco de dados.
+```bash
+python tools/run_tests.py --all
+```
 
-É compatível com:
+Os testes cobrem sintaxe, regras do Hall, dados, referências, assets, Liga V7.8.1, carregamento, responsividade e ausência de overflow.
 
-- Cloudflare Pages;
-- GitHub Pages, quando configurado para publicar os arquivos estáticos adequados;
-- Live Server;
-- qualquer servidor HTTP estático.
+## Fluxo resumido de uma nova raid
 
-As instruções completas de commit e deploy estão na documentação de manutenção.
+```text
+screenshots
+→ OCR
+→ revisão manual
+→ JSON tratado
+→ promoção do histórico
+→ validação
+→ regressões
+→ commit
+→ push
+→ deploy
+```
 
----
+Comandos principais:
 
-## Estado da versão
+```bash
+python tools/promote_raid_history.py \
+  --new-current ocr/guild-rank-ocr/output/raid_tratada.json \
+  --history web/data/raids/raid_history.json \
+  --published-current web/data/raids/raid_atual.json
 
-A **V7.7.4** é a versão funcional atual do Portal Avalon. Ela preserva a base mobile consolidada, reduz o peso inicial, torna o carregamento resiliente, desacopla a Liga local do Firebase e estabiliza o layout durante zoom.
+python tools/validate_raid_history.py \
+  --history web/data/raids/raid_history.json \
+  --current web/data/raids/raid_atual.json
+```
 
-A **V7.6.1 Maintenance Edition** continua como a base documental de manutenção de longo prazo; o histórico das mudanças posteriores permanece no changelog e nos relatórios de release.
-
-O manifesto abaixo registra os hashes do núcleo funcional anterior à otimização mobile:
-
-[`docs/manutencao/MANIFESTO_BASELINE_V7_6.json`](docs/manutencao/MANIFESTO_BASELINE_V7_6.json)
+As regras completas estão em [`docs/REGRAS_E_DADOS.md`](docs/REGRAS_E_DADOS.md).
 
 ## Liga em tempo real
 
-A Liga Avalon utiliza Firebase Authentication para os organizadores e Cloud Firestore para sincronizar chaves, mapas, resultados e pódio em tempo real.
+A Liga utiliza Firebase Authentication para organizadores e Cloud Firestore para transmitir o torneio atual.
 
-Participantes acompanham o torneio sem login e possuem acesso somente à visualização e aos downloads.
+- participantes entram em modo somente leitura e veem apenas uma Liga publicada;
+- a escolha Participante fica lembrada até **Mudar de acesso**;
+- organizadores usam sessão temporária por padrão;
+- permanência administrativa exige consentimento explícito;
+- rascunhos e arquivos concluídos ficam somente no dispositivo do organizador;
+- encerrar uma Liga remove o conteúdo da visualização dos participantes.
 
-Documentação técnica:
+Detalhes: [`docs/LIGA_FIREBASE.md`](docs/LIGA_FIREBASE.md).
 
-[`docs/arquitetura/FIREBASE_LIGA.md`](docs/arquitetura/FIREBASE_LIGA.md)
+## Fontes oficiais
+
+| Informação | Fonte |
+|---|---|
+| aplicação publicada | `web/` |
+| raid atual | `web/data/raids/raid_atual.json` |
+| histórico | `web/data/raids/raid_history.json` |
+| regras do Hall | `web/assets/js/hall-rules.js` |
+| lógica geral | `web/assets/js/app.js` |
+| Liga local | `web/assets/js/liga.js` |
+| Liga online | `web/assets/js/liga-firebase.js` |
+| OCR | `ocr/guild-rank-ocr/` |
+| manutenção e regressão | `tools/` |
+| documentação | `docs/` |
+
+Antes de editar dados ou regras, confirme a fonte da verdade no documento temático correspondente.
+
+## Publicação
+
+O projeto não exige build. A pasta publicada é `web/` e pode ser servida por qualquer hospedagem estática configurada no repositório.
+
+Fluxo recomendado:
+
+```bash
+git status
+git diff --stat
+python tools/run_tests.py --quick
+git add -A
+git diff --cached --stat
+git commit -m "descrição objetiva"
+git push origin main
+```
+
+As instruções completas estão em [`docs/MANUTENCAO_E_DEPLOY.md`](docs/MANUTENCAO_E_DEPLOY.md).
+
+## Segurança
+
+Não versionar:
+
+- senhas ou tokens privados;
+- Service Account do Firebase;
+- `.env` com segredos;
+- screenshots e evidências locais;
+- ambientes virtuais, caches ou pacotes gerados.
+
+A configuração pública do Firebase para aplicações web não substitui as regras do Firestore nem a validação administrativa por UID.

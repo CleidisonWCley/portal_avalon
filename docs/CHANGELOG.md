@@ -2,6 +2,18 @@
 
 O histórico detalhado permanece no Git. Este arquivo registra apenas as mudanças relevantes para compreensão e manutenção do estado atual.
 
+## V7.8.1.1 — Consolidação da suíte de regressão e README oficial
+
+- `tools/` reduzido a utilitários permanentes e testes temáticos;
+- runners e testes nomeados por versões antigas removidos;
+- runner único e multiplataforma em `python tools/run_tests.py`;
+- modos rápido, navegador e completo adicionados;
+- testes desacoplados de nomes, danos e quantidades fixas de uma raid;
+- cobertura atualizada para Hall, Registro, Liga V7.8.1, assets, documentação e responsividade;
+- README oficial atualizado para a estrutura documental consolidada;
+- documentação de testes e manutenção alinhada ao novo fluxo;
+- nenhuma alteração no código publicado em `web/`.
+
 ## V7.8.1 — Refinamento Final da Experiência de Usuário em Ligas
 
 - participante lembrado no dispositivo até Mudar de acesso;

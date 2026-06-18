@@ -91,3 +91,4 @@ raid_hall/
 - **Deploy recomendado:** Cloudflare Pages publicando `web/`.
 - **Liga:** Firebase Authentication + Cloud Firestore, carregados em segundo plano.
 - **Documentação:** consolidada em sete arquivos essenciais.
+- **Testes:** suíte única e multiplataforma em `tools/run_tests.py`.

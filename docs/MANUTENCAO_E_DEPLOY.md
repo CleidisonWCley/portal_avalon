@@ -178,6 +178,7 @@ git diff
 
 Verificar:
 
+- suíte rápida aprovada com `python tools/run_tests.py --quick`;
 - JavaScript válido com `node --check`;
 - JSON válido;
 - referências locais existentes;
@@ -197,7 +198,23 @@ Não incluir:
 - `.env` com segredos;
 - chaves privadas.
 
-## 8. Git
+## 8. Suíte de regressão
+
+Comando padrão:
+
+```bash
+python tools/run_tests.py
+```
+
+Mudanças visuais, de Liga ou responsividade devem usar:
+
+```bash
+python tools/run_tests.py --all
+```
+
+A organização dos testes está em [`TESTES.md`](TESTES.md) e em [`../tools/README.md`](../tools/README.md).
+
+## 9. Git
 
 Fluxo com branch:
 

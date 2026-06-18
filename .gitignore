@@ -75,7 +75,7 @@ reports-local/
 # ============================================================
 # - web/data/ e os JSONs publicados
 # - web/assets/ e as imagens usadas pelo Portal
-# - docs/ e suas evidências oficiais
+# - docs/ e sua documentação técnica consolidada
 # - tests/ e tools/
 # - fontes e scripts necessários do OCR
 #
@@ -94,3 +94,6 @@ ocr/guild-rank-ocr/output/*
 
 # Recortes de depuração do OCR
 ocr/guild-rank-ocr/debug/
+
+# Evidências visuais locais não fazem parte do repositório
+docs/evidencias/
