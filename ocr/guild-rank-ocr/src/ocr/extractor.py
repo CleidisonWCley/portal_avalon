@@ -10,7 +10,6 @@ from src.utils.text_cleaning import limpar_campo
 from src.utils.name_matcher import corrigir_nome
 from src.config import (
     ALTURA_BASE,
-    CORRECOES_LINHAS_ATUAL,
     DANO_MAXIMO_PLAUSIVEL,
     DANO_MINIMO_PARA_VALIDACAO,
     DEBUG_DIR,
@@ -22,10 +21,8 @@ from src.config import (
     REGIOES_BASE_PIXELS,
     STATUS_DANO_SUSPEITO,
     STATUS_FREQUENCIA_SUSPEITA,
-    STATUS_LINHA_CORRIGIDA,
     STATUS_REVISAR,
     TESSERACT_CMD_WINDOWS,
-    USAR_CORRECOES_LINHAS_ATUAL,
 )
 
 
@@ -174,6 +171,7 @@ def escolher_melhor_texto(campo: str, resultados: list[str]) -> str:
 
 
 def ocr_recorte(recorte, campo: str) -> str:
+    """Executa a segunda variante somente quando a primeira não é suficiente."""
     if recorte is None or recorte.size == 0:
         return ""
 
@@ -193,11 +191,20 @@ def ocr_recorte(recorte, campo: str) -> str:
                 texto = pytesseract.image_to_string(variante, config=config, lang=OCR_LANG).strip()
             except pytesseract.TesseractError:
                 texto = ""
-            if texto:
-                resultados.append(texto)
+            if not texto:
+                continue
+            resultados.append(texto)
+
+            if campo == "frequencia" and _frequencia_valida(limpar_campo(campo, texto)):
+                return limpar_campo(campo, texto)
+            if campo == "dano" and _dano_valido(limpar_campo(campo, texto)):
+                return limpar_campo(campo, texto)
+            if campo == "nome":
+                _, status = corrigir_nome(texto)
+                if status != STATUS_REVISAR:
+                    return texto
 
     return escolher_melhor_texto(campo, resultados)
-
 
 def salvar_debug_crop(nome_imagem: str, linha: int, campo: str, recorte) -> None:
     if not GERAR_DEBUG_CROPS or recorte is None:
@@ -227,24 +234,7 @@ def validar_linha(linha_dados: dict) -> dict:
     return linha_dados
 
 
-def aplicar_correcao_linha(nome_imagem: str, indice_linha: int, linha_dados: dict) -> dict:
-    if not USAR_CORRECOES_LINHAS_ATUAL:
-        return linha_dados
-
-    correcao = CORRECOES_LINHAS_ATUAL.get((nome_imagem, indice_linha))
-    if not correcao:
-        return linha_dados
-
-    linha_dados["nome"] = correcao["nome"]
-    linha_dados["frequencia"] = str(correcao["frequencia"])
-    linha_dados["dano"] = str(correcao["dano"])
-    # Correção por linha é uma correção confiável definida pelo líder/analista.
-    # Não mantemos "revisar" herdado do OCR bruto.
-    linha_dados["status"] = STATUS_LINHA_CORRIGIDA
-    return linha_dados
-
-
-def processar_imagem(caminho_imagem: str) -> list[dict]:
+def processar_imagem(caminho_imagem: str, numero_linhas: int = NUMERO_LINHAS) -> list[dict]:
     img = cv2.imread(caminho_imagem)
     if img is None:
         print(f"[ERRO] Não foi possível abrir a imagem: {caminho_imagem}")
@@ -258,27 +248,12 @@ def processar_imagem(caminho_imagem: str) -> list[dict]:
 
     print(f"\nProcessando: {nome_imagem} ({largura_img}x{altura_img})")
 
-    for indice_linha in range(1, NUMERO_LINHAS + 1):
+    for indice_linha in range(1, numero_linhas + 1):
         i = indice_linha - 1
         linha_dados = {
             "imagem_origem": nome_imagem,
             "linha": indice_linha,
         }
-
-        # Atalho de qualidade: se existe correção confiável por imagem/linha,
-        # usamos direto e evitamos gastar OCR naquela linha.
-        if USAR_CORRECOES_LINHAS_ATUAL and (nome_imagem, indice_linha) in CORRECOES_LINHAS_ATUAL:
-            linha_dados = aplicar_correcao_linha(nome_imagem, indice_linha, linha_dados)
-            linha_dados = validar_linha(linha_dados)
-            dados_extraidos.append(linha_dados)
-            status_display = f" [{linha_dados['status']}]" if linha_dados.get("status") else ""
-            print(
-                f"{linha_dados.get('nome', 'VAZIO'):14} | "
-                f"{linha_dados.get('frequencia', 'N/A'):5} | "
-                f"{linha_dados.get('dano', '0'):15}"
-                f"{status_display}"
-            )
-            continue
 
         for campo, (x, y, w, h) in regioes_escaladas.items():
             y_atual = y + (incremento_y * i)
@@ -294,7 +269,6 @@ def processar_imagem(caminho_imagem: str) -> list[dict]:
             else:
                 linha_dados[campo] = limpar_campo(campo, texto)
 
-        linha_dados = aplicar_correcao_linha(nome_imagem, indice_linha, linha_dados)
         linha_dados = validar_linha(linha_dados)
         dados_extraidos.append(linha_dados)
 

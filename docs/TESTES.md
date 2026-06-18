@@ -21,7 +21,7 @@ python tools/run_tests.py --all
 ```
 
 - padrão: regressões estáticas e navegador quando Playwright estiver instalado;
-- `--quick`: sintaxe, regras, estrutura, referências, assets e histórico;
+- `--quick`: sintaxe, regras, estrutura, referências, assets, OCR V7.8.2 e histórico;
 - `--browser`: apenas Playwright, falhando quando a dependência não existe;
 - `--all`: suíte completa e obrigatória.
 
@@ -66,6 +66,17 @@ python -m playwright install chromium
 - migração para assets WebP em `display/`;
 - ausência de evidências, caches e pacotes locais.
 
+### `test_v7_8_2.py`
+
+- existência dos quatro artefatos identificados da Raid 133;
+- diferença entre OCR bruto e dados revisados;
+- número, data, dano total e participação oficiais;
+- isolamento das correções entre Raid 133 e Raid 134;
+- aliases curtos protegidos contra fuzzy incorreto;
+- quinta imagem limitada às posições 29 e 30;
+- promoção da Raid 133, preservação da Raid 132 e limite do histórico;
+- presença da seção Evolução da Guilda.
+
 ### `validate_raid_history.py`
 
 - integridade do histórico;
@@ -101,17 +112,22 @@ Além da automação, faça teste manual no endereço local e confirme o console
 
 ## Antes de uma nova raid
 
+1. confira `raid_N_bruto.csv`, `raid_N_revisado.csv` e `raid_N_relatorio.json`;
+2. confirme zero pendências antes da promoção;
+3. execute:
+
 ```bash
 python tools/validate_raid_history.py \
   --history web/data/raids/raid_history.json \
   --current web/data/raids/raid_atual.json
+
+python tools/run_tests.py --quick
 ```
 
-Depois execute a suíte rápida.
 
 ## Política de manutenção
 
-- não criar `test_vX_Y.*` ou `run_tests_vX_Y.*`;
+- manter `test_v7_8_2.py` enquanto ele validar os artefatos oficiais desta migração; novos casos gerais devem ir para os testes temáticos;
 - adicionar novos casos ao arquivo temático correspondente;
 - manter o runner único e multiplataforma;
 - evitar testes presos a nomes, danos ou quantidade fixa de membros quando esses dados mudam a cada raid;

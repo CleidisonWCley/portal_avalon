@@ -42,6 +42,7 @@ def run_static_suite() -> None:
         run(f"Sintaxe JavaScript — {file.name}", [node, "--check", str(file)])
 
     run("Regressão funcional e estrutural", [node, str(TOOLS / "test_core.js")])
+    run("OCR, Raid 133 e evolução coletiva", [sys.executable, str(TOOLS / "test_v7_8_2.py")])
     run("Estrutura, referências e assets", [sys.executable, str(TOOLS / "test_project.py")])
     run(
         "Histórico de raids",

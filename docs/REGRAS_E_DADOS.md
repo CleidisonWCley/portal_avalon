@@ -9,7 +9,8 @@
 | correções manuais comprovadas | `web/data/raids/raid_manual_overrides.json` |
 | raid anterior compatível | `web/data/raids/raid_anterior.json` |
 | caminhos consumidos pelo app | `web/assets/js/data.js` |
-| membros e aliases do OCR | `ocr/guild-rank-ocr/src/config.py` |
+| membros, aliases e correções por raid | `ocr/guild-rank-ocr/src/config.py` |
+| artefatos OCR identificados | `ocr/guild-rank-ocr/output/csv/raid_*` e `output/json/raid_*` |
 | insígnias | `web/data/insignias.json` |
 | galeria | `web/data/gallery/eventos.json` |
 | modos e mapas da Liga | `web/data/arenas.json` |
@@ -20,6 +21,7 @@ Screenshots são evidência primária. O JSON tratado é derivado revisado. O hi
 
 ### `raid_atual.json`
 
+- `raid`: número, encerramento, origem e data de geração;
 - `resumo`: totais, data, participantes, ausentes e dano da guilda;
 - `membros`: nome, frequência, dano e status;
 - `duplicados` e `raw_normalizado`: auditoria do OCR.
@@ -123,43 +125,54 @@ Políticas importantes:
 
 1. confirmar que a raid terminou;
 2. obter screenshots completos e sem linhas cortadas;
-3. revisar entradas, saídas e mudanças de nick;
-4. atualizar `NOMES_VALIDOS` e `ALIASES_MEMBROS`;
-5. revisar correções temporárias do OCR.
+3. manter a sequência `img1` até `img5`, sem lacunas;
+4. revisar entradas, saídas e mudanças de nick;
+5. atualizar `NOMES_VALIDOS` e `ALIASES_MEMBROS` quando necessário;
+6. informar número, data de encerramento e origem da coleta.
 
-### OCR
+As quatro primeiras imagens aceitam até sete linhas. `img5` é opcional e processa somente as posições 29 e 30.
+
+### OCR e revisão
 
 ```bash
 cd ocr/guild-rank-ocr
-python -m src.main
+python -m src.main --raid 134 --ended-at AAAA-MM-DD --source official
 ```
 
-Revisar:
+O pipeline gera:
 
-- `ocr_raw_*.csv`;
-- `ocr_tratado_*.csv`;
-- linhas marcadas para revisão;
-- duplicados;
-- danos suspeitos;
-- `raid_tratada_*.json`.
+```text
+output/csv/raid_134_bruto.csv
+output/csv/raid_134_revisado.csv
+output/json/raid_134.json
+output/json/raid_134_relatorio.json
+```
 
-Casos de atenção conhecidos:
+Regras de blindagem:
 
-- um dígito omitido pode alterar centenas de milhões;
-- frequência desconhecida não deve virar `21/21`;
-- membro ausente deve permanecer no elenco atual com zero;
-- a raid histórica de Wagnero com `6/21` é exemplo de exclusão da média.
+- o CSV bruto é preservado antes de qualquer correção;
+- correções são carregadas somente do bloco da raid informada;
+- aliases de um ou dois caracteres não participam do fuzzy matching;
+- arquivos existentes bloqueiam nova execução, salvo uso consciente de `--force`;
+- nomes desconhecidos, duplicidades, frequência inválida e dano suspeito geram pendência;
+- a promoção exige `status: validada` e zero registros pendentes.
+
+A Raid 133 usa 12 correções verificadas nos screenshots oficiais; as demais 16 linhas foram aceitas diretamente após normalização do OCR.
 
 ### Promoção
 
-Na raiz:
+Na raiz do Portal:
 
 ```bash
 python tools/promote_raid_history.py \
-  --new-current ocr/guild-rank-ocr/output/raid_tratada_YYYYMMDD_HHMMSS.json \
+  --new-current ocr/guild-rank-ocr/output/json/raid_134.json \
   --history web/data/raids/raid_history.json \
-  --published-current web/data/raids/raid_atual.json
+  --published-current web/data/raids/raid_atual.json \
+  --published-previous web/data/raids/raid_anterior.json \
+  --report ocr/guild-rank-ocr/output/json/raid_134_relatorio.json
 ```
+
+A promoção bloqueia número ausente, raid repetida ou inferior, relatório inválido e pendências. Os três JSONs publicados são escritos de forma atômica.
 
 ### Validação
 
@@ -167,9 +180,11 @@ python tools/promote_raid_history.py \
 python tools/validate_raid_history.py \
   --history web/data/raids/raid_history.json \
   --current web/data/raids/raid_atual.json
+
+python tools/run_tests.py --quick
 ```
 
-Depois executar as suítes descritas em [`TESTES.md`](TESTES.md).
+Avisos de base estimada ou frequência histórica baixa podem ser esperados; erros bloqueiam o commit.
 
 ## 8. Consulta estratégica de Raid
 

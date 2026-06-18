@@ -103,6 +103,14 @@ Pipeline e qualidade
 - mantém cache local por seis horas;
 - preserva mensagens, fallback e última consulta.
 
+### `raid-evolution.js`
+
+- carrega `raid_history.json` somente na página Raid;
+- resume dano total, variação, média por participante e tendência coletiva;
+- desenha um gráfico SVG leve com até quatro raids;
+- diferencia fontes oficiais e estimadas sem alterar regras do Hall.
+
+
 ### `liga.js`
 
 - participantes, convidados e modos;

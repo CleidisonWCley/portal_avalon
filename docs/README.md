@@ -1,4 +1,4 @@
-# Documentação técnica — Portal Avalon V7.8.1
+# Documentação técnica — Portal Avalon V7.8.2
 
 Esta pasta é a fonte técnica consolidada do Portal Avalon. Ela foi reduzida para poucos arquivos, evitando READMEs duplicados, relatórios fragmentados, imagens de evidência e documentos de versões intermediárias.
 
@@ -11,7 +11,7 @@ Esta pasta é a fonte técnica consolidada do Portal Avalon. Ela foi reduzida pa
 | 3 | [`LIGA_FIREBASE.md`](LIGA_FIREBASE.md) | Liga V7.8.1, autenticação, Firestore, rascunhos, arquivos e encerramento. |
 | 4 | [`MANUTENCAO_E_DEPLOY.md`](MANUTENCAO_E_DEPLOY.md) | Execução local, alterações seguras, OCR, Git, release e solução de problemas. |
 | 5 | [`TESTES.md`](TESTES.md) | Comandos, cobertura, baseline atual e histórico consolidado de validações. |
-| 6 | [`CHANGELOG.md`](CHANGELOG.md) | Evolução resumida do Portal até a V7.8.1. |
+| 6 | [`CHANGELOG.md`](CHANGELOG.md) | Evolução resumida do Portal até a V7.8.2. |
 
 ## Visão geral
 
@@ -86,9 +86,9 @@ raid_hall/
 
 ## Estado atual
 
-- **Versão funcional:** V7.8.1 — Refinamento Final da Experiência de Usuário em Ligas.
+- **Versão funcional:** V7.8.2 — Blindagem do OCR, Raid 133 oficial e evolução coletiva.
 - **Aplicação:** estática, sem framework ou build obrigatório.
 - **Deploy recomendado:** Cloudflare Pages publicando `web/`.
 - **Liga:** Firebase Authentication + Cloud Firestore, carregados em segundo plano.
 - **Documentação:** consolidada em sete arquivos essenciais.
-- **Testes:** suíte única e multiplataforma em `tools/run_tests.py`.
+- **Testes:** suíte única e multiplataforma em `tools/run_tests.py`, incluindo regressões da V7.8.2.

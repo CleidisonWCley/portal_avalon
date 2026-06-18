@@ -148,7 +148,8 @@ def adicionar_ausentes(registros: list[dict]) -> list[dict]:
     return saida
 
 
-def tratar_dados_ocr(registros_brutos: list[dict]) -> dict:
+def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None) -> dict:
+    metadata = metadata or {}
     normalizados = [normalizar_registro(r) for r in registros_brutos]
 
     # Remove linhas claramente vazias/ruído sem nome útil ou nomes fora do cadastro oficial.
@@ -174,9 +175,14 @@ def tratar_dados_ocr(registros_brutos: list[dict]) -> dict:
         if any(st in (r.get("status") or "").split(";") for st in status_problematicos)
     ]
 
+    gerado_em = datetime.now().isoformat(timespec="seconds")
     resumo = {
         "guilda": NOME_GUILDA,
-        "gerado_em": datetime.now().isoformat(timespec="seconds"),
+        "raidNumber": int(metadata.get("raidNumber")) if metadata.get("raidNumber") is not None else None,
+        "endedAt": metadata.get("endedAt"),
+        "source": metadata.get("source", "official"),
+        "gerado_em": gerado_em,
+        "generatedAt": gerado_em,
         "capacidade_guilda": CAPACIDADE_GUILDA,
         "membros_cadastrados": len(NOMES_VALIDOS),
         "vagas_estimadas": max(CAPACIDADE_GUILDA - len(NOMES_VALIDOS), 0),
@@ -188,11 +194,63 @@ def tratar_dados_ocr(registros_brutos: list[dict]) -> dict:
     }
 
     return {
+        "raid": {
+            "number": resumo.get("raidNumber"),
+            "endedAt": resumo.get("endedAt"),
+            "source": resumo.get("source"),
+            "generatedAt": resumo.get("generatedAt"),
+        },
         "resumo": resumo,
         "membros": consolidados,
         "duplicados": duplicados,
         "raw_normalizado": normalizados,
     }
+
+
+def validar_dados_tratados(dados: dict) -> list[str]:
+    """Retorna erros críticos que impedem a promoção da raid."""
+    erros = []
+    resumo = dados.get("resumo", {})
+    membros = dados.get("membros", [])
+
+    raid_numero = resumo.get("raidNumber")
+    if not isinstance(raid_numero, int) or raid_numero <= 0:
+        erros.append("Número da raid ausente ou inválido.")
+    if not resumo.get("endedAt"):
+        erros.append("Data de encerramento ausente.")
+
+    nomes = [m.get("nome") for m in membros]
+    if len(membros) != len(NOMES_VALIDOS):
+        erros.append(f"Quantidade de membros inválida: {len(membros)} de {len(NOMES_VALIDOS)}.")
+    if len(nomes) != len(set(nomes)):
+        erros.append("Existem membros duplicados no resultado revisado.")
+
+    desconhecidos = sorted({nome for nome in nomes if nome not in NOMES_VALIDOS})
+    if desconhecidos:
+        erros.append("Nomes fora do elenco oficial: " + ", ".join(desconhecidos))
+
+    status_problematicos = {STATUS_REVISAR, STATUS_DANO_SUSPEITO, STATUS_FREQUENCIA_SUSPEITA}
+    pendentes = [
+        m.get("nome") or f"linha {m.get('linha')}"
+        for m in membros
+        if any(st in (m.get("status") or "").split(";") for st in status_problematicos)
+    ]
+    if pendentes:
+        erros.append("Registros pendentes de revisão: " + ", ".join(pendentes))
+
+    if int(resumo.get("duplicados_detectados") or 0) > 0:
+        erros.append("Foram detectados registros duplicados na coleta.")
+
+    for membro in membros:
+        freq = membro.get("frequencia", "")
+        _, status_freq = normalizar_frequencia(freq)
+        if status_freq:
+            erros.append(f"Frequência inválida para {membro.get('nome')}: {freq}")
+        dano = int(membro.get("dano") or 0)
+        if dano < 0 or dano > DANO_MAXIMO_PLAUSIVEL:
+            erros.append(f"Dano inválido para {membro.get('nome')}: {dano}")
+
+    return erros
 
 
 def salvar_json(dados: dict, caminho: str | Path) -> Path:

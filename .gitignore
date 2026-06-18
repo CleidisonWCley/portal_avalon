@@ -88,9 +88,15 @@ reports-local/
 ocr/guild-rank-ocr/images/*
 !ocr/guild-rank-ocr/images/.gitkeep
 
-# Saídas locais geradas pelo OCR
+# Saídas genéricas do OCR permanecem locais. Artefatos identificados por raid
+# são preservados para auditoria e promoção controlada.
 ocr/guild-rank-ocr/output/*
 !ocr/guild-rank-ocr/output/.gitkeep
+!ocr/guild-rank-ocr/output/csv/
+!ocr/guild-rank-ocr/output/csv/raid_*_bruto.csv
+!ocr/guild-rank-ocr/output/csv/raid_*_revisado.csv
+!ocr/guild-rank-ocr/output/json/
+!ocr/guild-rank-ocr/output/json/raid_*.json
 
 # Recortes de depuração do OCR
 ocr/guild-rank-ocr/debug/

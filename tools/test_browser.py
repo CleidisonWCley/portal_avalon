@@ -119,6 +119,11 @@ def test_pages(browser) -> None:
             if relative == "pages/liga.html":
                 assert page.locator("#league-mode-grid").evaluate("el => el.children.length") > 0
 
+            if relative == "pages/raid.html":
+                page.locator(".raid-evolution-metric").first.wait_for(state="visible", timeout=5000)
+                assert page.locator(".raid-evolution-metric").count() == 4
+                assert page.locator(".raid-evolution-chart").count() == 1
+
             results.append(label)
             page.close()
     print(f"PASS | {len(results)} combinações de página e viewport")

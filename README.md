@@ -2,8 +2,8 @@
 
 Portal estático da Guilda Avalon para acompanhar raids, evolução dos guardiões, histórico de desempenho, estratégias e torneios internos.
 
-**Versão funcional atual:** V7.8.1 — refinamento da experiência de usuário em Ligas.  
-**Revisão de manutenção:** V7.8.1.1 — suíte de regressão e README consolidados.
+**Versão funcional atual:** V7.8.2 — blindagem do OCR, Raid 133 oficial e evolução coletiva.  
+**Base anterior preservada:** V7.8.1.1 — suíte de regressão e README consolidados.
 
 > Este é o README oficial e a entrada principal do projeto. A documentação técnica consolidada está em [`docs/`](docs/README.md).
 
@@ -13,7 +13,7 @@ Portal estático da Guilda Avalon para acompanhar raids, evolução dos guardiõ
 - Hall da Evolução baseado em frequência, dano, histórico e crescimento pessoal;
 - busca individual e fichas dos guardiões;
 - Registro com ranking de dano, Hall evolutivo e membros ausentes;
-- Raid com estratégias, times, mapas e consulta externa;
+- Raid com estratégias, times, mapas, consulta externa e evolução histórica da guilda;
 - Galeria histórica da guilda;
 - Liga Avalon com modos competitivos, chaves, mapas, pódio e exportações;
 - transmissão da Liga em tempo real com Firebase;
@@ -93,16 +93,16 @@ Suíte completa, exigindo Playwright:
 python tools/run_tests.py --all
 ```
 
-Os testes cobrem sintaxe, regras do Hall, dados, referências, assets, Liga V7.8.1, carregamento, responsividade e ausência de overflow.
+Os testes cobrem sintaxe, regras do Hall, dados, referências, assets, Liga V7.8.1, OCR V7.8.2, promoção segura, carregamento, responsividade e ausência de overflow.
 
 ## Fluxo resumido de uma nova raid
 
 ```text
-screenshots
-→ OCR
-→ revisão manual
-→ JSON tratado
-→ promoção do histórico
+screenshots padronizados
+→ OCR bruto
+→ revisão vinculada ao número da raid
+→ CSV/JSON identificados
+→ promoção segura
 → validação
 → regressões
 → commit
@@ -110,20 +110,26 @@ screenshots
 → deploy
 ```
 
-Comandos principais:
+Exemplo para uma nova raid oficial:
 
 ```bash
+cd ocr/guild-rank-ocr
+python -m src.main --raid 134 --ended-at AAAA-MM-DD --source official
+cd ../..
+
 python tools/promote_raid_history.py \
-  --new-current ocr/guild-rank-ocr/output/raid_tratada.json \
+  --new-current ocr/guild-rank-ocr/output/json/raid_134.json \
   --history web/data/raids/raid_history.json \
-  --published-current web/data/raids/raid_atual.json
+  --published-current web/data/raids/raid_atual.json \
+  --published-previous web/data/raids/raid_anterior.json \
+  --report ocr/guild-rank-ocr/output/json/raid_134_relatorio.json
 
 python tools/validate_raid_history.py \
   --history web/data/raids/raid_history.json \
   --current web/data/raids/raid_atual.json
 ```
 
-As regras completas estão em [`docs/REGRAS_E_DADOS.md`](docs/REGRAS_E_DADOS.md).
+O OCR preserva o resultado bruto, não herda correções de outra raid e bloqueia sobrescrita silenciosa. As regras completas estão em [`docs/REGRAS_E_DADOS.md`](docs/REGRAS_E_DADOS.md).
 
 ## Liga em tempo real
 
@@ -149,7 +155,7 @@ Detalhes: [`docs/LIGA_FIREBASE.md`](docs/LIGA_FIREBASE.md).
 | lógica geral | `web/assets/js/app.js` |
 | Liga local | `web/assets/js/liga.js` |
 | Liga online | `web/assets/js/liga-firebase.js` |
-| OCR | `ocr/guild-rank-ocr/` |
+| OCR e artefatos por raid | `ocr/guild-rank-ocr/` |
 | manutenção e regressão | `tools/` |
 | documentação | `docs/` |
 

@@ -12,7 +12,7 @@ def exportar_csv(dados: list[dict], nome_arquivo: str = None, pasta_saida: str =
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         nome_arquivo = f"ocr_dados_{timestamp}.csv"
 
-    Path(pasta_saida).mkdir(exist_ok=True)
+    Path(pasta_saida).mkdir(parents=True, exist_ok=True)
     caminho_completo = Path(pasta_saida) / nome_arquivo
 
     ordem_colunas = [

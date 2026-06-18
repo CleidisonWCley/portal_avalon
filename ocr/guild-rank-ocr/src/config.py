@@ -1,5 +1,5 @@
 # ============================================================
-# CONFIGURAÇÕES GERAIS - AVALON RAID HALL OCR v2.0
+# CONFIGURAÇÕES GERAIS - AVALON RAID HALL OCR v2.1
 # ============================================================
 
 from pathlib import Path
@@ -8,7 +8,6 @@ NOME_GUILDA = "Avalon"
 CAPACIDADE_GUILDA = 30
 
 # Idioma usado pelo Tesseract.
-# Se futuramente instalar jpn/kor, pode trocar para: "eng+jpn+kor".
 OCR_LANG = "eng"
 
 # Caminho do Tesseract no Windows. Se estiver no PATH ou em Linux/Mac,
@@ -16,12 +15,12 @@ OCR_LANG = "eng"
 TESSERACT_CMD_WINDOWS = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 EXTENSOES_IMAGEM = [".jpeg", ".jpg", ".png"]
+PADRAO_NOME_IMAGEM = r"^img([1-5])\.(?:jpeg|jpg|png)$"
+MAXIMO_IMAGENS = 5
 
 # ============================================================
 # MEMBROS OFICIAIS DA GUILDA
 # ============================================================
-# Fonte oficial para correção OCR e auditoria.
-# Quem estiver aqui e não aparecer no ranking será marcado como ausente.
 
 NOMES_VALIDOS = [
     "Cley",
@@ -54,8 +53,8 @@ NOMES_VALIDOS = [
     "Carlinhozz",
 ]
 
-# Apelidos e variações conhecidas. Útil quando o OCR lê sem acento,
-# troca símbolos, ou quando o jogador muda de nick.
+# Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
+# somente em correspondência exata e nunca entram no fuzzy matching.
 ALIASES_MEMBROS = {
     "Cley": ["MJ_McQueen", "MJ馬McQueen"],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
@@ -68,7 +67,6 @@ ALIASES_MEMBROS = {
     "Drymus": ["ee"],
 }
 
-# Correções diretas de OCR. Use apenas para leituras recorrentes e muito claras.
 CORRECOES_OCR_NOMES = {
     "wa": "Lux",
     "cr": "Ger",
@@ -111,18 +109,12 @@ STATUS_NOME_CORRIGIDO = "nome_corrigido"
 # ============================================================
 # COORDENADAS DO OCR - MODO RESPONSIVO
 # ============================================================
-# Resolução base calibrada pelos prints atuais: largura 1599, altura 999.
-# Para outras resoluções, o extractor escala proporcionalmente.
 
 LARGURA_BASE = 1599
 ALTURA_BASE = 999
 
-# campo: (x, y, largura, altura) na resolução base.
-# As regiões foram ampliadas levemente para evitar cortes em telas diferentes.
 REGIOES_BASE_PIXELS = {
-    # Recorte de nome menor para evitar capturar o "Nv." do personagem.
     "nome": (610, 63, 185, 50),
-    # Frequência e dano recebem recortes mais largos para não cortar dígitos.
     "frequencia": (1000, 72, 145, 56),
     "dano": (1190, 68, 310, 62),
 }
@@ -137,53 +129,31 @@ INCREMENTO_Y = INCREMENTO_Y_BASE
 # ============================================================
 # DEBUG E QUALIDADE
 # ============================================================
-# Se True, salva recortes em debug/crops para analisar visualmente o OCR.
+
 GERAR_DEBUG_CROPS = False
 DEBUG_DIR = Path("debug") / "crops"
 
-# Se True, aplica correções conhecidas por imagem/linha.
-# Útil quando a tela tem nomes japoneses e o idioma jpn não está instalado.
-USAR_CORRECOES_LINHAS_ATUAL = True
+# Correções revisadas são vinculadas ao número da raid. O OCR bruto é sempre
+# preservado antes dessas correções serem aplicadas.
+USAR_CORRECOES_LINHAS = True
 
-# Correções por imagem e índice da linha visível no print, começando em 1.
-# Para futuras raids, você pode apagar/alterar este bloco ou desativar
-# USAR_CORRECOES_LINHAS_ATUAL.
-CORRECOES_LINHAS_ATUAL = {
-    # Print 1: posições 1 a 7
-    ("img1.jpeg", 1): {"nome": "Cley", "frequencia": "21/21", "dano": 7007227970},
-    ("img1.jpeg", 2): {"nome": "Hela", "frequencia": "21/21", "dano": 6872864703},
-    ("img1.jpeg", 3): {"nome": "Krelian", "frequencia": "21/21", "dano": 6566449530},
-    ("img1.jpeg", 4): {"nome": "Leon", "frequencia": "21/21", "dano": 6136756694},
-    ("img1.jpeg", 5): {"nome": "Sr_Mendes", "frequencia": "21/21", "dano": 6047485963},
-    ("img1.jpeg", 6): {"nome": "Gashak", "frequencia": "21/21", "dano": 6045943039},
-    ("img1.jpeg", 7): {"nome": "Lux", "frequencia": "21/21", "dano": 5757010994},
-
-    # Print 2: posições 8 a 14
-    ("img2.jpeg", 1): {"nome": "SkyLord", "frequencia": "21/21", "dano": 5450006166},
-    ("img2.jpeg", 2): {"nome": "Kanao", "frequencia": "21/21", "dano": 5227989147},
-    ("img2.jpeg", 3): {"nome": "SirAudino", "frequencia": "21/21", "dano": 5179854176},
-    ("img2.jpeg", 4): {"nome": "Aurora", "frequencia": "21/21", "dano": 4689989569},
-    ("img2.jpeg", 5): {"nome": "Snowers", "frequencia": "19/21", "dano": 4655762502},
-    ("img2.jpeg", 6): {"nome": "Ger", "frequencia": "18/21", "dano": 4654615408},
-    ("img2.jpeg", 7): {"nome": "Capibara", "frequencia": "16/21", "dano": 4276834242},
-
-    # Print 3: posições 15 a 21
-    ("img3.jpeg", 1): {"nome": "Wagnero", "frequencia": "15/21", "dano": 4199793235},
-    ("img3.jpeg", 2): {"nome": "ヴァルディネイ", "frequencia": "15/21", "dano": 4196284054},
-    ("img3.jpeg", 3): {"nome": "Dennis", "frequencia": "15/21", "dano": 4005294241},
-    ("img3.jpeg", 4): {"nome": "カミナリ", "frequencia": "21/21", "dano": 3924119148},
-    ("img3.jpeg", 5): {"nome": "Ino", "frequencia": "19/21", "dano": 3524310859},
-    ("img3.jpeg", 6): {"nome": "Cosmos", "frequencia": "18/21", "dano": 3455156171},
-    ("img3.jpeg", 7): {"nome": "math", "frequencia": "11/21", "dano": 2121268952},
-
-    # Print 4: repetição de math + posições 22 a 27
-    ("img4.jpeg", 1): {"nome": "math", "frequencia": "11/21", "dano": 2121268952},
-    ("img4.jpeg", 2): {"nome": "kia", "frequencia": "18/21", "dano": 1988357012},
-    ("img4.jpeg", 3): {"nome": "Ramigam", "frequencia": "9/21", "dano": 1877637550},
-    ("img4.jpeg", 4): {"nome": "Drymus", "frequencia": "9/21", "dano": 1790445105},
-    ("img4.jpeg", 5): {"nome": "CAPETTINI", "frequencia": "9/21", "dano": 1667651751},
-    ("img4.jpeg", 6): {"nome": "PeSH", "frequencia": "12/21", "dano": 1634108517},
-    ("img4.jpeg", 7): {"nome": "utiago", "frequencia": "6/21", "dano": 1063888601},
+CORRECOES_LINHAS_POR_RAID = {
+    133: {
+        # Somente linhas em que o resultado bruto não corresponde aos dados
+        # conferidos nos screenshots oficiais da Raid 133.
+        ("img1.jpeg", 3): {"nome": "Cley", "frequencia": "21/21", "dano": 6418524181},
+        ("img1.jpeg", 7): {"nome": "Lux", "frequencia": "21/21", "dano": 5868302434},
+        ("img2.jpeg", 4): {"nome": "Ger", "frequencia": "21/21", "dano": 5432498592},
+        ("img2.jpeg", 5): {"nome": "Wagnero", "frequencia": "18/21", "dano": 5002233689},
+        ("img2.jpeg", 6): {"nome": "SirAudino", "frequencia": "21/21", "dano": 4983526750},
+        ("img2.jpeg", 7): {"nome": "Snowers", "frequencia": "21/21", "dano": 4889974560},
+        ("img3.jpeg", 3): {"nome": "カミナリ", "frequencia": "21/21", "dano": 3854104442},
+        ("img3.jpeg", 5): {"nome": "Ino", "frequencia": "16/21", "dano": 3168253423},
+        ("img3.jpeg", 6): {"nome": "ヴァルディネイ", "frequencia": "13/21", "dano": 3126292007},
+        ("img4.jpeg", 4): {"nome": "PeSH", "frequencia": "14/21", "dano": 1510787224},
+        ("img4.jpeg", 5): {"nome": "Carlinhozz", "frequencia": "9/21", "dano": 1432042582},
+        ("img4.jpeg", 7): {"nome": "utiago", "frequencia": "3/21", "dano": 531796294},
+    }
 }
 
 # ============================================================

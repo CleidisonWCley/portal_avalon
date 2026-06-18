@@ -45,18 +45,26 @@ Antes de criar algo novo, pesquise se já existe implementação equivalente no 
 
 ### Nova raid
 
-Fluxo completo está em [`REGRAS_E_DADOS.md`](REGRAS_E_DADOS.md). Comandos essenciais:
+Fluxo completo está em [`REGRAS_E_DADOS.md`](REGRAS_E_DADOS.md). Exemplo para a Raid 134:
 
 ```bash
+cd ocr/guild-rank-ocr
+python -m src.main --raid 134 --ended-at AAAA-MM-DD --source official
+cd ../..
+
 python tools/promote_raid_history.py \
-  --new-current ocr/guild-rank-ocr/output/raid_tratada_YYYYMMDD_HHMMSS.json \
+  --new-current ocr/guild-rank-ocr/output/json/raid_134.json \
   --history web/data/raids/raid_history.json \
-  --published-current web/data/raids/raid_atual.json
+  --published-current web/data/raids/raid_atual.json \
+  --published-previous web/data/raids/raid_anterior.json \
+  --report ocr/guild-rank-ocr/output/json/raid_134_relatorio.json
 
 python tools/validate_raid_history.py \
   --history web/data/raids/raid_history.json \
   --current web/data/raids/raid_atual.json
 ```
+
+Antes de promover, confira o CSV bruto, o revisado e o relatório. Não use `--force` para ocultar uma execução anterior e não copie correções de outra raid.
 
 ### Cabeçalho ou rodapé
 
@@ -77,7 +85,7 @@ Ler [`LIGA_FIREBASE.md`](LIGA_FIREBASE.md). Não duplicar regras competitivas em
 - `hall-rules.js`;
 - `raid_history.json`;
 - `raid_manual_overrides.json`;
-- promoção e OCR.
+- promoção, relatório e artefatos identificados do OCR.
 
 Teste fórmulas, posições vagas, ausentes, base estimada e ranking de dano.
 

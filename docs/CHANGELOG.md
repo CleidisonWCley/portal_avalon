@@ -2,6 +2,19 @@
 
 O histórico detalhado permanece no Git. Este arquivo registra apenas as mudanças relevantes para compreensão e manutenção do estado atual.
 
+## V7.8.2 — Blindagem do OCR, Raid 133 e evolução da guilda
+
+- processamento identificado por número, data de encerramento e origem da raid;
+- arquivos `raid_N_bruto.csv`, `raid_N_revisado.csv`, `raid_N.json` e `raid_N_relatorio.json`;
+- correções manuais isoladas por número da raid, impedindo reutilização silenciosa;
+- aliases curtos restritos à correspondência exata e fallback OCR otimizado;
+- suporte seguro a `img1` até `img5`, com a quinta imagem limitada às posições 29 e 30;
+- promoção atômica com relatório validado, zero pendências e número crescente;
+- Raid 133 promovida como segunda fonte oficial, com 28 participantes e 116.390.205.306 de dano;
+- Raid 132 preservada como anterior e histórico limitado a quatro entradas;
+- seção simples Evolução da Guilda adicionada à página Raid;
+- suíte consolidada ampliada com regressões específicas da V7.8.2.
+
 ## V7.8.1.1 — Consolidação da suíte de regressão e README oficial
 
 - `tools/` reduzido a utilitários permanentes e testes temáticos;

@@ -206,9 +206,9 @@ test('documentação oficial está consolidada em sete arquivos', () => {
   );
 });
 
-test('README oficial aponta para V7.8.1 e para a estrutura atual', () => {
+test('README oficial aponta para V7.8.2 e para a estrutura atual', () => {
   const readme = read('README.md');
-  assert(readme.includes('V7.8.1'));
+  assert(readme.includes('V7.8.2'));
   assert(readme.includes('docs/README.md'));
   assert(readme.includes('python tools/run_tests.py'));
   assert(!readme.includes('docs/manutencao/'));

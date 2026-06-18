@@ -5,6 +5,11 @@ ocr_guild_rank/
 __pycache__/
 *.pyc
 
-# pasta de saída gerada localmente
+# saídas genéricas continuam locais; artefatos identificados por raid são versionáveis
 output/*
 !output/.gitkeep
+!output/csv/
+!output/csv/raid_*_bruto.csv
+!output/csv/raid_*_revisado.csv
+!output/json/
+!output/json/raid_*.json

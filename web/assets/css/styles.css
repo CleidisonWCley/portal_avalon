@@ -5548,6 +5548,153 @@ html.avalon-motion-ready .reveal.is-visible {
 /* Acessibilidade permanece separada por não ser um breakpoint de layout. */
 
 /* Desktop amplo */
+
+/* ============================================================
+   PORTAL AVALON — EVOLUÇÃO SIMPLES DA GUILDA
+============================================================ */
+
+.raid-evolution-panel {
+  padding: clamp(1.15rem, 2.4vw, 2rem);
+  overflow: hidden;
+}
+
+.raid-evolution-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 1.35rem 0 1rem;
+}
+
+.raid-evolution-metric {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(79, 140, 255, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(25, 36, 62, 0.9), rgba(10, 16, 31, 0.9));
+}
+
+.raid-evolution-metric > span,
+.raid-evolution-metric small {
+  display: block;
+  color: var(--muted);
+}
+
+.raid-evolution-metric > span {
+  margin-bottom: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.raid-evolution-metric strong {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  font-family: var(--font-title);
+  font-size: clamp(1.05rem, 2vw, 1.42rem);
+  color: var(--text);
+}
+
+.raid-evolution-metric strong .material-symbols-outlined {
+  font-size: 1.25em;
+}
+
+.raid-evolution-metric small {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+}
+
+.raid-evolution-metric.positive strong { color: var(--green); }
+.raid-evolution-metric.negative strong { color: var(--red); }
+.raid-evolution-metric.stable strong { color: var(--amber); }
+
+.raid-evolution-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  border: 1px solid rgba(242, 199, 102, 0.16);
+  border-radius: 18px;
+  background: rgba(5, 9, 19, 0.66);
+  scrollbar-width: thin;
+}
+
+.raid-evolution-chart {
+  display: block;
+  width: 100%;
+  min-width: 650px;
+  height: auto;
+}
+
+.raid-evolution-grid-line {
+  stroke: rgba(170, 176, 192, 0.16);
+  stroke-width: 1;
+  stroke-dasharray: 5 7;
+}
+
+.raid-evolution-axis-label,
+.raid-evolution-label,
+.raid-evolution-value {
+  font-family: var(--font-body);
+  fill: var(--muted);
+}
+
+.raid-evolution-axis-label { font-size: 12px; }
+.raid-evolution-label { font-size: 13px; font-weight: 700; }
+.raid-evolution-value { font-size: 13px; font-weight: 800; fill: var(--text); }
+
+.raid-evolution-line {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px rgba(242, 199, 102, 0.3));
+}
+
+.raid-evolution-point circle {
+  stroke-width: 4;
+  stroke: rgba(7, 10, 19, 0.95);
+}
+
+.raid-evolution-point.official circle { fill: var(--gold); }
+.raid-evolution-point.estimated circle { fill: var(--blue); }
+
+.raid-evolution-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.25rem;
+  margin-top: 0.85rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.raid-evolution-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.raid-evolution-legend i {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+.raid-evolution-legend i.official { background: var(--gold); }
+.raid-evolution-legend i.estimated { background: var(--blue); }
+
+.raid-evolution-empty {
+  margin: 1rem 0 0;
+  padding: 1rem;
+  border: 1px dashed rgba(170, 176, 192, 0.24);
+  border-radius: 14px;
+  color: var(--muted);
+  text-align: center;
+}
+
 @media (min-width: 1181px) {
 .raid-heroes-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -6081,6 +6228,10 @@ html.avalon-motion-ready .reveal.is-visible {
     background: rgba(255,255,255,0.025) !important;
   }.registro-page .battle-table .registro-empty-cell::before {
     display: none;
+  }
+
+  .raid-evolution-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -6831,6 +6982,23 @@ html.avalon-motion-ready .reveal.is-visible {
 
   h2 {
     font-size: 1.72rem;
+  }
+
+  .raid-evolution-panel {
+    padding: 1rem;
+  }
+
+  .raid-evolution-metrics {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .raid-evolution-metric {
+    padding: 0.85rem;
+  }
+
+  .raid-evolution-chart {
+    min-width: 590px;
   }
 }
 

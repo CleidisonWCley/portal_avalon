@@ -42,21 +42,28 @@ python -m playwright install chromium
 - `test_core.js`: regras do Hall, estrutura funcional, Liga V7.8.1, UI e README;
 - `test_project.py`: JSON, referências, documentação, assets e higiene do repositório;
 - `test_browser.py`: carregamento, páginas, responsividade e ausência de overflow;
-- `validate_raid_history.py`: integridade entre raid atual e histórico.
+- `validate_raid_history.py`: integridade entre raid atual e histórico;
+- `test_v7_8_2.py`: artefatos OCR, isolamento das correções, Raid 133 e evolução coletiva.
 
 ## Atualização de raid
 
 - `seed_raid_history_from_xlsx.py`: prepara histórico inicial a partir da planilha;
-- `promote_raid_history.py`: promove a nova raid e atualiza o histórico;
+- `promote_raid_history.py`: promove uma raid validada e atualiza os três JSONs publicados;
 - `validate_raid_history.py`: valida o estado final antes do commit.
 
-Exemplo:
+Exemplo para a Raid 134:
 
 ```bash
+cd ocr/guild-rank-ocr
+python -m src.main --raid 134 --ended-at AAAA-MM-DD --source official
+cd ../..
+
 python tools/promote_raid_history.py \
-  --new-current ocr/guild-rank-ocr/output/raid_tratada.json \
+  --new-current ocr/guild-rank-ocr/output/json/raid_134.json \
   --history web/data/raids/raid_history.json \
-  --published-current web/data/raids/raid_atual.json
+  --published-current web/data/raids/raid_atual.json \
+  --published-previous web/data/raids/raid_anterior.json \
+  --report ocr/guild-rank-ocr/output/json/raid_134_relatorio.json
 
 python tools/validate_raid_history.py \
   --history web/data/raids/raid_history.json \
