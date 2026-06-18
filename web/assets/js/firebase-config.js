@@ -56,12 +56,15 @@ export const AVALON_FIREBASE_SETTINGS = Object.freeze({
   leagueCollection: "ligas",
   leagueDocumentId: "liga_atual",
   leagueSchemaVersion: 1,
+  // Limite de cópias concluídas preservadas no dispositivo do organizador.
+  maxLocalArchives: 5,
 
-  // Chave utilizada pela Liga V7.6.1 no localStorage.
-  localStorageKey: "portal_avalon_liga_v531",
-
-  // Mantém a escolha Participante/Organizador apenas na sessão atual.
-  roleSessionKey: "portal_avalon_liga_access_role",
+  // O participante é lembrado localmente até usar “Mudar de acesso”.
+  // O organizador usa sessão por padrão e localStorage somente quando
+  // autorizar “Manter acesso de organizador neste dispositivo”.
+  roleStorageKey: "portal_avalon_liga_access_role",
+  roleSessionKey: "portal_avalon_liga_access_role_session",
+  organizerPersistenceKey: "portal_avalon_liga_access_persistent",
 
   // Pequeno atraso para agrupar várias alterações consecutivas depois
   // que a Liga for publicada oficialmente.

@@ -51,8 +51,9 @@ test('API de teste e manutenção do canvas está exposta', () => {
   assert(liga.includes('render: renderLeagueCanvas'));
 });
 
-test('Portal identifica a V7.4 ou versão posterior', () => {
-  assert(/PORTAL_VERSION\s*=\s*['"]V7\.6['"]/.test(app));
+test('código funcional utiliza identificação neutra', () => {
+  assert(!/PORTAL_VERSION/.test(app));
+  assert(!/\bV\d+\.\d+(?:\.\d+)?\b/.test(app));
 });
 
 test('documentação oficial foi centralizada', () => {

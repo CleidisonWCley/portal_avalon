@@ -1,4 +1,3 @@
-const PORTAL_VERSION = 'V7.6';
 const HallRules = typeof AvalonHallRules !== 'undefined'
   ? AvalonHallRules
   : (typeof module !== 'undefined' && module.exports ? require('./hall-rules.js') : null);
@@ -160,7 +159,19 @@ function evolutionClass(value, hasComparison = state.hasComparison) {
 
 async function loadJson(path, fallback = null) {
   try {
-    const response = await fetch(rootPath(path), { cache: 'no-store' });
+    if (window.AvalonResources?.fetchJson) {
+      const result = await window.AvalonResources.fetchJson(rootPath(path), {
+        fallback,
+        timeoutMs: 6500,
+        retries: 1
+      });
+      if (result.source !== 'network') {
+        console.warn(`[Portal Avalon] ${path} carregado por ${result.source}.`);
+      }
+      return result.data;
+    }
+
+    const response = await fetch(rootPath(path), { cache: 'default' });
     if (!response.ok) throw new Error(`Falha ao carregar ${path}`);
     return await response.json();
   } catch (error) {
@@ -186,9 +197,12 @@ function operationStatusLabel(status) {
   return STATUS_OPERATION_LABELS[status] || 'Sem registro';
 }
 
-function getBadgeImage(id, thumb = false) {
+function getBadgeImage(id, variant = 'display') {
   if (!id || !state.insignias[id]) return '';
-  const path = thumb ? state.insignias[id].thumb : state.insignias[id].imagem;
+  const item = state.insignias[id];
+  const path = variant === true || variant === 'thumb'
+    ? item.thumb
+    : (variant === 'export' ? (item.export || item.imagem) : item.imagem);
   return rootPath(path);
 }
 
@@ -452,13 +466,13 @@ function renderSalaoPreview() {
     ${ranking.map(member => {
       const image = member.hallBadgeId
         ? getBadgeImage(member.hallBadgeId, true)
-        : rootPath('assets/img/brand/avalon-logo-small.png');
+        : rootPath('assets/img/brand/display/avalon-logo-small.webp');
       const label = member.hallBadgeId
         ? `Hall #${member.hallRank} • ${formatPercent(member.percentualEvolutivo)}`
         : `Dano #${member.currentRank || '—'} • ${formatDamageShort(member.danoAtual)}`;
       return `
         <div class="mini-top-row">
-          <img src="${image}" alt="${member.hallBadgeId ? getBadgeName(member.hallBadgeId) : 'Símbolo Avalon'}" />
+          <img src="${image}" alt="${member.hallBadgeId ? getBadgeName(member.hallBadgeId) : 'Símbolo Avalon'}" loading="lazy" decoding="async" width="96" height="96" />
           <div>
             <strong>${member.nome}</strong><br>
             <small>${label}</small>
@@ -482,7 +496,7 @@ function podiumCard(member, position) {
     return `
       <article class="podium-card medieval-card ${cssClass} hall-vacancy">
         <div class="podium-image-wrap">
-          <img src="${getBadgeImage(badgeId)}" alt="${getBadgeName(badgeId)}" />
+          <img src="${getBadgeImage(badgeId)}" alt="${getBadgeName(badgeId)}" loading="lazy" decoding="async" width="320" height="320" />
         </div>
         <p class="rank-kicker">Posição #${position}</p>
         <h3>Trono vago</h3>
@@ -495,7 +509,7 @@ function podiumCard(member, position) {
   return `
     <article class="podium-card medieval-card ${cssClass}">
       <div class="podium-image-wrap">
-        <img src="${getBadgeImage(member.hallBadgeId)}" alt="${getBadgeName(member.hallBadgeId)}" />
+        <img src="${getBadgeImage(member.hallBadgeId)}" alt="${getBadgeName(member.hallBadgeId)}" loading="lazy" decoding="async" width="320" height="320" />
       </div>
       <p class="rank-kicker">Hall da Evolução #${member.hallRank}</p>
       <h3>${member.nome}</h3>
@@ -517,7 +531,7 @@ function hallSlotTemplate(position) {
   if (!member) {
     return `
       <article class="elite-item hall-slot-vacant">
-        <img src="${getBadgeImage(badgeId, true)}" alt="${getBadgeName(badgeId)}" />
+        <img src="${getBadgeImage(badgeId, true)}" alt="${getBadgeName(badgeId)}" loading="lazy" decoding="async" width="320" height="320" />
         <div>
           <strong>#${position} Posição vaga</strong><br>
           <span>Trono ainda não conquistado</span>
@@ -529,7 +543,7 @@ function hallSlotTemplate(position) {
 
   return `
     <article class="elite-item ${evolutionClass(member.evolucao)}">
-      <img src="${getBadgeImage(member.hallBadgeId, true)}" alt="${getBadgeName(member.hallBadgeId)}" />
+      <img src="${getBadgeImage(member.hallBadgeId, true)}" alt="${getBadgeName(member.hallBadgeId)}" loading="lazy" decoding="async" width="320" height="320" />
       <div>
         <strong>#${member.hallRank} ${member.nome}</strong><br>
         <span>${getBadgeName(member.hallBadgeId)}</span>
@@ -545,7 +559,7 @@ function rankGroupTemplate({ id, title, range, description, from, to }) {
   return `
     <section class="rank-panel medieval-card blue-frame">
       <div class="elite-header">
-        <img src="${getBadgeImage(id, true)}" alt="${getBadgeName(id)}" />
+        <img src="${getBadgeImage(id, true)}" alt="${getBadgeName(id)}" loading="lazy" decoding="async" width="96" height="96" />
         <div>
           <p class="eyebrow">${range}</p>
           <h2>${title}</h2>
@@ -572,7 +586,7 @@ function outsideHallTemplate(member) {
         : 'Não classificado nesta raid'));
   return `
     <article class="elite-item outside-hall-item">
-      <img src="${rootPath('assets/img/brand/avalon-logo-small.png')}" alt="Símbolo Avalon" />
+      <img src="${rootPath('assets/img/brand/display/avalon-logo-small.webp')}" alt="Símbolo Avalon" loading="lazy" decoding="async" width="96" height="96" />
       <div>
         <strong>${member.nome}</strong><br>
         <span>Dano ${damage} • Média ${base} • <span class="evolution ${evolutionClass(member.evolucao)}">${percent}</span></span>
@@ -589,7 +603,7 @@ function renderOutsideHall() {
   target.innerHTML = `
     <section class="rank-panel medieval-card outside-hall-panel">
       <div class="elite-header">
-        <img src="${rootPath('assets/img/brand/avalon-logo-small.png')}" alt="Símbolo Avalon" />
+        <img src="${rootPath('assets/img/brand/display/avalon-logo-small.webp')}" alt="Símbolo Avalon" loading="lazy" decoding="async" width="96" height="96" />
         <div>
           <p class="eyebrow">Sem patente nesta raid</p>
           <h2>Às Margens do Hall</h2>
@@ -647,7 +661,7 @@ function renderHall() {
 
 function memberCardTemplate(member) {
   const badge = member.hallBadgeId;
-  const image = badge ? getBadgeImage(badge, true) : rootPath('assets/img/brand/avalon-logo-small.png');
+  const image = badge ? getBadgeImage(badge, true) : rootPath('assets/img/brand/display/avalon-logo-small.webp');
   const status = getStatus(member);
   const comparisonLabel = member.retornoBatalha
     ? 'Retorno à Batalha'
@@ -656,7 +670,7 @@ function memberCardTemplate(member) {
   const patentLabel = badge ? getBadgeName(badge) : 'Sem patente nesta raid';
   return `
     <div class="member-profile">
-      <img src="${image}" alt="${badge ? getBadgeName(badge) : 'Símbolo Avalon'}" />
+      <img src="${image}" alt="${badge ? getBadgeName(badge) : 'Símbolo Avalon'}" loading="lazy" decoding="async" width="180" height="180" />
       <div>
         <p class="eyebrow">Ficha do Guardião</p>
         <h2 class="member-name">${member.nome}</h2>
@@ -794,7 +808,7 @@ async function downloadGuardianCard(memberName) {
 
   const badge = member.badgeId;
   const badgeName = badge ? getBadgeName(badge) : 'Às Margens do Hall';
-  const badgeImage = badge ? getBadgeImage(badge, false) : rootPath('assets/img/brand/avalon-logo-transparent.png');
+  const badgeImage = badge ? getBadgeImage(badge, 'export') : rootPath('assets/img/brand/avalon-logo-transparent.png');
   const logoImage = rootPath('assets/img/brand/avalon-logo-small.png');
   const [badgeImg, logoImg] = await Promise.all([
     loadCanvasImageApp(badgeImage),
@@ -1055,21 +1069,27 @@ function renderTable() {
     const hallPosition = member.hallRank
       ? `<span class="hall-table-status classified">#${member.hallRank}</span>`
       : `<span class="hall-table-status outside" title="${member.hallReason || 'Fora do Hall'}">Fora do Hall</span>`;
+    const participation = member.retornoBatalha ? 'Retorno à Batalha' : operationStatusLabel(status);
+
     return `
-      <tr class="${absent ? 'member-row-absent' : ''}">
-        <td class="sticky-rank">${currentRankLabel(member)}</td>
-        <td class="member-name-cell sticky-member">${member.nome}</td>
-        <td class="numeric-cell">${absent ? '—' : formatDamageShort(member.danoAtual)}</td>
-        <td>${member.frequencia || '—'}</td>
-        <td class="numeric-cell">${member.mediaBase === null ? 'Sem base' : formatDamageShort(member.mediaBase)}</td>
-        <td><span class="evolution ${evolutionClass(member.evolucao)}">${evolutionPercent}</span></td>
-        <td>${hallPosition}</td>
-        <td>${member.hallBadgeId ? getBadgeName(member.hallBadgeId) : 'Sem patente'}</td>
-        <td><span class="status-badge status-${member.retornoBatalha ? 'retorno_batalha' : status}">${member.retornoBatalha ? 'Retorno à Batalha' : operationStatusLabel(status)}</span></td>
-        <td><span class="history-confidence ${confidenceClass(member.baseConfidence)}">${confidenceLabel(member.baseConfidence)}</span></td>
+      <tr class="registro-member-card ${absent ? 'member-row-absent' : ''}">
+        <td class="sticky-rank registro-rank-cell" data-label="Ranking de dano">${currentRankLabel(member)}</td>
+        <td class="member-name-cell sticky-member registro-member-cell" data-label="Guardião">${member.nome}</td>
+        <td class="numeric-cell registro-damage-cell" data-label="Dano atual">${absent ? '—' : formatDamageShort(member.danoAtual)}</td>
+        <td class="registro-frequency-cell" data-label="Frequência">${member.frequencia || '—'}</td>
+        <td class="numeric-cell registro-average-cell" data-label="Média base">${member.mediaBase === null ? 'Sem base' : formatDamageShort(member.mediaBase)}</td>
+        <td class="registro-evolution-cell" data-label="Evolução"><span class="evolution ${evolutionClass(member.evolucao)}">${evolutionPercent}</span></td>
+        <td class="registro-hall-cell" data-label="Posição no Hall">${hallPosition}</td>
+        <td class="registro-patent-cell" data-label="Patente">${member.hallBadgeId ? getBadgeName(member.hallBadgeId) : 'Sem patente'}</td>
+        <td class="registro-participation-cell" data-label="Participação"><span class="status-badge status-${member.retornoBatalha ? 'retorno_batalha' : status}">${participation}</span></td>
+        <td class="registro-base-cell" data-label="Base histórica"><span class="history-confidence ${confidenceClass(member.baseConfidence)}">${confidenceLabel(member.baseConfidence)}</span></td>
       </tr>
     `;
-  }).join('') || `<tr><td colspan="10">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
+  }).join('') || `
+    <tr class="registro-empty-row">
+      <td class="registro-empty-cell" colspan="10">Nenhum registro encontrado com os filtros atuais.</td>
+    </tr>
+  `;
 }
 
 function renderGalleryYearFilters() {
@@ -1096,7 +1116,7 @@ function galleryCardTemplate(evento) {
   return `
     <article class="gallery-card medieval-card gold-frame" data-year="${evento.ano}">
       <button class="gallery-image-button" type="button" data-gallery-open="${evento.id}" aria-label="Visualizar ${evento.titulo}">
-        <img src="${img}" alt="${evento.titulo}" loading="lazy" />
+        <img src="${img}" alt="${evento.titulo}" loading="lazy" decoding="async" width="900" height="900" />
       </button>
       <div class="gallery-card-body">
         <p class="eyebrow">${evento.tipo} • ${evento.ano}</p>
@@ -1213,55 +1233,108 @@ function bindEvents() {
 }
 
 function initRevealAnimations() {
-  const elements = $$('.reveal');
-  if (!elements.length) return;
-  if (!('IntersectionObserver' in window)) {
-    elements.forEach(element => element.classList.add('is-visible'));
+  if (window.AvalonUI?.initRevealAnimations) {
+    window.AvalonUI.initRevealAnimations();
     return;
   }
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  elements.forEach(element => observer.observe(element));
+
+  document.querySelectorAll('.reveal').forEach((element) => {
+    element.classList.add('is-visible');
+  });
+}
+
+const PAGE_DATA_REQUIREMENTS = Object.freeze({
+  salao: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
+  hall: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
+  oraculo: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
+  registro: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
+  galeria: ['eventos']
+});
+
+const DATA_FALLBACKS = Object.freeze({
+  raidAtual: { resumo: {}, membros: [] },
+  raidAnterior: { resumo: {}, membros: [] },
+  raidHistory: null,
+  raidManualOverrides: { members: {} },
+  insignias: { insignias: [] },
+  eventos: { eventos: [] }
+});
+
+async function loadPageData(page) {
+  const requirements = PAGE_DATA_REQUIREMENTS[page] || PAGE_DATA_REQUIREMENTS.salao;
+  const results = await Promise.allSettled(requirements.map(async (key) => {
+    const path = AVALON_DATA_PATHS[key];
+    return [key, await loadJson(path, DATA_FALLBACKS[key])];
+  }));
+
+  const loaded = {};
+  results.forEach((result, index) => {
+    const key = requirements[index];
+    loaded[key] = result.status === 'fulfilled' ? result.value[1] : DATA_FALLBACKS[key];
+    if (result.status === 'rejected') {
+      console.error(`[Portal Avalon] Falha isolada ao carregar ${key}:`, result.reason);
+    }
+  });
+  return loaded;
+}
+
+function applyLoadedData(loaded) {
+  state.atual = loaded.raidAtual ?? DATA_FALLBACKS.raidAtual;
+  state.anterior = loaded.raidAnterior ?? DATA_FALLBACKS.raidAnterior;
+  state.history = loaded.raidHistory ?? DATA_FALLBACKS.raidHistory;
+  state.manualOverrides = loaded.raidManualOverrides ?? DATA_FALLBACKS.raidManualOverrides;
+  const insigniasData = loaded.insignias ?? DATA_FALLBACKS.insignias;
+  const galleryData = loaded.eventos ?? DATA_FALLBACKS.eventos;
+  state.insignias = Object.fromEntries((insigniasData.insignias || []).map(item => [item.id, item]));
+  state.galleryEvents = galleryData.eventos || [];
+  state.hasComparison = hasPreviousRaidData(state.anterior) || Boolean(state.history?.raids?.length > 1);
+}
+
+function renderCurrentPage(page) {
+  if (page === 'galeria') {
+    renderGallery();
+    return;
+  }
+
+  buildMembers();
+
+  if (page === 'salao') {
+    renderSummary();
+    renderSalaoPreview();
+  } else if (page === 'hall') {
+    renderHall();
+  } else if (page === 'oraculo') {
+    renderSuggestions('');
+    renderMemberCard(null);
+  } else if (page === 'registro') {
+    renderRegistroKpis();
+    syncConfidenceFilterOptions();
+    renderTable();
+  }
 }
 
 async function init() {
-  const [atual, anterior, history, manualOverrides, insigniasData, galleryData] = await Promise.all([
-    loadJson(AVALON_DATA_PATHS.raidAtual, { resumo: {}, membros: [] }),
-    loadJson(AVALON_DATA_PATHS.raidAnterior, { resumo: {}, membros: [] }),
-    loadJson(AVALON_DATA_PATHS.raidHistory, null),
-    loadJson(AVALON_DATA_PATHS.raidManualOverrides, { members: {} }),
-    loadJson(AVALON_DATA_PATHS.insignias, { insignias: [] }),
-    loadJson(AVALON_DATA_PATHS.eventos, { eventos: [] })
-  ]);
-  state.atual = atual;
-  state.anterior = anterior;
-  state.history = history;
-  state.manualOverrides = manualOverrides || { members: {} };
-  state.insignias = Object.fromEntries((insigniasData.insignias || []).map(item => [item.id, item]));
-  state.galleryEvents = galleryData.eventos || [];
-  state.hasComparison = hasPreviousRaidData(anterior) || Boolean(history?.raids?.length > 1);
-  buildMembers();
-
-  renderSummary();
-  renderSalaoPreview();
-  renderHall();
-  renderSuggestions('');
-  renderRegistroKpis();
-  syncConfidenceFilterOptions();
-  renderTable();
-  renderGallery();
+  const page = document.body?.dataset?.page || 'salao';
+  const loaded = await loadPageData(page);
+  applyLoadedData(loaded);
+  renderCurrentPage(page);
   bindEvents();
   initRevealAnimations();
 }
 
+function startApp() {
+  const task = init();
+  if (window.AvalonLoader?.register) {
+    window.AvalonLoader.register('dados-da-pagina', task, {
+      message: 'Carregando dados da página...'
+    });
+  } else {
+    task.catch(error => console.error('[Portal Avalon] Falha ao iniciar a página:', error));
+  }
+}
+
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', startApp);
 }
 
 if (typeof module !== 'undefined' && module.exports) {

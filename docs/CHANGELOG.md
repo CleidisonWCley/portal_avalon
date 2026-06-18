@@ -1,157 +1,123 @@
-# Changelog — Portal Avalon
+# Changelog consolidado — Portal Avalon
 
-As alterações detalhadas permanecem em [`releases/`](releases/).
+O histórico detalhado permanece no Git. Este arquivo registra apenas as mudanças relevantes para compreensão e manutenção do estado atual.
 
-## V7.6.1 — Maintenance Edition
+## V7.8.1 — Refinamento Final da Experiência de Usuário em Ligas
 
-### Adicionado
-- documentação técnica consolidada para novos mantenedores;
-- início rápido, mapa do projeto, fluxos, áreas sensíveis e solução de problemas;
-- checklist completo de nova raid, OCR, commit e deploy GitHub/Cloudflare Pages;
-- arquitetura de páginas, JavaScript, dados, componentes e canvas;
-- regras centralizadas do Hall, ranking, histórico, Liga e consulta Raid;
-- manifesto SHA-256 do núcleo funcional V7.6;
-- suíte de validação documental e comportamento congelado.
+- participante lembrado no dispositivo até Mudar de acesso;
+- organizador temporário por padrão e persistente somente com consentimento;
+- alinhamento entre persistência do papel e Firebase Authentication;
+- rascunho separado em `portal_avalon_liga_draft_v2`;
+- arquivos locais separados em `portal_avalon_liga_archives_v1`;
+- migração de chaves antigas somente para organizadores autenticados;
+- remoção do modal automático legado de restauração;
+- participante limitado à Liga realmente publicada;
+- encerramento remoto com `state: null`;
+- opções de preservar resultado/rascunho ou limpar;
+- arquivos visíveis somente ao organizador;
+- limite de cinco arquivos, sem exclusão automática;
+- remoção dos botões redundantes Limpar Liga;
+- regras competitivas, mapas, chaves, pódio e canvas preservados.
 
-### Alterado
-- README principal e índice de documentação passam a apontar para a Maintenance Edition;
-- utilitário de promoção deixa de rebaixar o campo de versão do histórico para `7.2`;
-- documentos antigos de arquitetura/componentes passam a atuar como atalhos para a fonte consolidada.
+## V7.7.4.2.x — Zoom e flashes visuais
 
-### Preservado
-- nenhum comportamento público, regra, visual, dado ou canvas da V7.6 foi alterado.
+- fundo escuro aplicado à superfície completa;
+- camadas gráficas simplificadas durante pinch zoom;
+- flashes da logo e das patentes condicionados ao fim do loader;
+- pausa fora da viewport, em aba oculta, durante zoom e com movimento reduzido;
+- tentativas de compatibilidade desktop consolidadas em efeito leve;
+- efeito tratado como aprimoramento decorativo, sem dependência funcional.
 
-## V7.6
+## V7.7.4.1 — Retorno ao topo e destaque do Hall
 
-### Alterado
-- Plataforma luminosa global para todos os cabeçalhos com mascotes.
-- Feedback da Raid adaptado ao design dos cards da Liga.
-- Botão de voltar ao topo unificado no Hall, Registro, Raid e Liga.
+- retorno curto controlado por `requestAnimationFrame`;
+- salto direto para distâncias grandes;
+- cancelamento por gesto ou teclado;
+- flash único e sequencial nas patentes Top 1–3;
+- troféus da Liga estáticos.
 
-### Removido
-- Resumo técnico público do Hall.
-- Classes e handlers duplicados de feedback, plataforma e retorno ao topo.
+## V7.7.4 — Desempenho, carregamento e zoom
 
+- loader baseado em tarefas e imagens críticas;
+- timeout, repetição, cache e fallback de recursos;
+- dados carregados conforme a página;
+- Liga local inicializada antes do Firebase;
+- imagens WebP otimizadas para exibição;
+- responsividade e zoom validados.
 
-## V7.5 — Pódio adaptativo e refatoração controlada
+## V7.7–V7.7.3 — Mobile, motion e consolidação
 
-### Adicionado
-- tema central `PODIUM_CANVAS_THEME`;
-- modelo comum de colocação;
-- resolvedor de geometria para pódio completo e cards individuais;
-- inventário de redundâncias da Liga.
+- Registro convertido em cards no mobile;
+- Raid reorganizada sem corte dos quatro heróis;
+- breakpoints consolidados;
+- loader e reveal sincronizados;
+- remoção de animações redundantes dos mascotes;
+- referências canônicas sem parâmetros de release;
+- código morto e regras duplicadas removidos.
 
-### Corrigido
-- membros do card de bronze não ultrapassam mais a moldura;
-- títulos com duas linhas, equipes com três integrantes e nomes extensos respeitam margem inferior segura.
+## V7.6–V7.6.1 — Interface consolidada e manutenção
 
-### Refatorado
-- pódio completo e cards individuais passam por `renderPodiumCanvas()`;
-- ouro, prata e bronze compartilham o mesmo renderer;
-- estilos antigos e seletores órfãos do pódio foram removidos;
-- `!important` deixou de ser necessário no grid de cards compartilháveis.
+- botão voltar ao topo compartilhado;
+- plataforma luminosa global;
+- feedback de Raid e Liga unificado;
+- Hall simplificado;
+- documentação e testes de manutenção;
+- promoção do histórico preservando schema.
 
-## V7.4 — Canvas PvP unificado e documentação centralizada
+## V7.5 — Pódio adaptativo
 
-### Adicionado
-- motor único de canvas para confrontos 1v1, 2v2 e 3v3;
-- resolvedor adaptativo de largura, altura, linhas e tipografia;
-- tokens centralizados do canvas da Liga;
-- diretório oficial `docs/`.
+- motor compartilhado para ouro, prata e bronze;
+- cálculo dinâmico de altura, troféu e fontes;
+- equipes e nomes extensos protegidos contra overflow;
+- cards individuais e pódio completo refinados.
 
-### Alterado
-- adversários aproximados do eixo central `VS`;
-- cards de confronto reduzidos e centralizados;
-- documentação e evidências organizadas por versão.
+## V7.4 — Canvas PvP unificado
 
-### Refatorado
-- geração de fundo, cabeçalho, mapa, conteúdo e rodapé em funções reutilizáveis;
-- confronto direto e salas de sobrevivência compartilham a mesma base de painel.
+- 1v1, 2v2, 3v3 e grupos no mesmo motor;
+- adversários aproximados do VS;
+- tamanhos e fontes adaptativos;
+- mapas, cabeçalho e rodapé preservados.
 
-## V7.3.1 — Hall blindado e Registro otimizado
-- frequência ocultada no Hall público;
-- ficha horizontal com rankings independentes;
-- ranking de dano dinâmico;
-- ausentes com posição incalculável;
-- Registro reorganizado.
+## V7.3–V7.3.1 — Hall dinâmico e Registro
 
-## V7.3 — Hall dinâmico
-- frequências mínimas por faixa;
-- posições vagas;
-- patentes móveis;
-- membros não classificados preservados.
+- Hall baseado em evolução pessoal;
+- posições limitadas por frequência;
+- posições vagas preservadas;
+- patentes derivadas da posição;
+- ranking de dano independente;
+- frequência oculta nos cards públicos;
+- ausentes e bases insuficientes mantidos.
 
 ## V7.2 — Histórico rotativo
-- média histórica com raids válidas;
-- bases oficiais e estimadas;
-- regras de baixa frequência histórica.
 
-## V7.1
-- versão de transição incorporada ao ciclo V7; não foi encontrado relatório autônomo no pacote recebido.
+- raid atual e anteriores normalizadas;
+- políticas de frequência conhecida e desconhecida;
+- promoção controlada e overrides comprovados.
 
-## V7.0–V7.0.6 — Área Raid
-- consulta de estratégias;
-- comboboxes e elementos;
-- refinamentos dos resultados;
-- estados, toasts e retorno ao topo.
+## V7.0–V7.1 — Área Raid
 
-## V6.x — Cards compartilháveis
-- fichas e imagens compartilháveis;
-- refinamentos da Liga e pódio.
+- consulta estratégica externa;
+- cache local;
+- cards de equipes, heróis e equipamentos;
+- estados de carregamento, vazio e erro.
 
-## V5.x — Liga Avalon e pré-deploy
-- mapas, fases, pódio, equipes e fluxo final;
-- sucessivos refinamentos visuais e operacionais.
+## V6.x — Busca, cards e identidade compartilhável
+
+- ficha individual e histórico de busca;
+- canvases de guardião e pódio;
+- refinamentos de Liga e imagens;
+- expansão de mapas e formatos.
+
+## V5.x — Fundação da Liga Avalon
+
+- participantes, convidados e modalidades;
+- equipes, sorteios, mapas, chaves e fases;
+- Survival, bronze e pódio;
+- downloads e canvases;
+- blindagens do fluxo e armazenamento local.
 
 ## V4.x e anteriores
-- fundação das páginas, mascotes, Hall, Galeria, Liga e identidade medieval.
 
-## Liga Firebase em tempo real
-
-### Adicionado
-
-- Firebase Authentication para contas de organizadores;
-- Cloud Firestore como fonte compartilhada da Liga publicada;
-- acesso de participante sem login;
-- validação administrativa por `admins/{UID}`;
-- rascunho local antes da publicação;
-- botão `Publicar Liga`;
-- sincronização automática depois da publicação;
-- botão `Sincronizar agora`;
-- listener em tempo real com `onSnapshot()`;
-- botão próprio `Encerrar Liga`;
-- proteção ao navegar durante uma transmissão;
-- opção de sair mantendo a Liga;
-- opção de encerrar a Liga e sair;
-- proteção de alterações pendentes com `beforeunload`;
-- card de acesso Participante/Organizador;
-- card de estado integrado ao conteúdo da Liga;
-- mensagens genéricas sem exposição do nome ou e-mail do organizador;
-- documentação técnica em `docs/arquitetura/FIREBASE_LIGA.md`.
-
-### Alterado
-
-- `localStorage` passou a funcionar como rascunho e contingência;
-- o Firestore passou a ser a fonte oficial da Liga publicada;
-- controles administrativos passaram a ser marcados com `data-liga-admin-only`;
-- cards de modalidade usam `data-liga-admin-locked` no modo participante;
-- o participante mantém visualização e downloads, mas não pode alterar o torneio;
-- a Liga somente é exibida quando `publicada: true`;
-- a conclusão do pódio não encerra automaticamente a transmissão;
-- a saída para outras páginas agora exige decisão quando existe uma Liga ao vivo.
-
-### Segurança
-
-- escrita no Firestore restrita a administradores autenticados e ativos;
-- coleção `admins` não pode ser alterada pelo frontend;
-- dados da Liga permanecem públicos para leitura;
-- credenciais administrativas não são armazenadas no Firestore nem no repositório.
-
-### Arquivos principais
-
-```text
-web/assets/js/firebase-config.js
-web/assets/js/liga-firebase.js
-web/pages/liga.html
-docs/arquitetura/FIREBASE_LIGA.md
-```
+- estrutura inicial do Portal;
+- identidade visual medieval;
+- páginas principais, cards e dados básicos da guilda.

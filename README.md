@@ -2,12 +2,16 @@
 
 Portal estático da Guilda Avalon para acompanhamento de raids, Hall da Evolução, fichas de guardiões, estratégias e torneios internos.
 
-**Versão funcional final:** V7.6  
-**Edição técnica para manutenção:** V7.6.1 Maintenance Edition
+**Versão funcional atual:** V7.7.4 — Desempenho, Carregamento e Zoom  
+**Base técnica de manutenção:** V7.6.1 Maintenance Edition
 
 > Este é o README oficial e a entrada principal do projeto. A documentação detalhada fica em `docs/`; não duplique instruções gerais dentro de `web/`.
 
 ---
+
+## Refinamento de desempenho V7.7.4
+
+A área funcional continua usando caminhos canônicos (`styles.css`, `ui.js`, `app.js`, `raid.js` e `liga.js`), sem parâmetros ou comentários de release. O loader agora aguarda apenas recursos críticos declarados, cada página carrega somente seus próprios dados, a Liga inicia localmente antes do Firebase e imagens WebP de exibição reduzem o peso inicial. O histórico de versões permanece restrito à documentação e ao Git.
 
 ## Executar localmente
 
@@ -143,6 +147,18 @@ Não crie outro README geral dentro de `web/`. Documentos antigos devem ser movi
 
 ---
 
+## Testes de desempenho e resiliência
+
+Para validar carregamento, imagens, zoom, responsividade e sintaxe:
+
+```bash
+./tools/run_performance_tests.sh
+```
+
+A suíte também confirma que a Galeria não baixa dados de Raid, que o Firebase não bloqueia a Liga e que Registro, Raid e Liga não geram overflow nas larguras testadas.
+
+---
+
 ## Publicação
 
 O projeto não possui etapa obrigatória de build, backend ou banco de dados.
@@ -160,11 +176,11 @@ As instruções completas de commit e deploy estão na documentação de manuten
 
 ## Estado da versão
 
-A **V7.6** é a versão funcional final disponibilizada aos membros da Avalon.
+A **V7.7.4** é a versão funcional atual do Portal Avalon. Ela preserva a base mobile consolidada, reduz o peso inicial, torna o carregamento resiliente, desacopla a Liga local do Firebase e estabiliza o layout durante zoom.
 
-A **V7.6.1 Maintenance Edition** preserva o comportamento público da V7.6 e adiciona organização e documentação para manutenção de longo prazo.
+A **V7.6.1 Maintenance Edition** continua como a base documental de manutenção de longo prazo; o histórico das mudanças posteriores permanece no changelog e nos relatórios de release.
 
-O manifesto abaixo registra os hashes do núcleo funcional congelado:
+O manifesto abaixo registra os hashes do núcleo funcional anterior à otimização mobile:
 
 [`docs/manutencao/MANIFESTO_BASELINE_V7_6.json`](docs/manutencao/MANIFESTO_BASELINE_V7_6.json)
 

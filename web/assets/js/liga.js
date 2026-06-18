@@ -1,7 +1,175 @@
-const LIGA_STORAGE_KEY = 'portal_avalon_liga_v531';
-const LIGA_LEGACY_STORAGE_KEYS = ['portal_avalon_liga_v53', 'portal_avalon_liga_v521', 'portal_avalon_liga_v52', 'portal_avalon_liga_v51', 'portal_avalon_liga_v50', 'portal_avalon_liga_v43', 'portal_avalon_liga_v42', 'portal_avalon_liga_v41'];
+const LIGA_DRAFT_STORAGE_KEY = 'portal_avalon_liga_draft_v2';
+const LIGA_ARCHIVES_STORAGE_KEY = 'portal_avalon_liga_archives_v1';
+const LIGA_LEGACY_STORAGE_KEY = 'portal_avalon_liga';
+const LIGA_LEGACY_STORAGE_PREFIX = 'portal_avalon_liga_v';
+const LIGA_MAX_ARCHIVES = 5;
 
-const TROPHY_PATHS = {
+function cloneLigaValue(value) {
+  return value == null ? value : JSON.parse(JSON.stringify(value));
+}
+
+function getLegacyLigaStorageKeys() {
+  const keys = [LIGA_LEGACY_STORAGE_KEY];
+  try {
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (key?.startsWith(LIGA_LEGACY_STORAGE_PREFIX)) keys.push(key);
+    }
+  } catch (error) {
+    console.warn('Não foi possível localizar salvamentos antigos da Liga.', error);
+  }
+  return [...new Set(keys)];
+}
+
+function clearLegacyLigaStorage() {
+  getLegacyLigaStorageKeys().forEach((key) => localStorage.removeItem(key));
+}
+
+function clearLigaStorage() {
+  localStorage.removeItem(LIGA_DRAFT_STORAGE_KEY);
+  clearLegacyLigaStorage();
+}
+
+function readLigaDraft() {
+  try {
+    const raw = localStorage.getItem(LIGA_DRAFT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    console.warn('Falha ao ler o rascunho da Liga.', error);
+    return null;
+  }
+}
+
+function writeLigaDraft(state) {
+  try {
+    if (!state || typeof state !== 'object') {
+      localStorage.removeItem(LIGA_DRAFT_STORAGE_KEY);
+      return true;
+    }
+    localStorage.setItem(LIGA_DRAFT_STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch (error) {
+    console.warn('Falha ao salvar o rascunho da Liga.', error);
+    return false;
+  }
+}
+
+function migrateLegacyLigaDraft() {
+  const existing = readLigaDraft();
+  if (existing) {
+    clearLegacyLigaStorage();
+    return { migrated: false, state: existing };
+  }
+
+  for (const key of getLegacyLigaStorageKeys()) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const state = JSON.parse(raw);
+      if (state && typeof state === 'object') {
+        writeLigaDraft(state);
+        clearLegacyLigaStorage();
+        return { migrated: true, state };
+      }
+    } catch (error) {
+      console.warn(`Falha ao migrar o salvamento ${key}.`, error);
+    }
+  }
+
+  clearLegacyLigaStorage();
+  return { migrated: false, state: null };
+}
+
+function readLigaArchives() {
+  try {
+    const raw = localStorage.getItem(LIGA_ARCHIVES_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn('Falha ao ler as Ligas arquivadas.', error);
+    return [];
+  }
+}
+
+function writeLigaArchives(archives) {
+  try {
+    localStorage.setItem(
+      LIGA_ARCHIVES_STORAGE_KEY,
+      JSON.stringify(Array.isArray(archives) ? archives : [])
+    );
+    return true;
+  } catch (error) {
+    console.warn('Falha ao salvar as Ligas arquivadas.', error);
+    return false;
+  }
+}
+
+function ligaStateHasPodium(state) {
+  const podium = state?.bracket?.podium;
+  return Boolean(podium && Object.values(podium).some(Boolean));
+}
+
+function archiveLigaState(state, metadata = {}) {
+  if (!state || typeof state !== 'object') {
+    return { ok: false, reason: 'empty-state' };
+  }
+
+  const archives = readLigaArchives();
+  if (archives.length >= LIGA_MAX_ARCHIVES) {
+    return { ok: false, reason: 'limit', limit: LIGA_MAX_ARCHIVES };
+  }
+
+  const archivedAt = new Date().toISOString();
+  const archive = {
+    id: globalThis.crypto?.randomUUID?.() || `liga-${Date.now()}`,
+    title: metadata.title || 'Liga Avalon',
+    status: ligaStateHasPodium(state) ? 'concluida' : 'interrompida',
+    createdAt: state.savedAt || archivedAt,
+    archivedAt,
+    state: cloneLigaValue(state)
+  };
+
+  const next = [archive, ...archives];
+  return writeLigaArchives(next)
+    ? { ok: true, archive }
+    : { ok: false, reason: 'storage-error' };
+}
+
+function deleteLigaArchive(archiveId) {
+  const archives = readLigaArchives();
+  const next = archives.filter((archive) => archive?.id !== archiveId);
+  if (next.length === archives.length) return false;
+  return writeLigaArchives(next);
+}
+
+function getLigaArchive(archiveId) {
+  return readLigaArchives().find((archive) => archive?.id === archiveId) || null;
+}
+
+function duplicateLigaArchiveState(archiveId) {
+  const archive = getLigaArchive(archiveId);
+  if (!archive?.state) return null;
+
+  return {
+    modoId: archive.state.modoId || '',
+    participantes: cloneLigaValue(archive.state.participantes || []),
+    ordem: [],
+    teamMode: archive.state.teamMode === 'manual' ? 'manual' : 'auto',
+    manualTeams: cloneLigaValue(archive.state.manualTeams || []),
+    bracket: null,
+    phaseIndex: 0,
+    battleStarted: false,
+    savedAt: new Date().toISOString()
+  };
+}
+
+const TROPHY_DISPLAY_PATHS = {
+  gold: 'assets/img/trophies/display/ligaouro.webp',
+  silver: 'assets/img/trophies/display/ligaprata.webp',
+  bronze: 'assets/img/trophies/display/ligabronze.webp'
+};
+
+const TROPHY_EXPORT_PATHS = {
   gold: 'assets/img/trophies/ligaouro.png',
   silver: 'assets/img/trophies/ligaprata.png',
   bronze: 'assets/img/trophies/ligabronze.png'
@@ -26,13 +194,12 @@ const PLACE_TITLES_TEAM = {
 };
 
 const PLACE_TROPHIES = {
-  gold: TROPHY_PATHS.gold,
-  silver: TROPHY_PATHS.silver,
-  bronze: TROPHY_PATHS.bronze
+  display: TROPHY_DISPLAY_PATHS,
+  export: TROPHY_EXPORT_PATHS
 };
 
 
-/* V7.4 — tokens compartilhados do canvas da Liga.
+/* tokens compartilhados do canvas da Liga.
    Todos os formatos (1v1, 2v2 e 3v3) usam o mesmo motor visual. */
 const LEAGUE_CANVAS_THEME = Object.freeze({
   width: 1400,
@@ -66,7 +233,7 @@ const LEAGUE_CANVAS_THEME = Object.freeze({
 
 
 
-/* V7.5 — tema único para o pódio completo e os cards individuais.
+/* tema único para o pódio completo e os cards individuais.
    O conteúdo de ouro, prata e bronze usa o mesmo modelo e o mesmo resolvedor. */
 const PODIUM_CANVAS_THEME = Object.freeze({
   colors: Object.freeze({
@@ -188,7 +355,19 @@ function rootPath(path = '') {
 
 async function loadJson(path, fallback = null) {
   try {
-    const response = await fetch(rootPath(path), { cache: 'no-store' });
+    if (window.AvalonResources?.fetchJson) {
+      const result = await window.AvalonResources.fetchJson(rootPath(path), {
+        fallback,
+        timeoutMs: 6500,
+        retries: 1
+      });
+      if (result.source !== 'network') {
+        console.warn(`[Portal Avalon] ${path} carregado por ${result.source}.`);
+      }
+      return result.data;
+    }
+
+    const response = await fetch(rootPath(path), { cache: 'default' });
     if (!response.ok) throw new Error(`Falha ao carregar ${path}`);
     return await response.json();
   } catch (error) {
@@ -240,8 +419,9 @@ function leagueCanvasTitle(modo = getModo()) {
   return leagueFullTitle(modo).replace(/•/g, '-').replace(/—/g, '-').replace(/\s+-\s+/g, ' - ');
 }
 
-function placementTrophy(place) {
-  return PLACE_TROPHIES[place] || TROPHY_PATHS.gold;
+function placementTrophy(place, purpose = 'display') {
+  const paths = PLACE_TROPHIES[purpose] || PLACE_TROPHIES.display;
+  return paths[place] || paths.gold;
 }
 
 function isTeamMode(modo) {
@@ -252,33 +432,30 @@ function isSurvivalMode(modo) {
   return modo?.formato === '1v5';
 }
 
-function saveLiga() {
-  const data = {
+function getLigaStateSnapshot() {
+  return {
     modoId: ligaState.modoId,
-    participantes: ligaState.participantes,
-    ordem: ligaState.ordem,
+    participantes: cloneLigaValue(ligaState.participantes),
+    ordem: cloneLigaValue(ligaState.ordem),
     teamMode: ligaState.teamMode,
-    manualTeams: ligaState.manualTeams,
-    bracket: ligaState.bracket,
+    manualTeams: cloneLigaValue(ligaState.manualTeams),
+    bracket: cloneLigaValue(ligaState.bracket),
     phaseIndex: ligaState.phaseIndex,
     battleStarted: Boolean(ligaState.battleStarted),
     savedAt: new Date().toISOString()
   };
-  localStorage.setItem(LIGA_STORAGE_KEY, JSON.stringify(data));
 }
 
-function getSavedLigaData() {
-  const keys = [LIGA_STORAGE_KEY, ...(typeof LIGA_LEGACY_STORAGE_KEYS !== 'undefined' ? LIGA_LEGACY_STORAGE_KEYS : [])];
-  for (const key of keys) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      return JSON.parse(raw);
-    } catch (error) {
-      console.warn('Falha ao ler Liga salva', error);
-    }
-  }
-  return null;
+function canPersistLigaDraft() {
+  if (document.body?.classList.contains('liga-archive-view')) return false;
+  return window.AvalonLigaFirebase?.role !== 'participant';
+}
+
+function saveLiga() {
+  const data = getLigaStateSnapshot();
+  if (!canPersistLigaDraft()) return data;
+  writeLigaDraft(data);
+  return data;
 }
 
 function applySavedLiga(data) {
@@ -1125,7 +1302,7 @@ function createSurvivalBracket(order, mode) {
   const groupSize = Number(mode.jogadoresPorSala || 6);
 
   /*
-    V4.1:
+    Formato padrão:
     No 1v5, cada sala classifica Top 3.
     Para evitar grupos finais com 1 ou 2 jogadores, distribuímos os participantes
     de forma equilibrada quando houver mais de uma sala.
@@ -1826,7 +2003,7 @@ function renderPhaseMap(phase) {
       <h3>${arenaName || 'Aguardando sorteio'}</h3>
       ${image ? `
         <figure class="league-map-preview">
-          <img src="${rootPath(image)}" alt="Mapa ${arenaName}" loading="lazy" />
+          <img src="${rootPath(image)}" alt="Mapa ${arenaName}" loading="lazy" decoding="async" width="960" height="540" />
         </figure>
       ` : `
         <div class="league-map-preview empty-map">
@@ -2162,7 +2339,7 @@ function podiumCardHtml(place, unit) {
 
   return `
     <article class="podium-final-card ${place}">
-      <img src="${rootPath(placementTrophy(place))}" alt="${trophyAlt}" />
+      <img src="${rootPath(placementTrophy(place))}" alt="${trophyAlt}" loading="lazy" decoding="async" width="384" height="384" />
       <small>${placementTitleFor(place, unit)} • ${placementLabel(place)}</small>
       <strong>${podiumName(unit)}</strong>
       <span class="podium-members">${podiumMembers(unit)}</span>
@@ -2194,7 +2371,7 @@ function individualShareCardHtml(place, unit) {
         </div>
         <div class="winner-share-body ${teamCard ? 'team-card' : 'solo-card'}">
           <div class="winner-share-trophy-wrap">
-            <img src="${rootPath(placementTrophy(place))}" alt="${trophyAlt}" />
+            <img src="${rootPath(placementTrophy(place))}" alt="${trophyAlt}" loading="lazy" decoding="async" width="384" height="384" />
           </div>
           <div class="winner-share-details">
             ${teamCard ? `
@@ -2220,18 +2397,6 @@ function individualShareCardHtml(place, unit) {
   `;
 }
 
-function podiumFinalActionsHtml(showReset = true) {
-  if (!showReset) return '';
-  return `
-    <div class="podium-final-actions has-reset">
-      <button class="btn btn-ghost danger" type="button" data-reset-league-final>
-        <span class="material-symbols-outlined" aria-hidden="true">delete</span>
-        Limpar Liga
-      </button>
-    </div>
-  `;
-}
-
 function podiumHtml() {
   const podium = ligaState.bracket?.podium || {};
   if (!podium.gold && !podium.silver && !podium.bronze) {
@@ -2241,7 +2406,6 @@ function podiumHtml() {
         <h2>Pódio aguardando vencedores.</h2>
         <p>Finalize a Liga para revelar os campeões.</p>
       </div>
-      ${podiumFinalActionsHtml(false)}
     `;
   }
 
@@ -2272,14 +2436,12 @@ function podiumHtml() {
       ${individualShareCardHtml('bronze', podium.bronze)}
     </div>
 
-    ${podiumFinalActionsHtml(true)}
   `;
 }
 function renderPodium() {
   const target = $('#league-podium');
   if (!target) return;
   target.innerHTML = podiumHtml();
-  target.querySelector('[data-reset-league-final]')?.addEventListener('click', resetLeague);
   target.querySelector('[data-download-podium-card]')?.addEventListener('click', downloadPodiumImage);
   target.querySelectorAll('[data-download-placement]').forEach(button => {
     button.addEventListener('click', () => downloadPlacementCardImage(button.dataset.downloadPlacement));
@@ -3235,7 +3397,7 @@ async function renderPodiumCanvas(options = {}) {
     canvas.width = cfg.width;
     canvas.height = cfg.height;
     const ctx = canvas.getContext('2d');
-    const trophy = await loadImage(rootPath(placementTrophy(place)));
+    const trophy = await loadImage(rootPath(placementTrophy(place, 'export')));
     const model = buildPodiumPlacementModel(place, unit, trophy);
 
     drawPodiumCanvasBackground(ctx, canvas, palette.background, palette.accent);
@@ -3264,7 +3426,7 @@ async function renderPodiumCanvas(options = {}) {
   canvas.height = cfg.height;
   const ctx = canvas.getContext('2d');
   const order = ['silver', 'gold', 'bronze'];
-  const trophies = await Promise.all(order.map(place => loadImage(rootPath(placementTrophy(place)))));
+  const trophies = await Promise.all(order.map(place => loadImage(rootPath(placementTrophy(place, 'export')))));
   const models = order.map((place, index) => buildPodiumPlacementModel(place, podium[place], trophies[index]));
 
   drawPodiumCanvasBackground(ctx, canvas, PODIUM_CANVAS_THEME.colors.fullBackground, '#f2c766');
@@ -3323,20 +3485,24 @@ function downloadWinnerCardImage() {
   return downloadPlacementCardImage('gold');
 }
 
-async function resetLeague() {
-  const ok = await confirmNotice('Limpar Liga?', 'Isso apagará participantes, sorteios, chaves e resultados salvos.', 'Limpar Liga');
-  if (!ok) return;
-  ligaState.modoId = '';
-  ligaState.participantes = [];
-  ligaState.ordem = [];
-  resetPreparedStructure();
-  ligaState.teamMode = 'auto';
-  ligaState.manualTeams = [];
-  ligaState.battleStarted = false;
-  localStorage.removeItem(LIGA_STORAGE_KEY);
-  LIGA_LEGACY_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
-  renderAll();
-  showNotice('Liga limpa', 'Você pode iniciar uma nova Liga Avalon.', 'success');
+function emptyLigaState() {
+  return {
+    modoId: '',
+    participantes: [],
+    ordem: [],
+    teamMode: 'auto',
+    manualTeams: [],
+    bracket: null,
+    phaseIndex: 0,
+    battleStarted: false,
+    savedAt: null
+  };
+}
+
+function resetLeagueState({ clearDraft = false, render = true } = {}) {
+  applySavedLiga(emptyLigaState());
+  if (clearDraft) clearLigaStorage();
+  if (render) renderAll();
 }
 
 function bindBracketActions() {
@@ -3374,7 +3540,6 @@ function bindBracketActions() {
   $$('[data-clear-survival]').forEach(button => {
     button.addEventListener('click', () => clearSurvivalPlacements(button.dataset.clearSurvival, button.dataset.clearSurvivalFinal === '1'));
   });
-  $('[data-reset-league-final]')?.addEventListener('click', resetLeague);
   $('[data-scroll-podium-final]')?.addEventListener('click', () => document.querySelector('#league-podium')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 }
 
@@ -3396,7 +3561,6 @@ function bindStaticEvents() {
   $('#shuffle-participants')?.addEventListener('click', shuffleParticipants);
   $('#generate-bracket')?.addEventListener('click', generateBracket);
   $('#draw-all-maps')?.addEventListener('click', drawAllMaps);
-  $('#reset-league')?.addEventListener('click', resetLeague);
   $('#copy-league-result')?.addEventListener('click', copyResult);
   $('#download-league-podium')?.addEventListener('click', downloadPodiumImage);
   $('#download-league-winner-card')?.addEventListener('click', downloadWinnerCardImage);
@@ -3449,48 +3613,15 @@ function confirmNotice(title, message, confirmLabel = 'Confirmar', cancelLabel =
   });
 }
 
-function promptRestoreSavedLiga() {
-  const saved = getSavedLigaData();
-  if (!saved) return;
-  const overlay = showNotice('Liga em andamento encontrada', 'Deseja restaurar a Liga salva neste navegador ou começar uma nova?', 'info', {
-    persistent: true,
-    actions: `
-      <button class="btn btn-ghost" type="button" data-start-new>Começar nova</button>
-      <button class="btn btn-primary" type="button" data-restore-league>Restaurar Liga</button>
-    `
-  });
-
-  overlay.querySelector('[data-start-new]')?.addEventListener('click', () => {
-    localStorage.removeItem(LIGA_STORAGE_KEY);
-    LIGA_LEGACY_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
-    overlay.remove();
-    renderAll();
-  });
-
-  overlay.querySelector('[data-restore-league]')?.addEventListener('click', () => {
-    applySavedLiga(saved);
-    overlay.remove();
-    renderAll();
-    showNotice('Liga restaurada', 'O progresso salvo foi recuperado.', 'success');
-  });
-}
-
 function initRevealAnimations() {
-  const elements = $$('.reveal');
-  if (!elements.length) return;
-  if (!('IntersectionObserver' in window)) {
-    elements.forEach(element => element.classList.add('is-visible'));
+  if (window.AvalonUI?.initRevealAnimations) {
+    window.AvalonUI.initRevealAnimations();
     return;
   }
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  elements.forEach(element => observer.observe(element));
+
+  document.querySelectorAll('.reveal').forEach((element) => {
+    element.classList.add('is-visible');
+  });
 }
 
 async function initLiga() {
@@ -3508,8 +3639,72 @@ async function initLiga() {
   bindStaticEvents();
   renderAll();
   initRevealAnimations();
-  promptRestoreSavedLiga();
 }
+
+function loadFirebaseIntegration() {
+  const start = () => {
+    const moduleUrl = new URL(rootPath('assets/js/liga-firebase.js'), document.baseURI).href;
+    import(moduleUrl).catch((error) => {
+      console.warn('[Portal Avalon] Liga online indisponível; modo local preservado.', error);
+      window.AvalonUI?.showActionFeedback?.({
+        title: 'Liga em modo local',
+        message: 'A conexão online não foi concluída. A Liga local continua disponível.',
+        type: 'warning',
+        duration: 3200
+      });
+    });
+  };
+
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(start, { timeout: 1800 });
+  } else {
+    window.setTimeout(start, 80);
+  }
+}
+
+function startLiga() {
+  const task = initLiga();
+  const registered = window.AvalonLoader?.register
+    ? window.AvalonLoader.register('dados-da-liga', task, { message: 'Preparando a Liga...' })
+    : task;
+
+  Promise.resolve(registered)
+    .catch(error => console.error('[Portal Avalon] Falha ao iniciar a Liga:', error))
+    .finally(loadFirebaseIntegration);
+}
+
+window.AvalonLeagueStorage = Object.freeze({
+  keys: Object.freeze({
+    draft: LIGA_DRAFT_STORAGE_KEY,
+    archives: LIGA_ARCHIVES_STORAGE_KEY,
+    legacy: LIGA_LEGACY_STORAGE_KEY
+  }),
+  maxArchives: LIGA_MAX_ARCHIVES,
+  readDraft: readLigaDraft,
+  writeDraft: writeLigaDraft,
+  clearDraft: clearLigaStorage,
+  migrateLegacyDraft: migrateLegacyLigaDraft,
+  readArchives: readLigaArchives,
+  getArchive: getLigaArchive,
+  archiveState: archiveLigaState,
+  deleteArchive: deleteLigaArchive,
+  duplicateArchiveState: duplicateLigaArchiveState,
+  hasPodium: ligaStateHasPodium,
+  snapshot: getLigaStateSnapshot,
+  emptyState: emptyLigaState,
+  applyState(state, options = {}) {
+    applySavedLiga(state || emptyLigaState());
+    if (options.persist === true) writeLigaDraft(getLigaStateSnapshot());
+    if (options.render !== false) renderAll();
+    return getLigaStateSnapshot();
+  },
+  resetActive(options = {}) {
+    resetLeagueState({
+      clearDraft: options.clearDraft !== false,
+      render: options.render !== false
+    });
+  }
+});
 
 window.AvalonLeagueCanvas = Object.freeze({
   theme: LEAGUE_CANVAS_THEME,
@@ -3527,4 +3722,4 @@ window.AvalonLeaguePodiumCanvas = Object.freeze({
   render: renderPodiumCanvas
 });
 
-document.addEventListener('DOMContentLoaded', initLiga);
+document.addEventListener('DOMContentLoaded', startLiga);

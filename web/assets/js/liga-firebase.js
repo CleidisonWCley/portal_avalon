@@ -15,14 +15,11 @@
  * - ouvir a Liga em tempo real com onSnapshot();
  * - preservar o localStorage como cache e contingência.
  *
- * INTEGRAÇÃO MÍNIMA NO liga.html
+ * INTEGRAÇÃO
  *
- * Após liga.js, adicione:
- *
- * <script type="module" src="../assets/js/liga-firebase.js"></script>
- *
- * Este módulo foi preparado para a estrutura atual da V7.6.1. Ele aproveita
- * as funções globais applySavedLiga(), renderAll(), saveLiga() e resetLeague()
+ * O módulo é carregado em segundo plano por liga.js depois que a interface
+ * local está pronta. Ele aproveita
+ * as funções globais applySavedLiga(), renderAll() e saveLiga()
  * existentes em liga.js.
  */
 
@@ -78,7 +75,6 @@ const ADMIN_ONLY_SOURCE_SELECTOR = [
   "#shuffle-participants",
   "#generate-bracket",
   "#draw-all-maps",
-  "#reset-league",
   "[data-add-member]",
   "[data-remove-participant]",
   "[data-add-manual-team]",
@@ -90,8 +86,7 @@ const ADMIN_ONLY_SOURCE_SELECTOR = [
   "[data-randomize-remaining]",
   "[data-draw-phase-map]",
   "[data-undo-match]",
-  "[data-clear-survival]",
-  "[data-reset-league-final]"
+  "[data-clear-survival]"
 ].join(",");
 
 // Elementos de consulta permanecem visíveis para participantes, mas não
@@ -116,16 +111,18 @@ const runtime = {
   applyingRemote: false,
   suppressAutoSync: false,
   initialized: false,
+  accessRestored: false,
+  loginInProgress: false,
   hasPublished: false,
   isDirty: false,
+  viewingArchiveId: null,
   lastSyncedAt: null,
   syncStatus: SYNC_STATUS.IDLE,
   localDraftSnapshot: null,
   controlsObserver: null,
   portalNavigationHandler: null,
   beforeUnloadHandler: null,
-  originalSaveLiga: null,
-  originalResetLeague: null
+  originalSaveLiga: null
 };
 
 function clone(value) {
@@ -141,30 +138,92 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function getStoredRole() {
+function safeStorageGet(storage, key) {
   try {
-    const role = sessionStorage.getItem(AVALON_FIREBASE_SETTINGS.roleSessionKey);
-    return Object.values(ACCESS_ROLES).includes(role)
-      ? role
-      : ACCESS_ROLES.PENDING;
+    return key ? storage.getItem(key) : null;
   } catch (error) {
-    console.warn("[Portal Avalon] sessionStorage indisponível:", error);
-    return runtime.role || ACCESS_ROLES.PENDING;
+    console.warn("[Portal Avalon] Armazenamento indisponível:", error);
+    return null;
   }
 }
 
-function storeRole(role) {
-  runtime.role = role;
-
+function safeStorageSet(storage, key, value) {
   try {
-    if (role === ACCESS_ROLES.PENDING) {
-      sessionStorage.removeItem(AVALON_FIREBASE_SETTINGS.roleSessionKey);
-    } else {
-      sessionStorage.setItem(AVALON_FIREBASE_SETTINGS.roleSessionKey, role);
-    }
+    if (!key) return;
+    if (value === null || value === undefined) storage.removeItem(key);
+    else storage.setItem(key, String(value));
   } catch (error) {
     console.warn("[Portal Avalon] Não foi possível persistir o perfil de acesso:", error);
   }
+}
+
+function roleStorageKey() {
+  return AVALON_FIREBASE_SETTINGS.roleStorageKey
+    || "portal_avalon_liga_access_role";
+}
+
+function roleSessionKey() {
+  return AVALON_FIREBASE_SETTINGS.roleSessionKey
+    || "portal_avalon_liga_access_role_session";
+}
+
+function organizerPersistenceKey() {
+  return AVALON_FIREBASE_SETTINGS.organizerPersistenceKey
+    || "portal_avalon_liga_access_persistent";
+}
+
+function organizerAccessIsPersistent() {
+  return safeStorageGet(localStorage, organizerPersistenceKey()) === "true";
+}
+
+function getStoredRole() {
+  const localRole = safeStorageGet(localStorage, roleStorageKey());
+
+  if (localRole === ACCESS_ROLES.PARTICIPANT) {
+    return ACCESS_ROLES.PARTICIPANT;
+  }
+
+  if (
+    localRole === ACCESS_ROLES.ORGANIZER
+    && organizerAccessIsPersistent()
+  ) {
+    return ACCESS_ROLES.ORGANIZER;
+  }
+
+  const sessionRole = safeStorageGet(sessionStorage, roleSessionKey());
+  return sessionRole === ACCESS_ROLES.ORGANIZER
+    ? ACCESS_ROLES.ORGANIZER
+    : ACCESS_ROLES.PENDING;
+}
+
+function storeRole(role, options = {}) {
+  runtime.role = role;
+  const persistent = options.persistent === true;
+
+  if (role === ACCESS_ROLES.PENDING) {
+    safeStorageSet(localStorage, roleStorageKey(), null);
+    safeStorageSet(localStorage, organizerPersistenceKey(), null);
+    safeStorageSet(sessionStorage, roleSessionKey(), null);
+    return;
+  }
+
+  if (role === ACCESS_ROLES.PARTICIPANT) {
+    safeStorageSet(localStorage, roleStorageKey(), ACCESS_ROLES.PARTICIPANT);
+    safeStorageSet(localStorage, organizerPersistenceKey(), null);
+    safeStorageSet(sessionStorage, roleSessionKey(), null);
+    return;
+  }
+
+  if (role === ACCESS_ROLES.ORGANIZER && persistent) {
+    safeStorageSet(localStorage, roleStorageKey(), ACCESS_ROLES.ORGANIZER);
+    safeStorageSet(localStorage, organizerPersistenceKey(), "true");
+    safeStorageSet(sessionStorage, roleSessionKey(), null);
+    return;
+  }
+
+  safeStorageSet(localStorage, roleStorageKey(), null);
+  safeStorageSet(localStorage, organizerPersistenceKey(), null);
+  safeStorageSet(sessionStorage, roleSessionKey(), ACCESS_ROLES.ORGANIZER);
 }
 
 function getLeagueRef() {
@@ -209,28 +268,31 @@ function normalizeLeagueState(value) {
   };
 }
 
+function leagueStorageApi() {
+  return window.AvalonLeagueStorage || null;
+}
+
 function readLocalLeagueState() {
-  try {
-    const raw = localStorage.getItem(AVALON_FIREBASE_SETTINGS.localStorageKey);
-    if (!raw) return null;
-    return normalizeLeagueState(JSON.parse(raw));
-  } catch (error) {
-    console.warn("[Portal Avalon] Falha ao ler a Liga local:", error);
-    return null;
-  }
+  const api = leagueStorageApi();
+  const state = api?.readDraft?.() || null;
+  return normalizeLeagueState(state);
 }
 
 function writeLocalLeagueState(state) {
-  try {
-    localStorage.setItem(
-      AVALON_FIREBASE_SETTINGS.localStorageKey,
-      JSON.stringify(state)
-    );
-    return true;
-  } catch (error) {
-    console.warn("[Portal Avalon] Falha ao salvar a Liga local:", error);
-    return false;
-  }
+  const normalized = normalizeLeagueState(state);
+  if (!normalized) return false;
+  return leagueStorageApi()?.writeDraft?.(normalized) === true;
+}
+
+function hasLocalLeagueDraft() {
+  const state = readLocalLeagueState();
+  if (!state) return false;
+  return Boolean(
+    state.modoId
+    || state.participantes.length
+    || state.bracket
+    || state.ordem.length
+  );
 }
 
 function inferLeagueStatus(state) {
@@ -353,9 +415,19 @@ function ensureStyles() {
 
     .liga-access-remember {
       display: flex !important;
-      align-items: center;
-      gap: 0.55rem;
+      align-items: flex-start;
+      gap: 0.65rem;
       font-weight: 500 !important;
+    }
+
+    .liga-access-remember > span,
+    .liga-access-remember strong,
+    .liga-access-remember small {
+      display: block;
+    }
+
+    .liga-access-remember input {
+      margin-top: 0.2rem;
     }
 
     .liga-access-actions {
@@ -508,6 +580,102 @@ function ensureStyles() {
       opacity: 0.72;
     }
 
+    .liga-access-remember small {
+      margin-top: 0.2rem;
+      color: var(--text-soft, rgba(215, 217, 226, 0.78));
+      font-size: 0.76rem;
+      font-weight: 500;
+    }
+
+    .liga-finalize-note {
+      flex-basis: 100%;
+      max-width: 620px;
+      margin-top: 0.25rem;
+      color: var(--text-soft, rgba(215, 217, 226, 0.82));
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .liga-archives-panel {
+      width: 100%;
+      margin: 0 0 clamp(1.25rem, 3vw, 2rem);
+      padding: clamp(1rem, 2.5vw, 1.4rem);
+    }
+
+    .liga-archives-panel[hidden] {
+      display: none !important;
+    }
+
+    .liga-archives-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .liga-archives-head h2,
+    .liga-archives-head p {
+      margin-top: 0;
+    }
+
+    .liga-archives-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      gap: 0.85rem;
+    }
+
+    .liga-archive-card {
+      display: grid;
+      gap: 0.85rem;
+      padding: 1rem;
+      border: 1px solid rgba(216, 222, 233, 0.15);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .liga-archive-card.active {
+      border-color: rgba(242, 199, 102, 0.62);
+      background: rgba(242, 199, 102, 0.07);
+    }
+
+    .liga-archive-card small,
+    .liga-archive-card strong,
+    .liga-archive-card span {
+      display: block;
+    }
+
+    .liga-archive-card strong {
+      margin: 0.25rem 0;
+      font-family: "Cinzel", serif;
+    }
+
+    .liga-archive-card small,
+    .liga-archive-card span {
+      color: var(--text-soft, rgba(215, 217, 226, 0.82));
+    }
+
+    .liga-archive-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .liga-archive-actions .btn {
+      min-height: 38px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.82rem;
+    }
+
+    body.liga-archive-view [data-liga-admin-only] {
+      display: none !important;
+    }
+
+    body.liga-archive-view [data-liga-admin-locked] {
+      pointer-events: none !important;
+      cursor: default !important;
+    }
+
     @media (max-width: 900px) {
       .liga-live-toolbar {
         grid-template-columns: 1fr;
@@ -535,6 +703,19 @@ function ensureStyles() {
       }
 
       .liga-live-toolbar__actions .btn {
+        width: 100%;
+      }
+
+      .liga-archives-head {
+        display: grid;
+      }
+
+      .liga-archive-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .liga-archive-actions .btn {
         width: 100%;
       }
     }
@@ -584,7 +765,10 @@ function ensureGateway() {
 
         <label class="liga-access-remember">
           <input type="checkbox" name="remember" />
-          Manter acesso neste dispositivo
+          <span>
+            <strong>Manter acesso de organizador neste dispositivo</strong>
+            <small>Use apenas em um dispositivo pessoal.</small>
+          </span>
         </label>
 
         <div class="liga-access-actions">
@@ -670,6 +854,9 @@ function ensureToolbar() {
       <button class="btn btn-primary" type="button" data-live-publish hidden>
         Publicar Liga
       </button>
+      <button class="btn btn-ghost danger" type="button" data-live-discard hidden>
+        Descartar rascunho
+      </button>
       <button class="btn btn-ghost danger" type="button" data-live-end hidden>
         Encerrar Liga
       </button>
@@ -688,6 +875,7 @@ function ensureToolbar() {
   toolbar.querySelector("[data-live-change-access]")?.addEventListener("click", changeAccessMode);
   toolbar.querySelector("[data-live-salao]")?.addEventListener("click", goToSalo);
   toolbar.querySelector("[data-live-publish]")?.addEventListener("click", handlePublishButton);
+  toolbar.querySelector("[data-live-discard]")?.addEventListener("click", handleDiscardDraftButton);
   toolbar.querySelector("[data-live-end]")?.addEventListener("click", handleEndLeagueButton);
 
   return toolbar;
@@ -702,6 +890,10 @@ function getSyncDetail() {
 
   if (runtime.role !== ACCESS_ROLES.ORGANIZER) {
     return "Escolha o modo de acesso.";
+  }
+
+  if (runtime.viewingArchiveId) {
+    return "Liga arquivada aberta em modo de consulta administrativa.";
   }
 
   if (runtime.syncStatus === SYNC_STATUS.OFFLINE) {
@@ -719,13 +911,9 @@ function getSyncDetail() {
   }
 
   if (!runtime.hasPublished) {
-    if (runtime.remoteDocument?.status === "encerrada") {
-      return "Liga encerrada. O rascunho local foi preservado.";
-    }
-
-    return runtime.isDirty
-      ? "Rascunho local. Revise participantes, modalidade e chaves antes de publicar."
-      : "Rascunho local. Prepare participantes, modalidade e chaves antes de publicar.";
+    return hasLocalLeagueDraft()
+      ? "Rascunho salvo neste dispositivo. Revise a estrutura antes de publicar."
+      : "Nenhum rascunho ativo. Prepare uma nova Liga para publicar.";
   }
 
   if (runtime.isDirty) {
@@ -743,6 +931,7 @@ function updateToolbar(detail = "") {
   const detailTarget = toolbar.querySelector("[data-live-detail]");
   const iconTarget = toolbar.querySelector("[data-live-icon]");
   const publishButton = toolbar.querySelector("[data-live-publish]");
+  const discardButton = toolbar.querySelector("[data-live-discard]");
   const endButton = toolbar.querySelector("[data-live-end]");
 
   toolbar.dataset.role = runtime.role;
@@ -753,11 +942,13 @@ function updateToolbar(detail = "") {
     detailTarget.textContent = detail || getSyncDetail();
     iconTarget.textContent = "admin_panel_settings";
 
-    publishButton.hidden = false;
+    publishButton.hidden = Boolean(runtime.viewingArchiveId);
     publishButton.disabled = runtime.publishing;
     publishButton.dataset.syncState = runtime.syncStatus;
 
-    endButton.hidden = !runtime.hasPublished;
+    discardButton.hidden = runtime.hasPublished || runtime.viewingArchiveId || !hasLocalLeagueDraft();
+    discardButton.disabled = runtime.publishing;
+    endButton.hidden = !runtime.hasPublished || Boolean(runtime.viewingArchiveId);
     endButton.disabled = runtime.publishing;
 
     if (!runtime.hasPublished) {
@@ -774,6 +965,7 @@ function updateToolbar(detail = "") {
   }
 
   endButton.hidden = true;
+  discardButton.hidden = true;
   publishButton.hidden = true;
 
   if (runtime.role === ACCESS_ROLES.PARTICIPANT) {
@@ -894,16 +1086,10 @@ async function leaveAndKeepLeague(destination) {
 }
 
 async function endLeagueAndNavigate(destination) {
-  const result = await unpublishLeague({
-    skipConfirmation: true,
+  return requestLeagueFinalization({
+    destination,
     showCompletion: false
   });
-
-  if (result.ok) {
-    navigateToUrl(destination);
-  }
-
-  return result;
 }
 
 function installPortalNavigationGuard() {
@@ -930,7 +1116,7 @@ function installBeforeUnloadGuard() {
   if (runtime.beforeUnloadHandler) return;
 
   runtime.beforeUnloadHandler = (event) => {
-    if (!isOrganizer() || !runtime.isDirty) return;
+    if (!isOrganizer() || !runtime.isDirty || runtime.viewingArchiveId) return;
 
     event.preventDefault();
     event.returnValue = "";
@@ -1018,6 +1204,7 @@ async function handleOrganizerLogin(event) {
   const submitButton = form.querySelector('button[type="submit"]');
 
   submitButton.disabled = true;
+  runtime.loginInProgress = true;
   setAccessMessage("Validando acesso...", "info");
 
   try {
@@ -1039,7 +1226,7 @@ async function handleOrganizerLogin(event) {
       throw new Error("Esta conta não possui permissão de organizador.");
     }
 
-    await enterOrganizerMode(credential.user, profile);
+    await enterOrganizerMode(credential.user, profile, { persistent: remember });
     form.reset();
   } catch (error) {
     console.error("[Portal Avalon] Falha no login:", error);
@@ -1053,6 +1240,7 @@ async function handleOrganizerLogin(event) {
 
     setAccessMessage(friendlyMessage, "error");
   } finally {
+    runtime.loginInProgress = false;
     submitButton.disabled = false;
   }
 }
@@ -1061,19 +1249,15 @@ function setNoLiveTournament(enabled) {
   document.body.classList.toggle("liga-no-live-tournament", enabled);
 }
 
-async function restoreLocalDraftToView() {
-  const draft = readLocalLeagueState();
-  runtime.localDraftSnapshot = clone(draft);
-
-  if (!draft) return false;
-
+async function applyStateToLeagueView(state) {
   const runtimeReady = await waitForLeagueRuntime();
   if (!runtimeReady) return false;
 
   runtime.applyingRemote = true;
   try {
-    window.applySavedLiga(draft);
+    window.applySavedLiga(state || leagueStorageApi()?.emptyState?.() || {});
     window.renderAll();
+    markAdministrativeControls();
     return true;
   } finally {
     window.setTimeout(() => {
@@ -1082,8 +1266,19 @@ async function restoreLocalDraftToView() {
   }
 }
 
+async function restoreLocalDraftToView({ migrateLegacy = true } = {}) {
+  const api = leagueStorageApi();
+  if (migrateLegacy) api?.migrateLegacyDraft?.();
+
+  const draft = readLocalLeagueState();
+  runtime.localDraftSnapshot = clone(draft);
+
+  if (!draft) return false;
+  return applyStateToLeagueView(draft);
+}
+
 async function clearLeagueViewForParticipant() {
-  const emptyState = {
+  const emptyState = leagueStorageApi()?.emptyState?.() || {
     modoId: "",
     participantes: [],
     ordem: [],
@@ -1095,18 +1290,12 @@ async function clearLeagueViewForParticipant() {
     savedAt: null
   };
 
-  const runtimeReady = await waitForLeagueRuntime();
-  if (!runtimeReady) return;
+  await applyStateToLeagueView(emptyState);
+}
 
-  runtime.applyingRemote = true;
-  try {
-    window.applySavedLiga(emptyState);
-    window.renderAll();
-  } finally {
-    window.setTimeout(() => {
-      runtime.applyingRemote = false;
-    }, 0);
-  }
+function exitArchiveViewClass() {
+  runtime.viewingArchiveId = null;
+  document.body.classList.remove("liga-archive-view");
 }
 
 async function enterParticipantMode() {
@@ -1118,6 +1307,7 @@ async function enterParticipantMode() {
     }
   }
 
+  exitArchiveViewClass();
   runtime.user = null;
   runtime.adminProfile = null;
   runtime.isDirty = false;
@@ -1125,20 +1315,25 @@ async function enterParticipantMode() {
   storeRole(ACCESS_ROLES.PARTICIPANT);
   setReadonlyMode(true);
   hideGateway();
+  renderArchivesPanel();
   updateToolbar();
   startRealtimeLeagueListener();
 }
 
-async function enterOrganizerMode(user, profile) {
+async function enterOrganizerMode(user, profile, options = {}) {
+  exitArchiveViewClass();
   runtime.user = user;
   runtime.adminProfile = profile;
   runtime.syncStatus = runtime.hasPublished
     ? SYNC_STATUS.SYNCED
     : SYNC_STATUS.DRAFT;
-  storeRole(ACCESS_ROLES.ORGANIZER);
+  storeRole(ACCESS_ROLES.ORGANIZER, {
+    persistent: options.persistent === true
+  });
   setReadonlyMode(false);
   setNoLiveTournament(false);
   hideGateway();
+  renderArchivesPanel();
   updateToolbar();
   startRealtimeLeagueListener();
 }
@@ -1147,6 +1342,7 @@ async function organizerSignOut() {
   try {
     if (firebaseAuth) await signOut(firebaseAuth);
   } finally {
+    exitArchiveViewClass();
     runtime.user = null;
     runtime.adminProfile = null;
     runtime.hasPublished = false;
@@ -1155,6 +1351,7 @@ async function organizerSignOut() {
     storeRole(ACCESS_ROLES.PENDING);
     setReadonlyMode(true);
     stopRealtimeLeagueListener();
+    renderArchivesPanel();
     updateToolbar("Sessão administrativa encerrada.");
     showGateway();
   }
@@ -1166,12 +1363,14 @@ async function changeAccessMode() {
     return;
   }
 
+  exitArchiveViewClass();
   stopRealtimeLeagueListener();
   storeRole(ACCESS_ROLES.PENDING);
   runtime.hasPublished = false;
   runtime.isDirty = false;
   runtime.syncStatus = SYNC_STATUS.IDLE;
   setNoLiveTournament(false);
+  renderArchivesPanel();
   updateToolbar();
   showGateway();
 }
@@ -1200,41 +1399,31 @@ async function applyRemoteLeagueState(state, metadata = {}) {
   const normalized = normalizeLeagueState(state);
   if (!normalized) return;
 
-  runtime.applyingRemote = true;
+  exitArchiveViewClass();
 
-  try {
+  if (isOrganizer()) {
     writeLocalLeagueState(normalized);
-
-    const runtimeReady = await waitForLeagueRuntime();
-
-    if (runtimeReady) {
-      window.applySavedLiga(normalized);
-      window.renderAll();
-      markAdministrativeControls();
-    }
-
-    setNoLiveTournament(false);
-    hideLiveState();
-    runtime.isDirty = false;
-    runtime.syncStatus = SYNC_STATUS.SYNCED;
-
-    updateToolbar(
-      metadata.status === "finalizada"
-        ? "Torneio finalizado. Resultados sincronizados."
-        : "Liga sincronizada em tempo real."
-    );
-
-    document.dispatchEvent(new CustomEvent("avalon:liga:remote-state", {
-      detail: {
-        state: clone(normalized),
-        metadata: clone(metadata)
-      }
-    }));
-  } finally {
-    window.setTimeout(() => {
-      runtime.applyingRemote = false;
-    }, 0);
   }
+
+  await applyStateToLeagueView(normalized);
+  setNoLiveTournament(false);
+  hideLiveState();
+  runtime.isDirty = false;
+  runtime.syncStatus = SYNC_STATUS.SYNCED;
+  renderArchivesPanel();
+
+  updateToolbar(
+    metadata.status === "finalizada"
+      ? "Liga concluída e ainda publicada. Resultados sincronizados."
+      : "Liga sincronizada em tempo real."
+  );
+
+  document.dispatchEvent(new CustomEvent("avalon:liga:remote-state", {
+    detail: {
+      state: clone(normalized),
+      metadata: clone(metadata)
+    }
+  }));
 }
 
 async function handleRemoteLeagueUnavailable(remoteData = null) {
@@ -1244,16 +1433,16 @@ async function handleRemoteLeagueUnavailable(remoteData = null) {
 
   if (isOrganizer()) {
     runtime.syncStatus = SYNC_STATUS.DRAFT;
-    await restoreLocalDraftToView();
+    const restored = await restoreLocalDraftToView();
     setNoLiveTournament(false);
-    const wasClosed = remoteData?.status === "encerrada";
     showLiveState(
-      wasClosed ? "Liga encerrada" : "Nenhuma Liga publicada",
-      wasClosed
-        ? "A transmissão foi encerrada. O rascunho local foi preservado para consulta ou nova publicação."
-        : "Prepare a competição localmente e use “Publicar Liga” para iniciar a transmissão.",
-      wasClosed ? "stop_circle" : "edit_calendar"
+      restored ? "Rascunho administrativo restaurado" : "Nenhuma Liga publicada",
+      restored
+        ? "O trabalho salvo neste dispositivo foi recuperado silenciosamente."
+        : "Prepare uma nova competição e use “Publicar Liga” para iniciar a transmissão.",
+      restored ? "edit_note" : "edit_calendar"
     );
+    renderArchivesPanel();
     updateToolbar();
   } else {
     runtime.syncStatus = SYNC_STATUS.IDLE;
@@ -1261,9 +1450,10 @@ async function handleRemoteLeagueUnavailable(remoteData = null) {
     setNoLiveTournament(true);
     showLiveState(
       "Nenhum torneio em andamento",
-      "Quando os organizadores publicarem uma Liga, as chaves aparecerão aqui automaticamente.",
+      "Quando os organizadores publicarem uma nova Liga, ela aparecerá aqui automaticamente.",
       "emoji_events"
     );
+    renderArchivesPanel();
     updateToolbar();
   }
 
@@ -1325,14 +1515,20 @@ function startRealtimeLeagueListener() {
         updatedByUid: data.updatedByUid || ""
       });
     },
-    (error) => {
+    async (error) => {
       console.error("[Portal Avalon] Listener da Liga falhou:", error);
       runtime.syncStatus = navigator.onLine
         ? SYNC_STATUS.ERROR
         : SYNC_STATUS.OFFLINE;
+
+      if (runtime.role === ACCESS_ROLES.PARTICIPANT) {
+        await clearLeagueViewForParticipant();
+        setNoLiveTournament(true);
+      }
+
       showLiveState(
-        "Falha ao acompanhar a Liga",
-        "Não foi possível carregar as atualizações em tempo real. Verifique a conexão e as regras do Firestore.",
+        "Não foi possível consultar a Liga ao vivo",
+        "Verifique sua conexão para acompanhar o torneio.",
         "cloud_off"
       );
       updateToolbar();
@@ -1345,6 +1541,156 @@ function stopRealtimeLeagueListener() {
     runtime.unsubscribeLeague();
   }
   runtime.unsubscribeLeague = null;
+}
+
+function ensureArchivesPanel() {
+  let panel = document.querySelector("#liga-archives-panel");
+  if (panel) return panel;
+
+  panel = document.createElement("section");
+  panel.id = "liga-archives-panel";
+  panel.className = "liga-archives-panel medieval-card blue-frame";
+  panel.hidden = true;
+
+  const liveState = ensureLiveStateCard();
+  liveState.insertAdjacentElement("afterend", panel);
+  return panel;
+}
+
+function archivePodiumSummary(archive) {
+  const podium = archive?.state?.bracket?.podium || {};
+  const winner = podium.gold?.name || podium.gold?.nome || podium.gold?.members?.map?.((item) => item.name).join(" • ");
+  return winner ? `Campeão: ${winner}` : "Resultado parcial preservado";
+}
+
+function formatArchiveDate(value) {
+  const date = new Date(value || 0);
+  return Number.isNaN(date.getTime())
+    ? "Data não disponível"
+    : date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
+function renderArchivesPanel() {
+  const panel = ensureArchivesPanel();
+
+  if (!isOrganizer() || runtime.hasPublished) {
+    panel.hidden = true;
+    panel.innerHTML = "";
+    return;
+  }
+
+  const api = leagueStorageApi();
+  const archives = api?.readArchives?.() || [];
+  const current = runtime.viewingArchiveId
+    ? archives.find((archive) => archive?.id === runtime.viewingArchiveId)
+    : null;
+
+  if (!archives.length) {
+    panel.hidden = true;
+    panel.innerHTML = "";
+    return;
+  }
+
+  panel.hidden = false;
+  panel.innerHTML = `
+    <div class="liga-archives-head">
+      <div>
+        <p class="eyebrow">Área administrativa</p>
+        <h2>${current ? "Liga arquivada em consulta" : "Ligas arquivadas"}</h2>
+        <p>${current
+          ? "Este resultado está aberto somente para consulta. Ele não está publicado aos participantes."
+          : "Resultados preservados apenas neste dispositivo e visíveis somente para organizadores autenticados."}</p>
+      </div>
+      ${current ? `
+        <button class="btn btn-secondary" type="button" data-archive-close>
+          Voltar à Liga atual
+        </button>
+      ` : ""}
+    </div>
+
+    <div class="liga-archives-grid">
+      ${archives.map((archive) => `
+        <article class="liga-archive-card ${archive.id === runtime.viewingArchiveId ? "active" : ""}">
+          <div>
+            <small>${escapeHtml(formatArchiveDate(archive.archivedAt))}</small>
+            <strong>${escapeHtml(archive.title || "Liga Avalon")}</strong>
+            <span>${escapeHtml(archivePodiumSummary(archive))}</span>
+          </div>
+          <div class="liga-archive-actions">
+            <button class="btn btn-ghost" type="button" data-archive-open="${escapeHtml(archive.id)}">Ver resultado</button>
+            <button class="btn btn-secondary" type="button" data-archive-duplicate="${escapeHtml(archive.id)}">Duplicar</button>
+            <button class="btn btn-ghost danger" type="button" data-archive-delete="${escapeHtml(archive.id)}">Excluir</button>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+
+  panel.querySelector("[data-archive-close]")?.addEventListener("click", closeArchiveView);
+  panel.querySelectorAll("[data-archive-open]").forEach((button) => {
+    button.addEventListener("click", () => openArchiveView(button.dataset.archiveOpen));
+  });
+  panel.querySelectorAll("[data-archive-duplicate]").forEach((button) => {
+    button.addEventListener("click", () => duplicateArchiveAsDraft(button.dataset.archiveDuplicate));
+  });
+  panel.querySelectorAll("[data-archive-delete]").forEach((button) => {
+    button.addEventListener("click", () => deleteArchiveWithConfirmation(button.dataset.archiveDelete));
+  });
+}
+
+async function openArchiveView(archiveId) {
+  if (!isOrganizer() || runtime.hasPublished) return;
+  const archive = leagueStorageApi()?.getArchive?.(archiveId);
+  if (!archive?.state) return;
+
+  runtime.viewingArchiveId = archiveId;
+  document.body.classList.add("liga-archive-view");
+  setNoLiveTournament(false);
+  hideLiveState();
+  await applyStateToLeagueView(archive.state);
+  renderArchivesPanel();
+  updateToolbar("Liga arquivada aberta em modo de consulta administrativa.");
+  document.querySelector("#liga-archives-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function closeArchiveView() {
+  exitArchiveViewClass();
+  const restored = await restoreLocalDraftToView({ migrateLegacy: false });
+  if (!restored) await clearLeagueViewForParticipant();
+  renderArchivesPanel();
+  updateToolbar();
+}
+
+async function duplicateArchiveAsDraft(archiveId) {
+  if (!isOrganizer() || runtime.hasPublished) return;
+  const api = leagueStorageApi();
+  const draft = api?.duplicateArchiveState?.(archiveId);
+  if (!draft) return;
+
+  api.writeDraft(draft);
+  exitArchiveViewClass();
+  runtime.isDirty = true;
+  runtime.syncStatus = SYNC_STATUS.DRAFT;
+  await applyStateToLeagueView(draft);
+  renderArchivesPanel();
+  updateToolbar("Arquivo duplicado como novo rascunho. Sorteie novamente antes de publicar.");
+}
+
+async function deleteArchiveWithConfirmation(archiveId) {
+  if (!isOrganizer() || runtime.hasPublished) return;
+  const confirmed = await confirmFirebaseAction(
+    "Excluir Liga arquivada?",
+    "A cópia local será removida deste dispositivo. Esta ação não afeta nenhuma Liga publicada.",
+    "Excluir arquivo"
+  );
+  if (!confirmed) return;
+
+  leagueStorageApi()?.deleteArchive?.(archiveId);
+  if (runtime.viewingArchiveId === archiveId) {
+    await closeArchiveView();
+    return;
+  }
+  renderArchivesPanel();
 }
 
 function validateLeagueForPublication(state) {
@@ -1489,7 +1835,12 @@ async function endLeagueAndGoToSalo() {
 }
 
 function markLeagueDirty() {
-  if (!isOrganizer() || runtime.applyingRemote || runtime.suppressAutoSync) return;
+  if (
+    !isOrganizer()
+    || runtime.applyingRemote
+    || runtime.suppressAutoSync
+    || runtime.viewingArchiveId
+  ) return;
 
   runtime.isDirty = true;
 
@@ -1637,6 +1988,34 @@ async function writeLeagueState({ firstPublication = false, automatic = false } 
   }
 }
 
+async function handleDiscardDraftButton() {
+  if (!isOrganizer() || runtime.hasPublished || runtime.viewingArchiveId) {
+    return { ok: false, reason: "unavailable" };
+  }
+
+  const confirmed = await confirmFirebaseAction(
+    "Descartar este rascunho?",
+    "Participantes, sorteios, chaves e resultados ainda não publicados serão removidos deste dispositivo.",
+    "Descartar rascunho"
+  );
+
+  if (!confirmed) return { ok: false, reason: "cancelled" };
+
+  runtime.suppressAutoSync = true;
+  try {
+    leagueStorageApi()?.resetActive?.({ clearDraft: true, render: true });
+    runtime.localDraftSnapshot = null;
+    runtime.isDirty = false;
+    runtime.syncStatus = SYNC_STATUS.DRAFT;
+    hideLiveState();
+    renderArchivesPanel();
+    updateToolbar("Rascunho descartado. Você pode preparar uma nova Liga.");
+    return { ok: true };
+  } finally {
+    runtime.suppressAutoSync = false;
+  }
+}
+
 async function publishLeagueFirstTime() {
   if (runtime.hasPublished) {
     return syncLeagueNow({ automatic: false });
@@ -1659,28 +2038,89 @@ async function handlePublishButton() {
     : publishLeagueFirstTime();
 }
 
-async function handleEndLeagueButton() {
-  return unpublishLeague({
-    skipConfirmation: false,
-    showCompletion: true
+async function chooseLeagueFinalization() {
+  const state = readLocalLeagueState();
+  const completed = leagueStorageApi()?.hasPodium?.(state) === true;
+  const archives = leagueStorageApi()?.readArchives?.() || [];
+  const limit = leagueStorageApi()?.maxArchives
+    || AVALON_FIREBASE_SETTINGS.maxLocalArchives
+    || 5;
+  const archiveAvailable = !completed || archives.length < limit;
+  const preserveLabel = completed
+    ? "Encerrar e arquivar"
+    : "Encerrar e manter rascunho";
+  const preserveDescription = completed
+    ? "Preserva participantes, chaves, mapas e pódio somente para consulta administrativa neste dispositivo."
+    : "Interrompe a transmissão e mantém o trabalho atual como rascunho administrativo.";
+
+  const showFeedback = window.AvalonUI?.showActionFeedback;
+  if (typeof showFeedback !== "function") {
+    const preserve = window.confirm(
+      `Como deseja encerrar esta Liga?\n\nOK: ${preserveLabel}.\nCancelar: escolher entre limpar ou voltar.`
+    );
+    if (preserve) return "preserve";
+    return window.confirm(
+      "Encerrar e limpar?\n\nOs dados ativos e o rascunho local serão removidos."
+    ) ? "clear" : "cancel";
+  }
+
+  return new Promise((resolve) => {
+    const overlay = showFeedback({
+      title: "Como deseja encerrar esta Liga?",
+      message: "A transmissão será interrompida e os participantes deixarão de visualizar a competição.",
+      type: "warning",
+      persistent: true,
+      dismissOnBackdrop: false,
+      role: "alertdialog",
+      actions: `
+        <button class="btn btn-ghost" type="button" data-finalize-cancel>Cancelar</button>
+        <button class="btn btn-secondary" type="button" data-finalize-preserve ${archiveAvailable ? "" : "disabled"}>
+          ${escapeHtml(preserveLabel)}
+        </button>
+        <button class="btn btn-primary danger" type="button" data-finalize-clear>Encerrar e limpar</button>
+        <small class="liga-finalize-note">
+          ${escapeHtml(preserveDescription)}
+          ${archiveAvailable ? "" : ` Limite de ${limit} arquivos atingido; exclua um arquivo antes de arquivar.`}
+        </small>
+      `
+    });
+
+    if (!overlay) {
+      resolve("cancel");
+      return;
+    }
+
+    const finish = (decision) => {
+      overlay.remove();
+      resolve(decision);
+    };
+
+    overlay.querySelector("[data-finalize-cancel]")?.addEventListener("click", () => finish("cancel"));
+    overlay.querySelector("[data-finalize-preserve]")?.addEventListener("click", () => finish("preserve"));
+    overlay.querySelector("[data-finalize-clear]")?.addEventListener("click", () => finish("clear"));
   });
 }
 
-async function unpublishLeague({ skipConfirmation = false, showCompletion = true } = {}) {
-  if (!isOrganizer() || !runtime.hasPublished) {
-    return { ok: false, reason: "not-published" };
+async function requestLeagueFinalization({ destination = null, showCompletion = true } = {}) {
+  const decision = await chooseLeagueFinalization();
+  if (decision === "cancel") {
+    return { ok: false, reason: "cancelled" };
   }
 
-  if (!skipConfirmation) {
-    const confirmed = await confirmFirebaseAction(
-      "Encerrar transmissão?",
-      "Os participantes deixarão de visualizar o torneio ao vivo. O estado local será preservado.",
-      "Encerrar Liga"
-    );
+  return finalizeLeague({
+    preserve: decision === "preserve",
+    destination,
+    showCompletion
+  });
+}
 
-    if (!confirmed) {
-      return { ok: false, reason: "cancelled" };
-    }
+async function handleEndLeagueButton() {
+  return requestLeagueFinalization({ showCompletion: true });
+}
+
+async function finalizeLeague({ preserve = false, destination = null, showCompletion = true } = {}) {
+  if (!isOrganizer() || !runtime.hasPublished) {
+    return { ok: false, reason: "not-published" };
   }
 
   const leagueRef = getLeagueRef();
@@ -1688,14 +2128,36 @@ async function unpublishLeague({ skipConfirmation = false, showCompletion = true
     return { ok: false, reason: "firebase-not-ready" };
   }
 
+  const state = readLocalLeagueState();
+  const completed = leagueStorageApi()?.hasPodium?.(state) === true;
+
+  if (preserve && completed) {
+    const archives = leagueStorageApi()?.readArchives?.() || [];
+    const limit = leagueStorageApi()?.maxArchives
+      || AVALON_FIREBASE_SETTINGS.maxLocalArchives
+      || 5;
+    if (archives.length >= limit) {
+      window.AvalonUI?.showActionFeedback?.({
+        title: "Limite de arquivos atingido",
+        message: `Exclua uma Liga arquivada antes de preservar outra. O limite atual é ${limit}.`,
+        type: "warning"
+      });
+      return { ok: false, reason: "archive-limit" };
+    }
+  }
+
+  window.clearTimeout(runtime.publishTimer);
+  runtime.publishTimer = null;
   runtime.publishing = true;
+  runtime.suppressAutoSync = true;
   runtime.syncStatus = SYNC_STATUS.PUBLISHING;
-  updateToolbar("Encerrando transmissão...");
+  updateToolbar("Encerrando Liga...");
 
   try {
     await setDoc(leagueRef, {
       publicada: false,
       status: "encerrada",
+      state: null,
       revision: increment(1),
       encerradaEm: serverTimestamp(),
       encerradaPorUid: runtime.user.uid,
@@ -1703,36 +2165,95 @@ async function unpublishLeague({ skipConfirmation = false, showCompletion = true
       updatedByUid: runtime.user.uid
     }, { merge: true });
 
+    let archiveResult = null;
+    if (preserve && completed && state) {
+      const visibleTitle = document.querySelector("#league-selected-mode-title")
+        ?.textContent?.trim();
+      archiveResult = leagueStorageApi()?.archiveState?.(state, {
+        title: visibleTitle || runtime.remoteDocument?.nome || "Liga Avalon"
+      });
+    }
+
     runtime.hasPublished = false;
     runtime.remoteDocument = {
       ...(runtime.remoteDocument || {}),
       publicada: false,
-      status: "encerrada"
+      status: "encerrada",
+      state: null
     };
-    runtime.syncStatus = SYNC_STATUS.DRAFT;
-    runtime.isDirty = Boolean(readLocalLeagueState());
     runtime.lastSyncedAt = null;
+    runtime.viewingArchiveId = null;
+    document.body.classList.remove("liga-archive-view");
+
+    if (preserve && !completed) {
+      runtime.syncStatus = SYNC_STATUS.DRAFT;
+      runtime.isDirty = Boolean(state);
+      if (state) await applyStateToLeagueView(state);
+    } else if (preserve && completed && archiveResult?.ok) {
+      leagueStorageApi()?.resetActive?.({ clearDraft: true, render: true });
+      runtime.localDraftSnapshot = null;
+      runtime.syncStatus = SYNC_STATUS.DRAFT;
+      runtime.isDirty = false;
+    } else if (preserve && completed && !archiveResult?.ok) {
+      runtime.syncStatus = SYNC_STATUS.DRAFT;
+      runtime.isDirty = Boolean(state);
+      window.AvalonUI?.showActionFeedback?.({
+        title: "Liga encerrada, mas o arquivo não foi criado",
+        message: "O rascunho foi mantido neste dispositivo para evitar perda de dados.",
+        type: "warning"
+      });
+    } else {
+      leagueStorageApi()?.resetActive?.({ clearDraft: true, render: true });
+      runtime.localDraftSnapshot = null;
+      runtime.syncStatus = SYNC_STATUS.DRAFT;
+      runtime.isDirty = false;
+    }
+
+    setNoLiveTournament(false);
+    renderArchivesPanel();
 
     if (showCompletion) {
-      showLiveState(
-        "Liga encerrada",
-        "A Liga deixou de ser exibida aos participantes. O estado local do organizador foi preservado.",
-        "stop_circle"
-      );
+      const message = preserve
+        ? completed && archiveResult?.ok
+          ? "A transmissão terminou e o resultado foi arquivado somente para administradores neste dispositivo."
+          : "A transmissão terminou e o trabalho atual foi mantido como rascunho administrativo."
+        : "A transmissão e os dados temporários desta Liga foram removidos.";
+      showLiveState("Liga encerrada", message, "stop_circle");
     }
-    updateToolbar();
 
-    document.dispatchEvent(new CustomEvent("avalon:liga:unpublished"));
-    return { ok: true };
+    updateToolbar();
+    document.dispatchEvent(new CustomEvent("avalon:liga:unpublished", {
+      detail: { preserve, archived: Boolean(archiveResult?.ok), completed }
+    }));
+
+    if (destination) navigateToUrl(destination);
+    return { ok: true, preserve, archived: Boolean(archiveResult?.ok), completed };
   } catch (error) {
-    console.error("[Portal Avalon] Falha ao encerrar transmissão:", error);
+    console.error("[Portal Avalon] Falha ao encerrar a Liga:", error);
     runtime.syncStatus = SYNC_STATUS.ERROR;
     updateToolbar();
     return { ok: false, reason: "firestore-error", error };
   } finally {
     runtime.publishing = false;
+    runtime.suppressAutoSync = false;
     updateToolbar();
   }
+}
+
+// Compatibilidade com integrações anteriores. A V7.8.1 centraliza o fluxo
+// definitivo em finalizeLeague()/requestLeagueFinalization().
+async function unpublishLeague(options = {}) {
+  if (options.skipConfirmation === true) {
+    return finalizeLeague({
+      preserve: options.preserve === true,
+      destination: options.destination || null,
+      showCompletion: options.showCompletion !== false
+    });
+  }
+  return requestLeagueFinalization({
+    destination: options.destination || null,
+    showCompletion: options.showCompletion !== false
+  });
 }
 
 function handleOnlineStatus() {
@@ -1817,14 +2338,6 @@ function installAdminActionGuard() {
 }
 
 function patchLegacyLeagueRuntime() {
-  // O localStorage permanece como rascunho e contingência. O modal legado
-  // é desativado porque a escolha de perfil controla a restauração: o
-  // organizador recupera o rascunho automaticamente e o participante recebe
-  // somente a Liga oficialmente publicada.
-  if (typeof window.promptRestoreSavedLiga === "function") {
-    window.promptRestoreSavedLiga = () => {};
-  }
-
   if (
     typeof window.saveLiga === "function"
     && !window.saveLiga.__firebasePatched
@@ -1841,45 +2354,9 @@ function patchLegacyLeagueRuntime() {
     patchedSaveLiga.__firebasePatched = true;
     window.saveLiga = patchedSaveLiga;
   }
-
-  if (
-    typeof window.resetLeague === "function"
-    && !window.resetLeague.__firebasePatched
-  ) {
-    runtime.originalResetLeague = window.resetLeague;
-
-    const patchedResetLeague = async function (...args) {
-      runtime.suppressAutoSync = true;
-
-      try {
-        const result = await runtime.originalResetLeague.apply(this, args);
-
-        if (isOrganizer()) {
-          runtime.isDirty = true;
-          runtime.syncStatus = runtime.hasPublished
-            ? SYNC_STATUS.ERROR
-            : SYNC_STATUS.DRAFT;
-
-          updateToolbar(
-            runtime.hasPublished
-              ? "A Liga local foi limpa, mas a transmissão continua com a última versão válida. Ao voltar ao Salão, escolha encerrar a Liga para retirá-la do ar."
-              : "Rascunho local limpo."
-          );
-        }
-
-        return result;
-      } finally {
-        runtime.suppressAutoSync = false;
-        markAdministrativeControls();
-      }
-    };
-
-    patchedResetLeague.__firebasePatched = true;
-    window.resetLeague = patchedResetLeague;
-  }
 }
 
-async function restorePreviousAccess() {
+async function restorePreviousAccess(authenticatedUser = firebaseAuth?.currentUser || null) {
   const storedRole = getStoredRole();
 
   if (storedRole === ACCESS_ROLES.PARTICIPANT) {
@@ -1887,20 +2364,22 @@ async function restorePreviousAccess() {
     return;
   }
 
-  if (
-    storedRole === ACCESS_ROLES.ORGANIZER
-    && firebaseAuth?.currentUser
-  ) {
-    const profile = await verifyAdministrator(firebaseAuth.currentUser);
+  if (storedRole === ACCESS_ROLES.ORGANIZER && authenticatedUser) {
+    const profile = await verifyAdministrator(authenticatedUser);
 
     if (profile) {
-      await enterOrganizerMode(firebaseAuth.currentUser, profile);
+      await enterOrganizerMode(authenticatedUser, profile, {
+        persistent: organizerAccessIsPersistent()
+      });
       return;
     }
+
+    await signOut(firebaseAuth);
   }
 
   storeRole(ACCESS_ROLES.PENDING);
   setReadonlyMode(true);
+  renderArchivesPanel();
 
   if (AVALON_FIREBASE_SETTINGS.openRoleGatewayOnLoad) {
     showGateway();
@@ -1915,6 +2394,7 @@ async function initLigaFirebase() {
   ensureGateway();
   ensureToolbar();
   ensureLiveStateCard();
+  ensureArchivesPanel();
   installAdminActionGuard();
   installPortalNavigationGuard();
   installBeforeUnloadGuard();
@@ -1923,6 +2403,16 @@ async function initLigaFirebase() {
   window.addEventListener("offline", handleOnlineStatus);
 
   if (!firebaseConfigured) {
+    if (getStoredRole() === ACCESS_ROLES.PARTICIPANT) {
+      await enterParticipantMode();
+      showLiveState(
+        "Liga online indisponível",
+        "A conexão com a transmissão ainda não foi configurada.",
+        "settings"
+      );
+      return;
+    }
+
     setReadonlyMode(true);
     showGateway();
     setAccessMessage(
@@ -1938,24 +2428,23 @@ async function initLigaFirebase() {
     async (user) => {
       runtime.user = user;
 
-      if (
-        user
-        && getStoredRole() === ACCESS_ROLES.ORGANIZER
-      ) {
-        const profile = await verifyAdministrator(user);
-
-        if (profile) {
-          await enterOrganizerMode(user, profile);
-          return;
-        }
-
-        await signOut(firebaseAuth);
+      if (!runtime.accessRestored) {
+        runtime.accessRestored = true;
+        await restorePreviousAccess(user);
+        return;
       }
 
-      if (!runtime.initialized) return;
+      if (runtime.loginInProgress) return;
 
-      if (runtime.role === ACCESS_ROLES.PENDING) {
-        await restorePreviousAccess();
+      if (runtime.role === ACCESS_ROLES.ORGANIZER && !user) {
+        storeRole(ACCESS_ROLES.PENDING);
+        runtime.adminProfile = null;
+        runtime.hasPublished = false;
+        runtime.isDirty = false;
+        stopRealtimeLeagueListener();
+        setReadonlyMode(true);
+        renderArchivesPanel();
+        showGateway();
       }
     },
     (error) => {
@@ -1967,8 +2456,6 @@ async function initLigaFirebase() {
       );
     }
   );
-
-  await restorePreviousAccess();
 }
 
 window.AvalonLigaFirebase = Object.freeze({
@@ -2009,6 +2496,8 @@ window.AvalonLigaFirebase = Object.freeze({
   publishLeagueFirstTime,
   syncLeagueNow,
   unpublishLeague,
+  finalizeLeague,
+  requestLeagueFinalization,
   confirmNavigationDuringLiveLeague,
   confirmExitDuringLiveLeague,
   requestPortalNavigation,
@@ -2018,6 +2507,9 @@ window.AvalonLigaFirebase = Object.freeze({
   endLeagueAndGoToSalo,
   startRealtimeLeagueListener,
   stopRealtimeLeagueListener,
+  openArchiveView,
+  closeArchiveView,
+  renderArchivesPanel,
   goToSalo,
 
   async changeAccess() {

@@ -5,54 +5,60 @@
       "nome": "Desafiante de Avalon",
       "faixa": "Top 1",
       "tema": "Amanhecer de Avalon",
-      "imagem": "assets/img/insignias/ranks/desafiante.png",
-      "thumb": "assets/img/insignias/thumbs/desafiante.png",
-      "descricao": "Honra o guerreiro que desafia os gigantes e lidera a ascensão da guilda."
+      "imagem": "assets/img/insignias/ranks/display/desafiante.webp",
+      "thumb": "assets/img/insignias/thumbs/display/desafiante.webp",
+      "descricao": "Honra o guerreiro que desafia os gigantes e lidera a ascensão da guilda.",
+      "export": "assets/img/insignias/ranks/desafiante.png"
     },
     {
       "id": "sentinela",
       "nome": "Sentinela de Prata",
       "faixa": "Top 2",
       "tema": "Noite Estrelada de Avalon",
-      "imagem": "assets/img/insignias/ranks/sentinela.png",
-      "thumb": "assets/img/insignias/thumbs/sentinela.png",
-      "descricao": "Reconhece o guardião que protege a honra de Avalon entre os maiores destaques."
+      "imagem": "assets/img/insignias/ranks/display/sentinela.webp",
+      "thumb": "assets/img/insignias/thumbs/display/sentinela.webp",
+      "descricao": "Reconhece o guardião que protege a honra de Avalon entre os maiores destaques.",
+      "export": "assets/img/insignias/ranks/sentinela.png"
     },
     {
       "id": "guardiao",
       "nome": "Guardião de Bronze",
       "faixa": "Top 3",
       "tema": "Pôr do Sol de Avalon",
-      "imagem": "assets/img/insignias/ranks/guardiao.png",
-      "thumb": "assets/img/insignias/thumbs/guardiao.png",
-      "descricao": "Representa a honra conquistada com presença, mérito e esforço real."
+      "imagem": "assets/img/insignias/ranks/display/guardiao.webp",
+      "thumb": "assets/img/insignias/thumbs/display/guardiao.webp",
+      "descricao": "Representa a honra conquistada com presença, mérito e esforço real.",
+      "export": "assets/img/insignias/ranks/guardiao.png"
     },
     {
       "id": "vigia",
       "nome": "Vigia do Horizonte",
       "faixa": "Top 4–10",
       "tema": "Horizonte de Avalon",
-      "imagem": "assets/img/insignias/ranks/vigia.png",
-      "thumb": "assets/img/insignias/thumbs/vigia.png",
-      "descricao": "Reconhece quem já está entre os fortes e enxerga o próximo degrau da ascensão."
+      "imagem": "assets/img/insignias/ranks/display/vigia.webp",
+      "thumb": "assets/img/insignias/thumbs/display/vigia.webp",
+      "descricao": "Reconhece quem já está entre os fortes e enxerga o próximo degrau da ascensão.",
+      "export": "assets/img/insignias/ranks/vigia.png"
     },
     {
       "id": "ascendente",
       "nome": "Cavaleiro Ascendente",
       "faixa": "Top 11–20",
       "tema": "Jornada de Ascensão",
-      "imagem": "assets/img/insignias/ranks/ascendente.png",
-      "thumb": "assets/img/insignias/thumbs/ascendente.png",
-      "descricao": "Valoriza guardiões ativos que seguem avançando e sustentam a batalha."
+      "imagem": "assets/img/insignias/ranks/display/ascendente.webp",
+      "thumb": "assets/img/insignias/thumbs/display/ascendente.webp",
+      "descricao": "Valoriza guardiões ativos que seguem avançando e sustentam a batalha.",
+      "export": "assets/img/insignias/ranks/ascendente.png"
     },
     {
       "id": "juramentado",
       "nome": "Defensor de Avalon",
       "faixa": "Top 21–30",
       "tema": "Muralhas de Avalon",
-      "imagem": "assets/img/insignias/ranks/juramentado.png",
-      "thumb": "assets/img/insignias/thumbs/juramentado.png",
-      "descricao": "Reconhece os guardiões que defendem Avalon e seguem sua jornada de crescimento."
+      "imagem": "assets/img/insignias/ranks/display/juramentado.webp",
+      "thumb": "assets/img/insignias/thumbs/display/juramentado.webp",
+      "descricao": "Reconhece os guardiões que defendem Avalon e seguem sua jornada de crescimento.",
+      "export": "assets/img/insignias/ranks/juramentado.png"
     }
   ]
 }

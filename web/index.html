@@ -1,123 +1,109 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Salão de Avalon • Portal Avalon</title>
-  <meta name="description" content="Portal Avalon: salão digital da Guilda Avalon para registros, evolução, eventos e memórias." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <link rel="stylesheet" href="assets/css/styles.css" />
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Salão de Avalon • Portal Avalon</title>
+<meta content="Portal Avalon: salão digital da Guilda Avalon para registros, evolução, eventos e memórias." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+</link></link></head>
 <body data-page="salao" data-root="">
-  <!-- Loader global simples: manter imediatamente após a abertura do <body>. -->
-  <div
-    id="avalon-page-loader"
-    class="avalon-page-loader is-visible"
-    role="status"
-    aria-live="polite"
-    aria-label="Carregando"
-  >
-    <span class="avalon-page-loader__spinner" aria-hidden="true"></span>
-    <span class="avalon-page-loader__text">Carregando...</span>
-  </div>
-
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-
-  <header class="site-header">
-    <a class="brand" href="index.html" aria-label="Voltar ao Salão de Avalon">
-      <img src="assets/img/brand/avalon-logo-small.png" alt="Símbolo da Guilda Avalon" class="brand-logo" />
-      <div class="brand-text">
-        <strong>Portal Avalon</strong>
-        <span>Portal dos Guardiões</span>
-      </div>
-    </a>
-    <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
-    <nav class="main-nav" aria-label="Navegação principal">
-      <a class="active" href="index.html"><span class="material-symbols-outlined" aria-hidden="true">home</span>Salão</a>
-      <a class="" href="pages/hall.html"><span class="material-symbols-outlined" aria-hidden="true">military_tech</span>Hall</a>
-      <a class="" href="pages/oraculo.html"><span class="material-symbols-outlined" aria-hidden="true">search</span>Buscar</a>
-      <a class="" href="pages/registro.html"><span class="material-symbols-outlined" aria-hidden="true">table_chart</span>Registro</a>
-      <a class="" href="pages/raid.html"><span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>Raid</a>
-      <a class="" href="pages/galeria.html"><span class="material-symbols-outlined" aria-hidden="true">photo_library</span>Galeria</a>
-      <a class="" href="pages/liga.html"><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Liga</a>
-    </nav>
-  </header>
-
-  <main class="page-shell salao-page">
-
-    <section class="section-block page-title-stage reveal">
-      <div class="page-hero-mascots salao-hero-mascots">
-        <div class="page-hero-mascot left cley">
-          <img src="assets/img/mascots/cley-salao.png" alt="Cley, mascote da Avalon" />
-        </div>
-
-        <div class="page-title-platform page-title-with-logo salao-title-core">
-          <div class="page-title-card medieval-card gold-frame">
-            <p class="eyebrow">Salão de Avalon</p>
-            <h1>Bem-vindo ao Portal Avalon</h1>
-            <p>
+<!-- Loader global simples: manter imediatamente após a abertura do <body>. -->
+<div aria-label="Carregando" aria-live="polite" class="avalon-page-loader is-visible" id="avalon-page-loader" role="status">
+<span aria-hidden="true" class="avalon-page-loader__spinner"></span>
+<span class="avalon-page-loader__text">Carregando...</span>
+</div>
+<div class="ambient ambient-one"></div>
+<div class="ambient ambient-two"></div>
+<header class="site-header">
+<a aria-label="Voltar ao Salão de Avalon" class="brand" href="index.html">
+<img alt="Símbolo da Guilda Avalon" class="brand-logo" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="256" loading="eager" src="assets/img/brand/display/avalon-logo-small.webp" width="223"/>
+<div class="brand-text">
+<strong>Portal Avalon</strong>
+<span>Portal dos Guardiões</span>
+</div>
+</a>
+<button aria-expanded="false" aria-label="Abrir menu" class="nav-toggle" type="button">☰</button>
+<nav aria-label="Navegação principal" class="main-nav">
+<a class="active" href="index.html"><span aria-hidden="true" class="material-symbols-outlined">home</span>Salão</a>
+<a class="" href="pages/hall.html"><span aria-hidden="true" class="material-symbols-outlined">military_tech</span>Hall</a>
+<a class="" href="pages/oraculo.html"><span aria-hidden="true" class="material-symbols-outlined">search</span>Buscar</a>
+<a class="" href="pages/registro.html"><span aria-hidden="true" class="material-symbols-outlined">table_chart</span>Registro</a>
+<a class="" href="pages/raid.html"><span aria-hidden="true" class="material-symbols-outlined">sports_esports</span>Raid</a>
+<a class="" href="pages/galeria.html"><span aria-hidden="true" class="material-symbols-outlined">photo_library</span>Galeria</a>
+<a class="" href="pages/liga.html"><span aria-hidden="true" class="material-symbols-outlined">emoji_events</span>Liga</a>
+</nav>
+</header>
+<main class="page-shell salao-page">
+<section class="section-block page-title-stage reveal">
+<div class="page-hero-mascots salao-hero-mascots">
+<div class="page-hero-mascot left cley">
+<img alt="Cley, mascote da Avalon" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="512" loading="eager" src="assets/img/mascots/display/cley-salao.webp" width="512"/>
+</div>
+<div class="page-title-platform page-title-with-logo salao-title-core">
+<div class="page-title-card medieval-card gold-frame">
+<p class="eyebrow">Salão de Avalon</p>
+<h1>Bem-vindo ao Portal Avalon</h1>
+<p>
               O ponto de encontro dos guardiões: registros, evolução, eventos e a Liga dos guardiões.
             </p>
-            <div class="hero-actions centered-actions">
-              <a class="btn btn-primary" href="pages/oraculo.html">Buscar minha ficha</a>
-              <a class="btn btn-secondary" href="pages/hall.html">Ver Hall da Evolução</a>
-            </div>
-          </div>
-          <aside class="hero-emblem medieval-card gold-frame" aria-label="Símbolo oficial da guilda">
-            <img src="assets/img/brand/avalon-logo.png" alt="Logo oficial da Guilda Avalon" class="guild-logo" />
-            <div class="hero-quote">
-              <span>“Não celebramos apenas os gigantes. Celebramos quem continua subindo.”</span>
-            </div>
-          </aside>
-        </div>
-
-        <div class="page-hero-mascot right olimpio">
-          <img src="assets/img/mascots/olimpio-salao.png" alt="Olimpio, mascote da Avalon" />
-        </div>
-      </div>
-    </section>
-
-    <section class="section-block reveal salao-raid-section" aria-labelledby="resumo-title">
-      <div class="raid-summary-card medieval-card gold-frame">
-        <div class="section-heading compact">
-          <p class="eyebrow">Registro atual da Raid</p>
-          <h2 id="resumo-title">Dados atuais da guilda</h2>
-          <p id="raid-mode-text">Carregando os registros mais recentes da Avalon...</p>
-        </div>
-        <div class="summary-grid" id="summary-grid"></div>
-      </div>
-    </section>
-
-    <section class="section-block split-overview reveal" aria-labelledby="salao-visao-title">
-      <div class="medieval-card gold-frame overview-copy">
-        <p class="eyebrow">Propósito do Salão</p>
-        <h2 id="salao-visao-title">Todo esforço merece ser visto.</h2>
-        <p>
+<div class="hero-actions centered-actions">
+<a class="btn btn-primary" href="pages/oraculo.html">Buscar minha ficha</a>
+<a class="btn btn-secondary" href="pages/hall.html">Ver Hall da Evolução</a>
+</div>
+</div>
+<aside aria-label="Símbolo oficial da guilda" class="hero-emblem medieval-card gold-frame">
+<div class="guild-logo-flash">
+<img alt="Logo oficial da Guilda Avalon" class="guild-logo" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="640" loading="eager" src="assets/img/brand/display/avalon-logo.webp" width="556"/>
+</div>
+<div class="hero-quote">
+<span>“Não celebramos apenas os gigantes. Celebramos quem continua subindo.”</span>
+</div>
+</aside>
+</div>
+<div class="page-hero-mascot right olimpio">
+<img alt="Olimpio, mascote da Avalon" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="512" loading="eager" src="assets/img/mascots/display/olimpio-salao.webp" width="512"/>
+</div>
+</div>
+</section>
+<section aria-labelledby="resumo-title" class="section-block reveal salao-raid-section">
+<div class="raid-summary-card medieval-card gold-frame">
+<div class="section-heading compact">
+<p class="eyebrow">Registro atual da Raid</p>
+<h2 id="resumo-title">Dados atuais da guilda</h2>
+<p id="raid-mode-text">Carregando os registros mais recentes da Avalon...</p>
+</div>
+<div class="summary-grid" id="summary-grid"></div>
+</div>
+</section>
+<section aria-labelledby="salao-visao-title" class="section-block split-overview reveal">
+<div class="medieval-card gold-frame overview-copy">
+<p class="eyebrow">Propósito do Salão</p>
+<h2 id="salao-visao-title">Todo esforço merece ser visto.</h2>
+<p>
           O Hall da Evolução transforma os registros de batalha em reconhecimento.
           Dano importa, presença importa, mas a evolução de cada guardião também precisa ter seu lugar.
         </p>
-        <p>
+<p>
           Este portal também guardará eventos, memórias da guilda, torneios internos e novas histórias da Avalon.
         </p>
-      </div>
-      <div class="mini-top medieval-card" id="salao-top-preview"></div>
-    </section>
-
-  </main>
-
-  <footer class="site-footer">
-    <span>Portal Avalon</span>
-    <span>Registros, memórias e disputas da guilda Avalon.</span>
-  </footer>
-
-  <script src="assets/js/ui.js"></script>
-
-  <script src="assets/js/data.js"></script>
-  <script src="assets/js/hall-rules.js"></script>
-  <script src="assets/js/app.js"></script>
+</div>
+<div class="mini-top medieval-card" id="salao-top-preview"></div>
+</section>
+</main>
+<footer class="site-footer">
+<span>Portal Avalon</span>
+<span>Registros, memórias e disputas da guilda Avalon.</span>
+</footer>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/hall-rules.js"></script>
+<script src="assets/js/app.js"></script>
 </body>
 </html>
+

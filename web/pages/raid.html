@@ -1,206 +1,167 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Raid • Portal Avalon</title>
-  <meta name="description" content="Estratégias de Raid da Avalon com consulta de bosses, elementos e composições recomendadas via GTales.top API." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <link rel="stylesheet" href="../assets/css/styles.css" />
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Raid • Portal Avalon</title>
+<meta content="Estratégias de Raid da Avalon com consulta de bosses, elementos e composições recomendadas via GTales.top API." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="../assets/css/styles.css" rel="stylesheet">
+</link></link></head>
 <body data-page="raid" data-root="../">
-  <!-- Loader global simples: manter imediatamente após a abertura do <body>. -->
-  <div
-    id="avalon-page-loader"
-    class="avalon-page-loader is-visible"
-    role="status"
-    aria-live="polite"
-    aria-label="Carregando"
-  >
-    <span class="avalon-page-loader__spinner" aria-hidden="true"></span>
-    <span class="avalon-page-loader__text">Carregando...</span>
-  </div>
-
-
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-
-  <header class="site-header">
-    <a class="brand" href="../index.html" aria-label="Voltar ao Salão de Avalon">
-      <img src="../assets/img/brand/avalon-logo-small.png" alt="Símbolo da Guilda Avalon" class="brand-logo" />
-      <div class="brand-text">
-        <strong>Portal Avalon</strong>
-        <span>Portal dos Guardiões</span>
-      </div>
-    </a>
-    <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
-    <nav class="main-nav" aria-label="Navegação principal">
-      <a class="" href="../index.html"><span class="material-symbols-outlined" aria-hidden="true">home</span>Salão</a>
-      <a class="" href="../pages/hall.html"><span class="material-symbols-outlined" aria-hidden="true">military_tech</span>Hall</a>
-      <a class="" href="../pages/oraculo.html"><span class="material-symbols-outlined" aria-hidden="true">search</span>Buscar</a>
-      <a class="" href="../pages/registro.html"><span class="material-symbols-outlined" aria-hidden="true">table_chart</span>Registro</a>
-      <a class="active" href="../pages/raid.html"><span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>Raid</a>
-      <a class="" href="../pages/galeria.html"><span class="material-symbols-outlined" aria-hidden="true">photo_library</span>Galeria</a>
-      <a class="" href="../pages/liga.html"><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Liga</a>
-    </nav>
-  </header>
-
-  <main class="page-shell raid-page">
-    <section class="section-block page-title-stage reveal">
-      <div class="page-hero-mascots raid-hero-mascots">
-        <div class="page-hero-mascot left cley">
-          <img src="../assets/img/mascots/cley-raid.png" alt="Cley, mascote da aba Raid, segurando placa gtales.top" />
-        </div>
-
-        <div class="page-title-card medieval-card gold-frame solo-title-card">
-          <p class="eyebrow">Raid Avalon</p>
-          <h1>Estratégias de Raid</h1>
-          <p>
+<!-- Loader global simples: manter imediatamente após a abertura do <body>. -->
+<div aria-label="Carregando" aria-live="polite" class="avalon-page-loader is-visible" id="avalon-page-loader" role="status">
+<span aria-hidden="true" class="avalon-page-loader__spinner"></span>
+<span class="avalon-page-loader__text">Carregando...</span>
+</div>
+<div class="ambient ambient-one"></div>
+<div class="ambient ambient-two"></div>
+<header class="site-header">
+<a aria-label="Voltar ao Salão de Avalon" class="brand" href="../index.html">
+<img alt="Símbolo da Guilda Avalon" class="brand-logo" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="256" loading="eager" src="../assets/img/brand/display/avalon-logo-small.webp" width="223"/>
+<div class="brand-text">
+<strong>Portal Avalon</strong>
+<span>Portal dos Guardiões</span>
+</div>
+</a>
+<button aria-expanded="false" aria-label="Abrir menu" class="nav-toggle" type="button">☰</button>
+<nav aria-label="Navegação principal" class="main-nav">
+<a class="" href="../index.html"><span aria-hidden="true" class="material-symbols-outlined">home</span>Salão</a>
+<a class="" href="../pages/hall.html"><span aria-hidden="true" class="material-symbols-outlined">military_tech</span>Hall</a>
+<a class="" href="../pages/oraculo.html"><span aria-hidden="true" class="material-symbols-outlined">search</span>Buscar</a>
+<a class="" href="../pages/registro.html"><span aria-hidden="true" class="material-symbols-outlined">table_chart</span>Registro</a>
+<a class="active" href="../pages/raid.html"><span aria-hidden="true" class="material-symbols-outlined">sports_esports</span>Raid</a>
+<a class="" href="../pages/galeria.html"><span aria-hidden="true" class="material-symbols-outlined">photo_library</span>Galeria</a>
+<a class="" href="../pages/liga.html"><span aria-hidden="true" class="material-symbols-outlined">emoji_events</span>Liga</a>
+</nav>
+</header>
+<main class="page-shell raid-page">
+<section class="section-block page-title-stage reveal">
+<div class="page-hero-mascots raid-hero-mascots">
+<div class="page-hero-mascot left cley">
+<img alt="Cley, mascote da aba Raid, segurando placa gtales.top" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="512" loading="eager" src="../assets/img/mascots/display/cley-raid.webp" width="384"/>
+</div>
+<div class="page-title-card medieval-card gold-frame solo-title-card">
+<p class="eyebrow">Raid Avalon</p>
+<h1>Estratégias de Raid</h1>
+<p>
             Consulte bosses, elementos e composições recomendadas para planejar melhor os ataques da guilda.
           </p>
-          <div class="source-pill" aria-label="Fonte de dados da página">
-            <span class="material-symbols-outlined" aria-hidden="true">database</span>
-            Fonte dos dados: GTales.top API
+<div aria-label="Fonte de dados da página" class="source-pill">
+<span aria-hidden="true" class="material-symbols-outlined">database</span>
+            Fonte dos dados: GTales.top 
           </div>
-        </div>
-
-        <div class="page-hero-mascot right olimpio">
-          <img src="../assets/img/mascots/olimpio-raid.png" alt="Olimpio, mascote da aba Raid, segurando placa Metas Raid" />
-        </div>
-      </div>
-    </section>
-
-    <section class="section-block reveal" aria-labelledby="raid-consulta-title">
-      <div class="medieval-card gold-frame raid-consult-panel">
-        <div class="raid-section-heading">
-          <p class="eyebrow">Consulta estratégica</p>
-          <h2 id="raid-consulta-title">Boss, elemento e melhores times</h2>
-          <p>
+</div>
+<div class="page-hero-mascot right olimpio">
+<img alt="Olimpio, mascote da aba Raid, segurando placa Metas Raid" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="512" loading="eager" src="../assets/img/mascots/display/olimpio-raid.webp" width="384"/>
+</div>
+</div>
+</section>
+<section aria-labelledby="raid-consulta-title" class="section-block reveal">
+<div class="medieval-card gold-frame raid-consult-panel">
+<div class="raid-section-heading">
+<p class="eyebrow">Consulta estratégica</p>
+<h2 id="raid-consulta-title">Boss, elemento e melhores times</h2>
+<p>
             Escolha um boss e um elemento para visualizar composições da comunidade, com dano estimado,
             equipamentos, chains e vídeo quando disponível.
           </p>
-        </div>
-
-        <form id="raid-search-form" class="raid-filter-grid" autocomplete="off">
-          <div class="raid-field raid-boss-field">
-            <span id="raid-boss-label">Selecionar Boss</span>
-            <div id="raid-boss-combobox" class="raid-combobox is-disabled" data-disabled="true">
-              <button
-                id="raid-boss-trigger"
-                class="raid-combobox-trigger"
-                type="button"
-                aria-haspopup="listbox"
-                aria-expanded="false"
-                aria-labelledby="raid-boss-label raid-boss-current"
-                disabled>
-                <span class="material-symbols-outlined" aria-hidden="true">search</span>
-                <strong id="raid-boss-current">Carregando bosses...</strong>
-                <small>Buscar na lista</small>
-              </button>
-
-              <div id="raid-boss-panel" class="raid-combobox-panel hidden">
-                <label class="raid-combobox-search" for="raid-boss-search">
-                  <span class="material-symbols-outlined" aria-hidden="true">search</span>
-                  <input id="raid-boss-search" type="search" placeholder="Digite o nome do boss..." autocomplete="off" />
-                </label>
-                <div id="raid-boss-list" class="raid-combobox-list" role="listbox" aria-labelledby="raid-boss-label"></div>
-              </div>
-            </div>
-
-            <select id="raid-boss-select" disabled hidden aria-hidden="true">
-              <option value="">Carregando bosses...</option>
-            </select>
-          </div>
-
-          <div class="raid-field raid-element-field">
-            <span id="raid-element-label">Selecionar Elemento</span>
-            <div id="raid-element-combobox" class="raid-combobox raid-element-combobox is-disabled" data-disabled="true">
-              <button
-                id="raid-element-trigger"
-                class="raid-combobox-trigger raid-element-trigger"
-                type="button"
-                aria-haspopup="listbox"
-                aria-expanded="false"
-                aria-labelledby="raid-element-label raid-element-current"
-                disabled>
-                <span id="raid-element-current-icon" class="raid-element-trigger-icon" aria-hidden="true">
-                  <span class="material-symbols-outlined">auto_awesome</span>
-                </span>
-                <strong id="raid-element-current">Escolha um boss primeiro</strong>
-                <small>Elementos</small>
-              </button>
-
-              <div id="raid-element-panel" class="raid-combobox-panel raid-element-panel hidden">
-                <div id="raid-element-list" class="raid-combobox-list raid-element-list" role="listbox" aria-labelledby="raid-element-label"></div>
-              </div>
-            </div>
-
-            <select id="raid-element-select" disabled hidden aria-hidden="true">
-              <option value="">Escolha um boss primeiro</option>
-            </select>
-          </div>
-
-          <div class="raid-actions">
-            <button class="btn btn-primary" type="submit" id="raid-search-button" disabled>
-              <span class="material-symbols-outlined" aria-hidden="true">search</span>
+</div>
+<form autocomplete="off" class="raid-filter-grid" id="raid-search-form">
+<div class="raid-field raid-boss-field">
+<span id="raid-boss-label">Selecionar Boss</span>
+<div class="raid-combobox is-disabled" data-disabled="true" id="raid-boss-combobox">
+<button aria-expanded="false" aria-haspopup="listbox" aria-labelledby="raid-boss-label raid-boss-current" class="raid-combobox-trigger" disabled="" id="raid-boss-trigger" type="button">
+<span aria-hidden="true" class="material-symbols-outlined">search</span>
+<strong id="raid-boss-current">Carregando bosses...</strong>
+<small>Buscar na lista</small>
+</button>
+<div class="raid-combobox-panel hidden" id="raid-boss-panel">
+<label class="raid-combobox-search" for="raid-boss-search">
+<span aria-hidden="true" class="material-symbols-outlined">search</span>
+<input autocomplete="off" id="raid-boss-search" placeholder="Digite o nome do boss..." type="search"/>
+</label>
+<div aria-labelledby="raid-boss-label" class="raid-combobox-list" id="raid-boss-list" role="listbox"></div>
+</div>
+</div>
+<select aria-hidden="true" disabled="" hidden="" id="raid-boss-select">
+<option value="">Carregando bosses...</option>
+</select>
+</div>
+<div class="raid-field raid-element-field">
+<span id="raid-element-label">Selecionar Elemento</span>
+<div class="raid-combobox raid-element-combobox is-disabled" data-disabled="true" id="raid-element-combobox">
+<button aria-expanded="false" aria-haspopup="listbox" aria-labelledby="raid-element-label raid-element-current" class="raid-combobox-trigger raid-element-trigger" disabled="" id="raid-element-trigger" type="button">
+<span aria-hidden="true" class="raid-element-trigger-icon" id="raid-element-current-icon">
+<span class="material-symbols-outlined">auto_awesome</span>
+</span>
+<strong id="raid-element-current">Escolha um boss primeiro</strong>
+<small>Elementos</small>
+</button>
+<div class="raid-combobox-panel raid-element-panel hidden" id="raid-element-panel">
+<div aria-labelledby="raid-element-label" class="raid-combobox-list raid-element-list" id="raid-element-list" role="listbox"></div>
+</div>
+</div>
+<select aria-hidden="true" disabled="" hidden="" id="raid-element-select">
+<option value="">Escolha um boss primeiro</option>
+</select>
+</div>
+<div class="raid-actions">
+<button class="btn btn-primary" disabled="" id="raid-search-button" type="submit">
+<span aria-hidden="true" class="material-symbols-outlined">search</span>
               Buscar times
             </button>
-            <button class="btn btn-secondary" type="button" id="raid-refresh-button">
-              <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+<button class="btn btn-secondary" id="raid-refresh-button" type="button">
+<span aria-hidden="true" class="material-symbols-outlined">refresh</span>
               Recarregar dados
             </button>
-            <button class="btn btn-ghost" type="button" id="raid-clear-button">
-              <span class="material-symbols-outlined" aria-hidden="true">cleaning_services</span>
+<button class="btn btn-ghost" id="raid-clear-button" type="button">
+<span aria-hidden="true" class="material-symbols-outlined">cleaning_services</span>
               Limpar consulta
             </button>
-          </div>
-        </form>
-
-        <p class="raid-source-note">
+</div>
+</form>
+<p class="raid-source-note">
           Dados fornecidos por
-          <a href="https://gtales.top" target="_blank" rel="noopener noreferrer">Guardian Tales TOP</a>.
+          <a href="https://gtales.top" rel="noopener noreferrer" target="_blank">Guardian Tales TOP</a>.
         </p>
-
-        <div id="raid-status" class="raid-status" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <section id="raid-results-section" class="section-block reveal hidden" aria-labelledby="raid-result-title">
-      <div class="medieval-card blue-frame raid-results-panel">
-        <div class="raid-results-head">
-          <div>
-            <p class="eyebrow">Resultados</p>
-            <h2 id="raid-result-title">Composições encontradas</h2>
-            <p id="raid-result-summary">Times carregados para o boss e elemento selecionados.</p>
-          </div>
-          <div id="raid-cache-badge" class="raid-cache-badge hidden">Cache local</div>
-        </div>
-
-        <div id="raid-results" class="raid-results empty-state">
-          <div class="raid-empty-card">
-            <span class="material-symbols-outlined" aria-hidden="true">sports_score</span>
-            <strong>Aguardando consulta de Raid</strong>
-            <p>Selecione um boss e um elemento para carregar os melhores times disponíveis.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <button class="site-back-top hidden" type="button" aria-label="Voltar ao topo da página">
-    <span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>
-    <span>Voltar ao topo</span>
-  </button>
-
-  <footer class="site-footer">
-    <span>Portal Avalon</span>
-    <span>Registros, memórias e estratégias da guilda Avalon.</span>
-  </footer>
-
-  <script src="../assets/js/ui.js"></script>
+<div aria-live="polite" class="raid-status" id="raid-status"></div>
+</div>
+</section>
+<section aria-labelledby="raid-result-title" class="section-block reveal hidden" id="raid-results-section">
+<div class="medieval-card blue-frame raid-results-panel">
+<div class="raid-results-head">
+<div>
+<p class="eyebrow">Resultados</p>
+<h2 id="raid-result-title">Composições encontradas</h2>
+<p id="raid-result-summary">Times carregados para o boss e elemento selecionados.</p>
+</div>
+<div class="raid-cache-badge hidden" id="raid-cache-badge">Cache local</div>
+</div>
+<div class="raid-results empty-state" id="raid-results">
+<div class="raid-empty-card">
+<span aria-hidden="true" class="material-symbols-outlined">sports_score</span>
+<strong>Aguardando consulta de Raid</strong>
+<p>Selecione um boss e um elemento para carregar os melhores times disponíveis.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<button aria-label="Voltar ao topo da página" class="site-back-top hidden" type="button">
+<span aria-hidden="true" class="material-symbols-outlined">arrow_upward</span>
+<span>Voltar ao topo</span>
+</button>
+<footer class="site-footer">
+<span>Portal Avalon</span>
+<span>Registros, memórias e estratégias da guilda Avalon.</span>
+</footer>
+<script src="../assets/js/ui.js"></script>
 <script src="../assets/js/raid.js"></script>
 </body>
 </html>
+

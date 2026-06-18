@@ -1,7 +1,6 @@
 /* ============================================================
-   PORTAL AVALON — RAID.JS
-   V7.0.6 • Polimento final da experiência Raid
-   Cartas visuais, toast flutuante de busca e voltar ao topo
+   PORTAL AVALON — CONSULTA E ESTRATÉGIAS DE RAID
+   Cartas visuais, feedback de busca e navegação dos resultados.
 ============================================================ */
 
 const RAID_API_BASE = 'https://avalon-raid-api.cleidisonlima20.workers.dev';
@@ -9,9 +8,9 @@ const RAID_ASSET_BASE = 'https://gtales.top/assets';
 const GT_TOP_RAID_BASE = 'https://gtales.top/raids/focus';
 const RAID_CACHE_TTL = 1000 * 60 * 60 * 6; // 6 horas
 const RAID_CACHE_KEYS = {
-  list: 'portal_avalon_raid_api_list_v703',
-  queryPrefix: 'portal_avalon_raid_api_query_v703_',
-  lastSearch: 'portal_avalon_raid_last_search_v703'
+  list: 'portal_avalon_raid_api_list',
+  queryPrefix: 'portal_avalon_raid_api_query_',
+  lastSearch: 'portal_avalon_raid_last_search'
 };
 
 const raidState = {
@@ -38,21 +37,14 @@ function bindNav() {
 }
 
 function initRevealAnimations() {
-  const elements = $$('.reveal');
-  if (!elements.length) return;
-  if (!('IntersectionObserver' in window)) {
-    elements.forEach(element => element.classList.add('is-visible'));
+  if (window.AvalonUI?.initRevealAnimations) {
+    window.AvalonUI.initRevealAnimations();
     return;
   }
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  elements.forEach(element => observer.observe(element));
+
+  document.querySelectorAll('.reveal').forEach((element) => {
+    element.classList.add('is-visible');
+  });
 }
 
 function inlineStatusMeta(message = '', type = 'info') {
@@ -142,6 +134,7 @@ function showResultsSection() {
   const section = $('#raid-results-section');
   if (!section) return;
   section.classList.remove('hidden');
+  section.classList.add('is-visible');
 }
 
 function hideResultsSection() {
@@ -286,20 +279,33 @@ function queryCacheKey(boss, element) {
 }
 
 async function fetchJsonWithCache(url, cacheKey, forceRefresh = false) {
-  if (!forceRefresh) {
-    const cached = cacheGet(cacheKey);
+  const cached = cacheGet(cacheKey);
+  if (!forceRefresh && cached) {
+    raidState.usedCache = true;
+    return cached;
+  }
+
+  try {
+    raidState.usedCache = false;
+    const response = window.AvalonResources?.fetchWithTimeout
+      ? await window.AvalonResources.fetchWithTimeout(url, {
+        timeoutMs: 6000,
+        retries: 0,
+        fetchOptions: { cache: 'default' }
+      })
+      : await fetch(url, { cache: 'default' });
+
+    if (!response.ok) throw new Error(`Falha ao consultar API (${response.status})`);
+    const data = await response.json();
+    cacheSet(cacheKey, data);
+    return data;
+  } catch (error) {
     if (cached) {
       raidState.usedCache = true;
       return cached;
     }
+    throw error;
   }
-
-  raidState.usedCache = false;
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) throw new Error(`Falha ao consultar API (${response.status})`);
-  const data = await response.json();
-  cacheSet(cacheKey, data);
-  return data;
 }
 
 function bossImageUrl(boss) {
@@ -499,7 +505,7 @@ function imageWithFallback(src, alt, fallbackText, className = '') {
 
   return `
     <div class="raid-image-wrap ${escapeHtml(className)}">
-      <img src="${escapeHtml(sources[0])}" alt="${safeAlt}" loading="${loadingMode}" decoding="async" data-fallback-srcs='${escapeHtml(JSON.stringify(sources.slice(1)))}' data-fallback-index="0" />
+      <img src="${escapeHtml(sources[0])}" alt="${safeAlt}" loading="${loadingMode}" decoding="async" width="96" height="96" data-fallback-srcs='${escapeHtml(JSON.stringify(sources.slice(1)))}' data-fallback-index="0" />
       <div class="raid-image-fallback hidden">${safeFallback}</div>
     </div>
   `;
@@ -1170,4 +1176,15 @@ async function initRaidPage() {
   await loadRaidList(false);
 }
 
-document.addEventListener('DOMContentLoaded', initRaidPage);
+function startRaidPage() {
+  const task = initRaidPage();
+  if (window.AvalonLoader?.register) {
+    window.AvalonLoader.register('lista-inicial-da-raid', task, {
+      message: 'Carregando estratégias de Raid...'
+    });
+  } else {
+    task.catch(error => console.error('[Portal Avalon] Falha ao iniciar a Raid:', error));
+  }
+}
+
+document.addEventListener('DOMContentLoaded', startRaidPage);

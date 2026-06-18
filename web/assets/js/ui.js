@@ -10,29 +10,305 @@
   const LOADER_HIDING_CLASS = 'is-hiding';
   const LOADER_BODY_CLASS = 'avalon-loader-lock';
   const LOADER_TEXT_SELECTOR = '.avalon-page-loader__text';
+  const REVEAL_SELECTOR = '.reveal';
+  const MOTION_READY_CLASS = 'avalon-motion-ready';
+  const REVEAL_VISIBLE_CLASS = 'is-visible';
+  const LOADER_HIDDEN_EVENT = 'avalon:loader-hidden';
+  const PINCH_ZOOM_CLASS = 'avalon-pinch-zoomed';
+  const PINCH_ZOOM_EVENT = 'avalon:pinch-zoom-change';
+  const PINCH_ZOOM_ENTER_SCALE = 1.05;
+  const PINCH_ZOOM_EXIT_SCALE = 1.02;
+  const FLASH_ACTIVE_CLASS = 'avalon-flash-active';
+  const FLASH_WAIT_MS = 5000;
+  const FLASH_DURATION_MS = 1400;
+  const FLASH_STAGGER_MS = 250;
 
   const MIN_VISIBLE_MS = 220;
-  const LOAD_SETTLE_MS = 120;
-  const SAFETY_TIMEOUT_MS = 5000;
+  const LOAD_SETTLE_MS = 90;
+  const CRITICAL_IMAGE_TIMEOUT_MS = 8000;
+  const RESOURCE_TIMEOUT_MS = 6500;
+  const RESOURCE_RETRIES = 1;
+  const RESOURCE_CACHE_PREFIX = 'portal_avalon_resource:';
 
   const loaderState = {
     visibleSince: 0,
-    documentLoaded: document.readyState === 'complete',
-    pendingJsonFetches: 0,
-    bootTracking: true,
+    domReady: document.readyState !== 'loading',
+    criticalImagesReady: false,
     navigationPending: false,
     hideTimer: 0,
     settleTimer: 0,
-    safetyTimer: 0,
+    slowTimer: 0,
     manualHolds: new Set(),
-    fetchSequence: 0,
+    tasks: new Map(),
+    taskSequence: 0,
     scrollLocked: false
   };
 
   let feedbackTimer = 0;
+  let revealObserver = null;
+  let revealSafetyTimer = 0;
+  let initialMotionReleased = false;
+  let loaderHiddenEventDispatched = false;
+  let ambientFlashesInitialized = false;
+  let pinchZoomFrame = 0;
 
   function prefersReducedMotion() {
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+  }
+
+  function initPinchZoomGuard() {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    const root = document.documentElement;
+    let zoomed = root.classList.contains(PINCH_ZOOM_CLASS);
+
+    const syncZoomState = () => {
+      pinchZoomFrame = 0;
+      const scale = Number(viewport.scale) || 1;
+      const nextZoomed = zoomed
+        ? scale > PINCH_ZOOM_EXIT_SCALE
+        : scale > PINCH_ZOOM_ENTER_SCALE;
+
+      if (nextZoomed === zoomed) return;
+
+      zoomed = nextZoomed;
+      root.classList.toggle(PINCH_ZOOM_CLASS, zoomed);
+      document.dispatchEvent(new CustomEvent(PINCH_ZOOM_EVENT, {
+        detail: { zoomed, scale }
+      }));
+    };
+
+    const scheduleZoomSync = () => {
+      if (pinchZoomFrame) return;
+      pinchZoomFrame = window.requestAnimationFrame(syncZoomState);
+    };
+
+    viewport.addEventListener('resize', scheduleZoomSync, { passive: true });
+    viewport.addEventListener('scroll', scheduleZoomSync, { passive: true });
+    window.addEventListener('pageshow', scheduleZoomSync, { passive: true });
+    scheduleZoomSync();
+  }
+
+  function elementIntersectsViewport(element) {
+    if (!element?.isConnected) return false;
+    const rect = element.getBoundingClientRect();
+    return rect.bottom > 0
+      && rect.right > 0
+      && rect.top < window.innerHeight
+      && rect.left < window.innerWidth;
+  }
+
+
+  function createFlashSequence({ rootElement, getTargets, stagger = false }) {
+    if (!rootElement || typeof getTargets !== 'function') return null;
+
+    const root = document.documentElement;
+    const motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const timers = new Set();
+    let visible = elementIntersectsViewport(rootElement);
+    let viewportFrame = 0;
+
+    const targets = () => getTargets()
+      .filter((element) => element?.isConnected);
+
+    const later = (callback, delay) => {
+      const timer = window.setTimeout(() => {
+        timers.delete(timer);
+        callback();
+      }, delay);
+      timers.add(timer);
+      return timer;
+    };
+
+    const clearActiveFlashes = () => {
+      targets().forEach((element) => element.classList.remove(FLASH_ACTIVE_CLASS));
+    };
+
+    const stop = () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      timers.clear();
+      clearActiveFlashes();
+    };
+
+    const canRun = () => visible
+      && !document.hidden
+      && !root.classList.contains(PINCH_ZOOM_CLASS)
+      && motionQuery?.matches !== true
+      && targets().length > 0;
+
+    const runCycle = () => {
+      if (!canRun()) {
+        stop();
+        return;
+      }
+
+      const cycleTargets = targets();
+      const offsets = cycleTargets.map((_, index) => stagger ? index * FLASH_STAGGER_MS : 0);
+      const lastOffset = offsets.length ? Math.max(...offsets) : 0;
+
+      cycleTargets.forEach((element, index) => {
+        later(() => {
+          if (!canRun()) return;
+          if (element.classList.contains(FLASH_ACTIVE_CLASS)) {
+            element.classList.remove(FLASH_ACTIVE_CLASS);
+            void element.offsetWidth;
+          }
+          element.classList.add(FLASH_ACTIVE_CLASS);
+          later(() => element.classList.remove(FLASH_ACTIVE_CLASS), FLASH_DURATION_MS);
+        }, offsets[index]);
+      });
+
+      later(runCycle, lastOffset + FLASH_DURATION_MS + FLASH_WAIT_MS);
+    };
+
+    const restartAfterWait = () => {
+      stop();
+      if (canRun()) later(runCycle, FLASH_WAIT_MS);
+    };
+
+    const updateFallbackVisibility = () => {
+      viewportFrame = 0;
+      const nextVisible = elementIntersectsViewport(rootElement);
+      if (nextVisible === visible) return;
+      visible = nextVisible;
+      restartAfterWait();
+    };
+
+    const scheduleFallbackVisibility = () => {
+      if (viewportFrame) return;
+      viewportFrame = window.requestAnimationFrame(updateFallbackVisibility);
+    };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        const nextVisible = Boolean(entry?.isIntersecting && entry.intersectionRatio > 0);
+        if (nextVisible === visible) return;
+        visible = nextVisible;
+        restartAfterWait();
+      }, { threshold: 0.01 });
+      observer.observe(rootElement);
+    } else {
+      window.addEventListener('scroll', scheduleFallbackVisibility, { passive: true });
+      window.addEventListener('resize', scheduleFallbackVisibility, { passive: true });
+      scheduleFallbackVisibility();
+    }
+
+    document.addEventListener('visibilitychange', restartAfterWait);
+    document.addEventListener(PINCH_ZOOM_EVENT, restartAfterWait);
+
+    if (motionQuery?.addEventListener) {
+      motionQuery.addEventListener('change', restartAfterWait);
+    } else if (motionQuery?.addListener) {
+      motionQuery.addListener(restartAfterWait);
+    }
+
+    /* Arma o primeiro ciclo mesmo em viewports desktop totalmente estáticas. */
+    restartAfterWait();
+
+    return Object.freeze({ stop, restart: restartAfterWait });
+  }
+
+  function initAmbientFlashes() {
+    if (ambientFlashesInitialized) return;
+    ambientFlashesInitialized = true;
+
+    const guildLogo = document.querySelector('.guild-logo-flash');
+    if (guildLogo) {
+      createFlashSequence({
+        rootElement: guildLogo,
+        getTargets: () => [guildLogo]
+      });
+    }
+
+    const podium = document.getElementById('podium');
+    if (podium) {
+      createFlashSequence({
+        rootElement: podium,
+        stagger: true,
+        getTargets: () => [
+          podium.querySelector('.podium-card.gold .podium-image-wrap'),
+          podium.querySelector('.podium-card.silver .podium-image-wrap'),
+          podium.querySelector('.podium-card.bronze .podium-image-wrap')
+        ]
+      });
+    }
+  }
+
+
+  function prepareMotionSystem() {
+    if (prefersReducedMotion()) return;
+    document.documentElement.classList.add(MOTION_READY_CLASS);
+  }
+
+  function revealImmediately(elements) {
+    elements.forEach((element) => {
+      element.classList.add(REVEAL_VISIBLE_CLASS);
+      element.dataset.revealObserved = 'true';
+    });
+  }
+
+  function initRevealAnimations(root = document) {
+    const candidates = [];
+
+    if (root instanceof Element && root.matches(REVEAL_SELECTOR)) {
+      candidates.push(root);
+    }
+
+    root.querySelectorAll?.(REVEAL_SELECTOR).forEach((element) => {
+      if (element.dataset.revealObserved !== 'true') candidates.push(element);
+    });
+
+    if (!candidates.length) return;
+
+    /*
+     * Enquanto o loader inicial estiver cobrindo a página, os elementos ficam
+     * preparados, mas não recebem is-visible. Isso evita que a animação de
+     * entrada termine atrás do loader em máquinas rápidas.
+     */
+    if (!initialMotionReleased && !prefersReducedMotion()) return;
+
+    if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
+      revealImmediately(candidates);
+      return;
+    }
+
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add(REVEAL_VISIBLE_CLASS);
+          entry.target.dataset.revealObserved = 'true';
+          revealObserver.unobserve(entry.target);
+        });
+      }, {
+        threshold: 0.01,
+        rootMargin: '0px 0px 12% 0px'
+      });
+    }
+
+    candidates.forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      const alreadyNearViewport = rect.top < window.innerHeight * 0.96 && rect.bottom > 0;
+
+      if (alreadyNearViewport) {
+        element.classList.add(REVEAL_VISIBLE_CLASS);
+        element.dataset.revealObserved = 'true';
+        return;
+      }
+
+      revealObserver.observe(element);
+    });
+
+    window.clearTimeout(revealSafetyTimer);
+    revealSafetyTimer = window.setTimeout(() => {
+      document.querySelectorAll(`${REVEAL_SELECTOR}:not(.${REVEAL_VISIBLE_CLASS})`).forEach((element) => {
+        element.classList.add(REVEAL_VISIBLE_CLASS);
+        element.dataset.revealObserved = 'true';
+        revealObserver?.unobserve(element);
+      });
+    }, 1800);
   }
 
   function loaderMarkup() {
@@ -68,10 +344,10 @@
   function clearLoaderTimers() {
     window.clearTimeout(loaderState.hideTimer);
     window.clearTimeout(loaderState.settleTimer);
-    window.clearTimeout(loaderState.safetyTimer);
+    window.clearTimeout(loaderState.slowTimer);
     loaderState.hideTimer = 0;
     loaderState.settleTimer = 0;
-    loaderState.safetyTimer = 0;
+    loaderState.slowTimer = 0;
   }
 
   function supportsStableScrollbarGutter() {
@@ -107,6 +383,12 @@
     loaderState.scrollLocked = false;
   }
 
+  function dispatchLoaderHidden() {
+    if (loaderHiddenEventDispatched) return;
+    loaderHiddenEventDispatched = true;
+    document.dispatchEvent(new CustomEvent(LOADER_HIDDEN_EVENT));
+  }
+
   function completeHide() {
     const loader = ensureLoader();
     loader.classList.remove(LOADER_VISIBLE_CLASS, LOADER_HIDING_CLASS);
@@ -115,6 +397,7 @@
     document.documentElement.removeAttribute('aria-busy');
     unlockPageScroll();
     loaderState.navigationPending = false;
+    dispatchLoaderHidden();
   }
 
   function showLoader(message = 'Carregando...', options = {}) {
@@ -122,13 +405,14 @@
     window.clearTimeout(loaderState.hideTimer);
     window.clearTimeout(loaderState.settleTimer);
 
+    const wasHidden = loader.hidden || !loader.classList.contains(LOADER_VISIBLE_CLASS);
     loader.hidden = false;
     loader.classList.remove(LOADER_HIDING_CLASS);
     loader.classList.add(LOADER_VISIBLE_CLASS);
     loader.setAttribute('aria-busy', 'true');
     document.documentElement.setAttribute('aria-busy', 'true');
     lockPageScroll();
-    loaderState.visibleSince = performance.now();
+    if (wasHidden) loaderState.visibleSince = performance.now();
     loaderState.navigationPending = Boolean(options.navigation);
     setLoaderText(message);
 
@@ -142,7 +426,7 @@
 
     window.clearTimeout(loaderState.hideTimer);
     window.clearTimeout(loaderState.settleTimer);
-    window.clearTimeout(loaderState.safetyTimer);
+    window.clearTimeout(loaderState.slowTimer);
 
     const elapsed = performance.now() - loaderState.visibleSince;
     const wait = force ? 0 : Math.max(0, MIN_VISIBLE_MS - elapsed);
@@ -162,7 +446,7 @@
 
   function forceHideLoader() {
     loaderState.manualHolds.clear();
-    loaderState.bootTracking = false;
+    loaderState.tasks.clear();
     clearLoaderTimers();
     hideLoader({ force: true });
   }
@@ -184,23 +468,15 @@
       loaderState.manualHolds.delete(String(taskId));
     }
 
-    if (loaderState.manualHolds.size === 0) hideLoader();
+    maybeFinishInitialLoad();
   }
 
-  async function waitForLoader(promise, options = {}) {
-    const id = holdLoader(
+  function waitForLoader(promise, options = {}) {
+    return registerLoaderTask(
       options.id || `promise-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      options.message || 'Carregando...'
+      promise,
+      { ...options, rethrow: true }
     );
-
-    try {
-      return await promise;
-    } catch (error) {
-      console.error('[Portal Avalon] Falha durante o carregamento:', error);
-      throw error;
-    } finally {
-      releaseLoader(id);
-    }
   }
 
   function failLoader(message = 'Falha ao carregar.', error) {
@@ -209,57 +485,160 @@
     window.setTimeout(forceHideLoader, 900);
   }
 
-  function isInitialJsonRequest(input, init = {}) {
-    if (!loaderState.bootTracking) return false;
-    const method = String(init?.method || 'GET').toUpperCase();
-    if (method !== 'GET') return false;
+  function resourceCacheKey(url) {
+    return `${RESOURCE_CACHE_PREFIX}${encodeURIComponent(url)}`;
+  }
 
+  function readResourceCache(url) {
     try {
-      const raw = typeof input === 'string' || input instanceof URL
-        ? input
-        : input?.url;
-      const url = new URL(raw, window.location.href);
-      return url.origin === window.location.origin
-        && url.pathname.toLowerCase().endsWith('.json');
+      const raw = localStorage.getItem(resourceCacheKey(url));
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Object.prototype.hasOwnProperty.call(parsed, 'data')) return null;
+      return parsed;
     } catch (error) {
-      return false;
+      return null;
     }
   }
 
+  function writeResourceCache(url, data) {
+    try {
+      localStorage.setItem(resourceCacheKey(url), JSON.stringify({
+        savedAt: Date.now(),
+        data
+      }));
+    } catch (error) {
+      console.warn('[Portal Avalon] Cache local indisponível:', error);
+    }
+  }
+
+  async function fetchWithTimeout(input, options = {}) {
+    const {
+      timeoutMs = RESOURCE_TIMEOUT_MS,
+      retries = RESOURCE_RETRIES,
+      fetchOptions = {}
+    } = options;
+    let lastError = null;
+
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const response = await fetch(input, {
+          cache: 'default',
+          ...fetchOptions,
+          signal: controller.signal
+        });
+        window.clearTimeout(timeout);
+        return response;
+      } catch (error) {
+        window.clearTimeout(timeout);
+        lastError = error;
+        if (attempt < retries) await new Promise(resolve => window.setTimeout(resolve, 240));
+      }
+    }
+
+    throw lastError || new Error('Falha de rede.');
+  }
+
+  async function fetchJson(path, options = {}) {
+    const url = new URL(path, document.baseURI || window.location.href).href;
+    const cached = readResourceCache(url);
+    const hasFallback = Object.prototype.hasOwnProperty.call(options, 'fallback');
+
+    try {
+      const response = await fetchWithTimeout(url, {
+        timeoutMs: options.timeoutMs,
+        retries: options.retries,
+        fetchOptions: options.fetchOptions
+      });
+      if (!response.ok) throw new Error(`Falha ao carregar ${url} (${response.status})`);
+      const data = await response.json();
+      if (options.persist !== false) writeResourceCache(url, data);
+      return { data, source: 'network', stale: false, error: null };
+    } catch (error) {
+      if (cached) {
+        return { data: cached.data, source: 'cache', stale: true, error };
+      }
+      if (hasFallback) {
+        return { data: options.fallback, source: 'fallback', stale: true, error };
+      }
+      throw error;
+    }
+  }
+
+  async function getJson(path, options = {}) {
+    const result = await fetchJson(path, options);
+    return result.data;
+  }
+
+  function waitForImage(image) {
+    if (!image) return Promise.resolve();
+    if (image.complete) {
+      return typeof image.decode === 'function'
+        ? image.decode().catch(() => undefined)
+        : Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        window.clearTimeout(timeout);
+        image.removeEventListener('load', finish);
+        image.removeEventListener('error', finish);
+        if (typeof image.decode === 'function') {
+          image.decode().catch(() => undefined).finally(resolve);
+        } else {
+          resolve();
+        }
+      };
+      const timeout = window.setTimeout(finish, CRITICAL_IMAGE_TIMEOUT_MS);
+      image.addEventListener('load', finish, { once: true });
+      image.addEventListener('error', finish, { once: true });
+    });
+  }
+
+  async function waitForCriticalImages() {
+    const images = [...document.querySelectorAll('img[data-avalon-critical-image]')];
+    await Promise.all(images.map(waitForImage));
+    loaderState.criticalImagesReady = true;
+    maybeFinishInitialLoad();
+  }
+
+  function registerLoaderTask(taskId, promise, options = {}) {
+    const id = String(taskId || `task-${++loaderState.taskSequence}`);
+    loaderState.tasks.set(id, true);
+    if (options.message) setLoaderText(options.message);
+    showLoader(options.message || 'Carregando...');
+
+    return Promise.resolve(promise)
+      .catch((error) => {
+        if (options.logError !== false) {
+          console.error(`[Portal Avalon] Tarefa ${id} não concluída:`, error);
+        }
+        if (options.rethrow) throw error;
+        return options.fallback;
+      })
+      .finally(() => {
+        loaderState.tasks.delete(id);
+        maybeFinishInitialLoad();
+      });
+  }
+
   function maybeFinishInitialLoad() {
-    if (!loaderState.documentLoaded) return;
-    if (loaderState.pendingJsonFetches > 0) return;
+    if (!loaderState.domReady) return;
+    if (!loaderState.criticalImagesReady) return;
+    if (loaderState.tasks.size > 0) return;
     if (loaderState.manualHolds.size > 0) return;
 
     window.clearTimeout(loaderState.settleTimer);
     loaderState.settleTimer = window.setTimeout(() => {
-      if (loaderState.pendingJsonFetches > 0 || loaderState.manualHolds.size > 0) return;
-      loaderState.bootTracking = false;
+      if (loaderState.tasks.size > 0 || loaderState.manualHolds.size > 0) return;
       hideLoader();
     }, LOAD_SETTLE_MS);
-  }
-
-  function patchInitialJsonFetchTracking() {
-    if (!window.fetch || window.fetch.__avalonLoaderPatched) return;
-
-    const nativeFetch = window.fetch.bind(window);
-    const trackedFetch = (...args) => {
-      const shouldTrack = isInitialJsonRequest(args[0], args[1]);
-      if (!shouldTrack) return nativeFetch(...args);
-
-      window.clearTimeout(loaderState.settleTimer);
-      loaderState.pendingJsonFetches += 1;
-      const requestId = ++loaderState.fetchSequence;
-
-      return nativeFetch(...args).finally(() => {
-        loaderState.pendingJsonFetches = Math.max(0, loaderState.pendingJsonFetches - 1);
-        maybeFinishInitialLoad();
-      });
-    };
-
-    trackedFetch.__avalonLoaderPatched = true;
-    trackedFetch.__nativeFetch = nativeFetch;
-    window.fetch = trackedFetch;
   }
 
   function isModifiedNavigation(event) {
@@ -389,26 +768,155 @@
     return overlay;
   }
 
+  function releaseInitialMotion() {
+    if (initialMotionReleased) return;
+    initialMotionReleased = true;
+
+    const startReveal = () => {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => initRevealAnimations(document));
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startReveal, { once: true });
+    } else {
+      startReveal();
+    }
+  }
+
   function initBackToTop() {
+    const root = document.documentElement;
+    const SHORT_DISTANCE_LIMIT = 1200;
+    const MIN_SHORT_DURATION = 280;
+    const MAX_SHORT_DURATION = 420;
+    const CANCEL_KEYS = new Set([
+      'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ', 'Spacebar'
+    ]);
+
     document.querySelectorAll('.site-back-top').forEach((button) => {
       if (button.dataset.initialized === 'true') return;
       button.dataset.initialized = 'true';
 
       const threshold = Number(button.dataset.threshold || 520);
-      const update = () => button.classList.toggle('hidden', window.scrollY < threshold);
+      let animationFrame = 0;
+      let visibilityFrame = 0;
+      let returning = false;
+      let removeCancelListeners = () => {};
+
+      const update = () => {
+        visibilityFrame = 0;
+        const shouldHide = returning || window.scrollY < threshold;
+        button.classList.toggle('hidden', shouldHide);
+      };
+
+      const scheduleUpdate = () => {
+        if (visibilityFrame) return;
+        visibilityFrame = window.requestAnimationFrame(update);
+      };
+
+      const finishReturning = () => {
+        window.cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+        removeCancelListeners();
+        removeCancelListeners = () => {};
+
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            returning = false;
+            root.classList.remove('avalon-returning-top');
+            scheduleUpdate();
+          });
+        });
+      };
+
+      const cancelShortReturn = () => {
+        if (!returning || !animationFrame) return;
+        finishReturning();
+      };
+
+      const bindCancelListeners = () => {
+        const onKeyDown = (event) => {
+          if (CANCEL_KEYS.has(event.key)) cancelShortReturn();
+        };
+
+        window.addEventListener('wheel', cancelShortReturn, { passive: true });
+        window.addEventListener('touchstart', cancelShortReturn, { passive: true });
+        window.addEventListener('pointerdown', cancelShortReturn, { passive: true });
+        document.addEventListener('keydown', onKeyDown);
+
+        removeCancelListeners = () => {
+          window.removeEventListener('wheel', cancelShortReturn);
+          window.removeEventListener('touchstart', cancelShortReturn);
+          window.removeEventListener('pointerdown', cancelShortReturn);
+          document.removeEventListener('keydown', onKeyDown);
+        };
+      };
+
+      const jumpToTop = () => {
+        returning = true;
+        root.classList.add('avalon-returning-top');
+        update();
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        finishReturning();
+      };
+
+      const animateShortReturn = (startY) => {
+        returning = true;
+        root.classList.add('avalon-returning-top');
+        update();
+        bindCancelListeners();
+
+        const duration = Math.min(
+          MAX_SHORT_DURATION,
+          Math.max(MIN_SHORT_DURATION, 260 + startY * 0.12)
+        );
+        const startedAt = performance.now();
+
+        const step = (now) => {
+          if (!returning) return;
+
+          const progress = Math.min(1, (now - startedAt) / duration);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const nextY = Math.max(0, Math.round(startY * (1 - eased)));
+          window.scrollTo(0, nextY);
+
+          if (progress < 1 && nextY > 0) {
+            animationFrame = window.requestAnimationFrame(step);
+            return;
+          }
+
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          finishReturning();
+        };
+
+        animationFrame = window.requestAnimationFrame(step);
+      };
 
       button.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+        if (returning) return;
+
+        const startY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+        if (startY <= 1) {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          return;
+        }
+
+        if (prefersReducedMotion() || startY > SHORT_DISTANCE_LIMIT) {
+          jumpToTop();
+          return;
+        }
+
+        animateShortReturn(startY);
       });
 
-      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('scroll', scheduleUpdate, { passive: true });
       update();
     });
   }
 
   function initLoader() {
     const loader = ensureLoader();
-    patchInitialJsonFetchTracking();
     bindNavigationLoader();
 
     loader.hidden = false;
@@ -420,19 +928,28 @@
     lockPageScroll();
     setLoaderText('Carregando...');
 
-    loaderState.safetyTimer = window.setTimeout(() => {
-      loaderState.bootTracking = false;
-      forceHideLoader();
-    }, SAFETY_TIMEOUT_MS);
+    loaderState.slowTimer = window.setTimeout(() => {
+      if (isLoaderActive() && (loaderState.tasks.size > 0 || !loaderState.criticalImagesReady)) {
+        setLoaderText('Conexão instável. Finalizando o carregamento...');
+      }
+    }, 8000);
 
-    if (document.readyState === 'complete') {
-      loaderState.documentLoaded = true;
-      maybeFinishInitialLoad();
-    } else {
-      window.addEventListener('load', () => {
-        loaderState.documentLoaded = true;
+    const onDomReady = () => {
+      loaderState.domReady = true;
+      window.setTimeout(() => {
+        waitForCriticalImages().catch((error) => {
+          console.warn('[Portal Avalon] Falha ao preparar imagens críticas:', error);
+          loaderState.criticalImagesReady = true;
+          maybeFinishInitialLoad();
+        });
         maybeFinishInitialLoad();
-      }, { once: true });
+      }, 0);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onDomReady, { once: true });
+    } else {
+      onDomReady();
     }
 
     window.addEventListener('pageshow', (event) => {
@@ -445,6 +962,11 @@
     const overlay = document.querySelector(FEEDBACK_SELECTOR);
     if (overlay) closeActionFeedback(overlay);
   });
+
+  prepareMotionSystem();
+  initPinchZoomGuard();
+  document.addEventListener(LOADER_HIDDEN_EVENT, releaseInitialMotion, { once: true });
+  document.addEventListener(LOADER_HIDDEN_EVENT, initAmbientFlashes, { once: true });
 
   if (document.body) initLoader();
   else document.addEventListener('DOMContentLoaded', initLoader, { once: true });
@@ -461,14 +983,24 @@
     hold: holdLoader,
     release: releaseLoader,
     waitFor: waitForLoader,
+    register: registerLoaderTask,
     fail: failLoader,
     hide: hideLoader,
     forceHide: forceHideLoader,
     isActive: isLoaderActive
   });
 
+  window.AvalonResources = Object.freeze({
+    fetchWithTimeout,
+    fetchJson,
+    getJson,
+    readCache: readResourceCache
+  });
+
   window.AvalonUI = Object.freeze({
     initBackToTop,
+    initRevealAnimations,
+    initAmbientFlashes,
     showActionFeedback,
     closeActionFeedback,
     loader: window.AvalonLoader

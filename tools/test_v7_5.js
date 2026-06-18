@@ -50,11 +50,12 @@ test('CSS do pódio foi consolidado sem seletores órfãos conhecidos', () => {
   assert(!css.includes('.winner-share-copy'));
   assert.strictEqual(occurrences(css, '.placement-share-grid {'), 1);
   assert(!/\.placement-share-grid\s*\{[^}]*!important/s.test(css));
-  assert(css.includes('V7.5 — PÓDIO ADAPTATIVO'));
+  assert(css.includes('PÓDIO ADAPTATIVO E CONSOLIDAÇÃO DO COMPONENTE DA LIGA'));
 });
 
-test('Portal e documentação identificam a V7.5', () => {
-  assert(/PORTAL_VERSION\s*=\s*['"]V7\.6['"]/.test(app));
+test('Portal mantém código neutro e histórico na documentação', () => {
+  assert(!/PORTAL_VERSION/.test(app));
+  assert(!/\bV\d+\.\d+(?:\.\d+)?\b/.test(app));
   assert(fs.existsSync(path.join(root, 'README.md')));
   assert(fs.existsSync(path.join(root, 'docs/releases/V7.5.md')));
   assert(fs.existsSync(path.join(root, 'docs/auditoria/INVENTARIO_REDUNDANCIAS_V7_5.md')));

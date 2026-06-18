@@ -1,52 +1,93 @@
-# Documentação oficial — Portal Avalon V7.6.1
+# Documentação técnica — Portal Avalon V7.8.1
 
-Esta é a fonte técnica consolidada do projeto. A V7.6 é a versão funcional final; a V7.6.1 organiza a manutenção sem alterar o comportamento público.
+Esta pasta é a fonte técnica consolidada do Portal Avalon. Ela foi reduzida para poucos arquivos, evitando READMEs duplicados, relatórios fragmentados, imagens de evidência e documentos de versões intermediárias.
 
-## Comece aqui
+## Leitura recomendada
 
-- [`manutencao/INICIO_RAPIDO.md`](manutencao/INICIO_RAPIDO.md): execução, OCR, membros, testes e deploy;
-- [`manutencao/GUIA_DE_MANUTENCAO.md`](manutencao/GUIA_DE_MANUTENCAO.md): rotina segura de trabalho;
-- [`manutencao/MAPA_DO_PROJETO.md`](manutencao/MAPA_DO_PROJETO.md): mapa de pastas e riscos;
-- [`manutencao/FLUXOS_DO_SISTEMA.md`](manutencao/FLUXOS_DO_SISTEMA.md): fluxos do Hall, dano, Liga e Raid;
-- [`manutencao/CHECKLIST_NOVA_RAID.md`](manutencao/CHECKLIST_NOVA_RAID.md): atualização de uma raid do screenshot ao deploy;
-- [`manutencao/FLUXO_GIT_DEPLOY.md`](manutencao/FLUXO_GIT_DEPLOY.md): commit, GitHub e Cloudflare Pages;
-- [`manutencao/SOLUCAO_DE_PROBLEMAS.md`](manutencao/SOLUCAO_DE_PROBLEMAS.md): diagnóstico de falhas comuns;
-- [`manutencao/AREAS_SENSIVEIS.md`](manutencao/AREAS_SENSIVEIS.md): riscos e testes obrigatórios;
-- [`manutencao/DECISOES_TECNICAS.md`](manutencao/DECISOES_TECNICAS.md): decisões intencionais do projeto.
-- [`manutencao/GUIA_DE_ALTERACAO_FUTURA.md`](manutencao/GUIA_DE_ALTERACAO_FUTURA.md): checklist reutilizável para mudanças.
+| Ordem | Documento | Finalidade |
+|---:|---|---|
+| 1 | [`ARQUITETURA.md`](ARQUITETURA.md) | Estrutura do projeto, páginas, scripts, dados e dependências. |
+| 2 | [`REGRAS_E_DADOS.md`](REGRAS_E_DADOS.md) | Regras do Hall, ranking, histórico, Raid e fluxo de atualização dos dados. |
+| 3 | [`LIGA_FIREBASE.md`](LIGA_FIREBASE.md) | Liga V7.8.1, autenticação, Firestore, rascunhos, arquivos e encerramento. |
+| 4 | [`MANUTENCAO_E_DEPLOY.md`](MANUTENCAO_E_DEPLOY.md) | Execução local, alterações seguras, OCR, Git, release e solução de problemas. |
+| 5 | [`TESTES.md`](TESTES.md) | Comandos, cobertura, baseline atual e histórico consolidado de validações. |
+| 6 | [`CHANGELOG.md`](CHANGELOG.md) | Evolução resumida do Portal até a V7.8.1. |
 
-## Arquitetura
+## Visão geral
 
-- [`arquitetura/VISAO_GERAL.md`](arquitetura/VISAO_GERAL.md)
-- [`arquitetura/PAGINAS.md`](arquitetura/PAGINAS.md)
-- [`arquitetura/JAVASCRIPT.md`](arquitetura/JAVASCRIPT.md)
-- [`arquitetura/DADOS.md`](arquitetura/DADOS.md)
-- [`arquitetura/COMPONENTES.md`](arquitetura/COMPONENTES.md)
-- [`arquitetura/CANVAS.md`](arquitetura/CANVAS.md)
-- [`arquitetura/DEPENDENCIAS.md`](arquitetura/DEPENDENCIAS.md)
+O Portal Avalon é uma aplicação web estática para a Guilda Avalon. O conteúdo publicado fica em `web/` e não exige etapa de build.
 
-## Regras de negócio
+Principais áreas:
 
-- [`regras/HALL_DA_EVOLUCAO.md`](regras/HALL_DA_EVOLUCAO.md)
-- [`regras/RANKING_DE_DANO.md`](regras/RANKING_DE_DANO.md)
-- [`regras/HISTORICO_DE_RAIDS.md`](regras/HISTORICO_DE_RAIDS.md)
-- [`regras/LIGA_AVALON.md`](regras/LIGA_AVALON.md)
-- [`regras/CONSULTA_RAID.md`](regras/CONSULTA_RAID.md)
+- **Salão:** apresentação e resumo da raid atual;
+- **Hall:** classificação de evolução pessoal;
+- **Buscar:** ficha individual do guardião;
+- **Registro:** tabela e filtros dos membros atuais;
+- **Raid:** consulta externa de composições e estratégias;
+- **Galeria:** eventos e imagens da guilda;
+- **Liga:** torneios internos com Firebase em tempo real.
 
-## Histórico e qualidade
+## Execução local
 
-- [`CHANGELOG.md`](CHANGELOG.md)
-- [`VERSIONAMENTO.md`](VERSIONAMENTO.md)
-- [`CHECKLIST_RELEASE.md`](CHECKLIST_RELEASE.md)
-- [`releases/`](releases/)
-- [`testes/`](testes/)
-- [`auditoria/`](auditoria/)
-- [`evidencias/`](evidencias/)
-- [`archive/`](archive/)
+Na raiz do projeto:
 
-### Firebase da Liga 
+```bash
+python -m http.server 8000 --directory web
+```
 
-- [`arquitetura/FIREBASE_LIGA.md`](arquitetura/FIREBASE_LIGA.md) — autenticação dos organizadores, Firestore, publicação da Liga, sincronização em tempo real, encerramento, segurança e testes.
+Acesse:
 
-**Fonte oficial atual:** V7.6.1 Maintenance Edition.  
-**Núcleo funcional congelado:** V7.6 Final.
+```text
+http://localhost:8000
+```
+
+A Liga está em:
+
+```text
+http://localhost:8000/pages/liga.html
+```
+
+Também é possível usar Live Server. Não abra por `file://`, pois os JSONs, módulos JavaScript e requisições podem ser bloqueados pelo navegador.
+
+## Estrutura principal
+
+```text
+raid_hall/
+├── README.md
+├── web/        # aplicação publicada
+├── ocr/        # leitura e tratamento dos screenshots
+├── tools/      # promoção de raids e testes
+└── docs/       # estes sete documentos
+```
+
+## Fontes oficiais
+
+| Informação | Fonte |
+|---|---|
+| Aplicação publicada | `web/` |
+| Raid atual | `web/data/raids/raid_atual.json` |
+| Histórico e políticas | `web/data/raids/raid_history.json` |
+| Correções comprovadas | `web/data/raids/raid_manual_overrides.json` |
+| Modos e mapas da Liga | `web/data/arenas.json` |
+| Insígnias | `web/data/insignias.json` |
+| Galeria | `web/data/gallery/eventos.json` |
+| Configuração Firebase | `web/assets/js/firebase-config.js` |
+| Extração OCR | `ocr/guild-rank-ocr/` |
+| Testes e utilitários | `tools/` |
+
+## Política documental
+
+- Não criar outro README geral dentro de `web/`.
+- Não armazenar screenshots, evidências visuais ou originais de design em `docs/`.
+- Registrar mudanças funcionais em `CHANGELOG.md`.
+- Atualizar o documento temático correspondente quando mudar regra, dado, fluxo ou arquitetura.
+- Resultados novos de teste devem ser incorporados em `TESTES.md`, evitando um arquivo por versão.
+- Releases antigas permanecem resumidas no changelog; o histórico detalhado continua disponível no Git.
+
+## Estado atual
+
+- **Versão funcional:** V7.8.1 — Refinamento Final da Experiência de Usuário em Ligas.
+- **Aplicação:** estática, sem framework ou build obrigatório.
+- **Deploy recomendado:** Cloudflare Pages publicando `web/`.
+- **Liga:** Firebase Authentication + Cloud Firestore, carregados em segundo plano.
+- **Documentação:** consolidada em sete arquivos essenciais.

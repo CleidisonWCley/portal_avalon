@@ -1,160 +1,140 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Registro da Batalha • Portal Avalon</title>
-  <meta name="description" content="Tabela geral da Raid com dano atual, raid anterior, média histórica e percentual evolutivo." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <link rel="stylesheet" href="../assets/css/styles.css" />
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Registro da Batalha • Portal Avalon</title>
+<meta content="Tabela geral da Raid com dano atual, raid anterior, média histórica e percentual evolutivo." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="../assets/css/styles.css" rel="stylesheet">
+</link></link></head>
 <body data-page="registro" data-root="../">
-  <!-- Loader global simples: manter imediatamente após a abertura do <body>. -->
-  <div
-    id="avalon-page-loader"
-    class="avalon-page-loader is-visible"
-    role="status"
-    aria-live="polite"
-    aria-label="Carregando"
-  >
-    <span class="avalon-page-loader__spinner" aria-hidden="true"></span>
-    <span class="avalon-page-loader__text">Carregando...</span>
-  </div>
-
-
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-
-  <header class="site-header">
-    <a class="brand" href="../index.html" aria-label="Voltar ao Salão de Avalon">
-      <img src="../assets/img/brand/avalon-logo-small.png" alt="Símbolo da Guilda Avalon" class="brand-logo" />
-      <div class="brand-text">
-        <strong>Portal Avalon</strong>
-        <span>Portal dos Guardiões</span>
-      </div>
-    </a>
-    <button class="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
-    <nav class="main-nav" aria-label="Navegação principal">
-      <a class="" href="../index.html"><span class="material-symbols-outlined" aria-hidden="true">home</span>Salão</a>
-      <a class="" href="../pages/hall.html"><span class="material-symbols-outlined" aria-hidden="true">military_tech</span>Hall</a>
-      <a class="" href="../pages/oraculo.html"><span class="material-symbols-outlined" aria-hidden="true">search</span>Buscar</a>
-      <a class="active" href="../pages/registro.html"><span class="material-symbols-outlined" aria-hidden="true">table_chart</span>Registro</a>
-      <a class="" href="../pages/raid.html"><span class="material-symbols-outlined" aria-hidden="true">sports_esports</span>Raid</a>
-      <a class="" href="../pages/galeria.html"><span class="material-symbols-outlined" aria-hidden="true">photo_library</span>Galeria</a>
-      <a class="" href="../pages/liga.html"><span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>Liga</a>
-    </nav>
-  </header>
-
-  <main class="page-shell registro-page">
-
-    <section class="section-block page-title-stage registro-title-stage reveal">
-      <div class="page-hero-mascots registro-hero-mascots">
-
-        <div class="page-hero-mascot registro-hero-mascot left cley">
-          <img  src="../assets/img/mascots/cley.png" alt="Cley, mascote rato da liderança" />
-        </div>
-
-        <div class="page-title-card medieval-card gold-frame solo-title-card">
-          <p class="eyebrow">Registro da Batalha</p>
-          <h1>Tabela Geral da Raid</h1>
-          <p>
+<!-- Loader global simples: manter imediatamente após a abertura do <body>. -->
+<div aria-label="Carregando" aria-live="polite" class="avalon-page-loader is-visible" id="avalon-page-loader" role="status">
+<span aria-hidden="true" class="avalon-page-loader__spinner"></span>
+<span class="avalon-page-loader__text">Carregando...</span>
+</div>
+<div class="ambient ambient-one"></div>
+<div class="ambient ambient-two"></div>
+<header class="site-header">
+<a aria-label="Voltar ao Salão de Avalon" class="brand" href="../index.html">
+<img alt="Símbolo da Guilda Avalon" class="brand-logo" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="256" loading="eager" src="../assets/img/brand/display/avalon-logo-small.webp" width="223"/>
+<div class="brand-text">
+<strong>Portal Avalon</strong>
+<span>Portal dos Guardiões</span>
+</div>
+</a>
+<button aria-expanded="false" aria-label="Abrir menu" class="nav-toggle" type="button">☰</button>
+<nav aria-label="Navegação principal" class="main-nav">
+<a class="" href="../index.html"><span aria-hidden="true" class="material-symbols-outlined">home</span>Salão</a>
+<a class="" href="../pages/hall.html"><span aria-hidden="true" class="material-symbols-outlined">military_tech</span>Hall</a>
+<a class="" href="../pages/oraculo.html"><span aria-hidden="true" class="material-symbols-outlined">search</span>Buscar</a>
+<a class="active" href="../pages/registro.html"><span aria-hidden="true" class="material-symbols-outlined">table_chart</span>Registro</a>
+<a class="" href="../pages/raid.html"><span aria-hidden="true" class="material-symbols-outlined">sports_esports</span>Raid</a>
+<a class="" href="../pages/galeria.html"><span aria-hidden="true" class="material-symbols-outlined">photo_library</span>Galeria</a>
+<a class="" href="../pages/liga.html"><span aria-hidden="true" class="material-symbols-outlined">emoji_events</span>Liga</a>
+</nav>
+</header>
+<main class="page-shell registro-page">
+<section class="section-block page-title-stage registro-title-stage reveal">
+<div class="page-hero-mascots registro-hero-mascots">
+<div class="page-hero-mascot registro-hero-mascot left cley">
+<img alt="Cley, mascote rato da liderança" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="512" loading="eager" src="../assets/img/mascots/display/cley.webp" width="512"/>
+</div>
+<div class="page-title-card medieval-card gold-frame solo-title-card">
+<p class="eyebrow">Registro da Batalha</p>
+<h1>Tabela Geral da Raid</h1>
+<p>
             Visão direta da batalha: membros ativos, ausentes, frequência,
             dano atual, média das raids anteriores e evolução equilibrada da guilda.
           </p>
-        </div>
-
-        <div class="page-hero-mascot registro-hero-mascot right olimpio">
-          <img  src="../assets/img/mascots/olimpio.png" alt="Olimpio, mascote capivara da liderança" />
-        </div>
-
-      </div>
-    </section>
-
-    <section class="section-block registro-stage reveal">
-      <div class="registro-panel medieval-card gold-frame">
-
-        <div class="registro-toolbar">
-          <div>
-            <p class="eyebrow">Controle da Raid</p>
-            <p class="registro-subtitle">
+</div>
+<div class="page-hero-mascot registro-hero-mascot right olimpio">
+<img alt="Olimpio, mascote capivara da liderança" data-avalon-critical-image="" decoding="async" fetchpriority="high" height="512" loading="eager" src="../assets/img/mascots/display/olimpio.webp" width="512"/>
+</div>
+</div>
+</section>
+<section class="section-block registro-stage reveal">
+<div class="registro-panel medieval-card gold-frame">
+<div class="registro-toolbar">
+<div>
+<p class="eyebrow">Controle da Raid</p>
+<p class="registro-subtitle">
               Acompanhe o desempenho geral dos guardiões, com filtros simples para
               ativos, ausentes, média histórica e percentual evolutivo.
             </p>
-          </div>
-          <div id="registro-kpis" class="registro-kpis"></div>
-        </div>
-
-        <div class="filters-bar">
-          <input id="table-search" type="search" placeholder="Filtrar por nick..." />
-          <select id="status-filter" aria-label="Filtrar por situação">
-            <option value="todos">Todos</option>
-            <option value="ativo">Ativos</option>
-            <option value="completo">Completo</option>
-            <option value="participou_bem">Participação boa</option>
-            <option value="baixa_participacao">Baixa participação</option>
-            <option value="quase_ausente">Quase ausente</option>
-            <option value="ausente">Ausentes</option>
-            <option value="retorno_batalha">Retorno à Batalha</option>
-            <option value="sem_comparativo">Base insuficiente</option>
-          </select>
-          <select id="trend-filter" aria-label="Filtrar por evolução">
-            <option value="todos">Toda evolução</option>
-            <option value="subiu">Subiu dano</option>
-            <option value="caiu">Caiu dano</option>
-            <option value="igual">Sem mudança</option>
-            <option value="sem_comparacao">Sem base histórica</option>
-          </select>
-          <select id="ranking-filter" aria-label="Classificar registros">
-            <option value="dano">Dano total</option>
-            <option value="hall">Hall evolutivo</option>
-            <option value="ausente">Ausente</option>
-          </select>
-          <select id="confidence-filter" aria-label="Filtrar por confiança da base">
-            <option value="todos">Toda base histórica</option>
-            <option value="oficial">Base oficial</option>
-            <option value="estimada">Base estimada</option>
-          </select>
-        </div>
-
-        <div class="table-wrap">
-          <table class="battle-table">
-            <thead>
-              <tr>
-                <th class="sticky-rank"># Dano</th>
-                <th class="sticky-member">Guardião</th>
-                <th>Dano atual</th>
-                <th>Frequência</th>
-                <th>Média base</th>
-                <th>Evolução %</th>
-                <th># Hall</th>
-                <th>Patente</th>
-                <th>Participação</th>
-                <th>Base</th>
-              </tr>
-            </thead>
-            <tbody id="members-table"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-  </main>
-  <button id="back-to-top" class="site-back-top hidden" type="button" aria-label="Voltar ao topo da página">
-    <span class="material-symbols-outlined" aria-hidden="true">arrow_upward</span>
-    <span>Voltar ao topo</span>
-  </button>
-
-  <footer class="site-footer">
-    <span>Portal Avalon</span>
-    <span>Registros, memórias e disputas da guilda Avalon.</span>
-  </footer>
-
-  <script src="../assets/js/ui.js"></script>
+</div>
+<div class="registro-kpis" id="registro-kpis"></div>
+</div>
+<div class="filters-bar">
+<input id="table-search" placeholder="Filtrar por nick..." type="search"/>
+<select aria-label="Filtrar por situação" id="status-filter">
+<option value="todos">Todos</option>
+<option value="ativo">Ativos</option>
+<option value="completo">Completo</option>
+<option value="participou_bem">Participação boa</option>
+<option value="baixa_participacao">Baixa participação</option>
+<option value="quase_ausente">Quase ausente</option>
+<option value="ausente">Ausentes</option>
+<option value="retorno_batalha">Retorno à Batalha</option>
+<option value="sem_comparativo">Base insuficiente</option>
+</select>
+<select aria-label="Filtrar por evolução" id="trend-filter">
+<option value="todos">Toda evolução</option>
+<option value="subiu">Subiu dano</option>
+<option value="caiu">Caiu dano</option>
+<option value="igual">Sem mudança</option>
+<option value="sem_comparacao">Sem base histórica</option>
+</select>
+<select aria-label="Classificar registros" id="ranking-filter">
+<option value="dano">Dano total</option>
+<option value="hall">Hall evolutivo</option>
+<option value="ausente">Ausente</option>
+</select>
+<select aria-label="Filtrar por confiança da base" id="confidence-filter">
+<option value="todos">Toda base histórica</option>
+<option value="oficial">Base oficial</option>
+<option value="estimada">Base estimada</option>
+</select>
+</div>
+<div class="table-wrap">
+<table class="battle-table">
+<thead>
+<tr>
+<th class="sticky-rank"># Dano</th>
+<th class="sticky-member">Guardião</th>
+<th>Dano atual</th>
+<th>Frequência</th>
+<th>Média base</th>
+<th>Evolução %</th>
+<th># Hall</th>
+<th>Patente</th>
+<th>Participação</th>
+<th>Base</th>
+</tr>
+</thead>
+<tbody id="members-table"></tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+<button aria-label="Voltar ao topo da página" class="site-back-top hidden" id="back-to-top" type="button">
+<span aria-hidden="true" class="material-symbols-outlined">arrow_upward</span>
+<span>Voltar ao topo</span>
+</button>
+<footer class="site-footer">
+<span>Portal Avalon</span>
+<span>Registros, memórias e disputas da guilda Avalon.</span>
+</footer>
+<script src="../assets/js/ui.js"></script>
 <script src="../assets/js/data.js"></script>
-  <script src="../assets/js/hall-rules.js"></script>
-  <script src="../assets/js/app.js"></script>
+<script src="../assets/js/hall-rules.js"></script>
+<script src="../assets/js/app.js"></script>
 </body>
 </html>
+
