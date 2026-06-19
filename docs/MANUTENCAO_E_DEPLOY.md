@@ -178,49 +178,27 @@ Uma release deve atualizar `CHANGELOG.md` e, quando necessário, este manual ou 
 
 ## 7. Checklist antes do commit
 
+Revise o estado do Git e execute a suíte apropriada:
+
 ```bash
 git status
 git diff --stat
-git diff
+python tools/run_tests.py --quick
 ```
 
-Verificar:
-
-- suíte rápida aprovada com `python tools/run_tests.py --quick`;
-- JavaScript válido com `node --check`;
-- JSON válido;
-- referências locais existentes;
-- ausência de erros no console;
-- nenhuma credencial privada;
-- arquivos novos e exclusões esperados;
-- páginas mobile e desktop;
-- documentação atualizada.
-
-Não incluir:
-
-- `.venv`;
-- `__pycache__`;
-- screenshots e evidências locais;
-- arquivos temporários;
-- Service Account;
-- `.env` com segredos;
-- chaves privadas.
-
-## 8. Suíte de regressão
-
-Comando padrão:
-
-```bash
-python tools/run_tests.py
-```
-
-Mudanças visuais, de Liga ou responsividade devem usar:
+Quando houver alteração visual, responsiva, de loader, Liga ou navegação, execute também:
 
 ```bash
 python tools/run_tests.py --all
 ```
 
-A organização dos testes está em [`TESTES.md`](TESTES.md) e em [`../tools/README.md`](../tools/README.md).
+A suíte é mantida em três arquivos principais: `test_core.js`, `test_regressions.py` e `test_browser.py`. Não crie testes nomeados por versão; consulte [`TESTES.md`](TESTES.md).
+
+O checklist completo, dependências, critérios de aprovação e diagnóstico ficam em [`TESTES.md`](TESTES.md).
+
+## 8. Suíte de regressão
+
+A documentação canônica da suíte está em [`TESTES.md`](TESTES.md). Não mantenha instruções duplicadas neste manual ou nos READMEs.
 
 ## 9. Git
 
@@ -246,7 +224,7 @@ Um único commit é aceitável quando representa uma versão final testada e coe
 
 Nunca use `git clean` ou `git restore` sem confirmar o que será removido.
 
-## 9. Deploy no Cloudflare Pages
+## 10. Deploy no Cloudflare Pages
 
 Configuração recomendada:
 

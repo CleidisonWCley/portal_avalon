@@ -102,7 +102,39 @@ Membros ausentes permanecem visíveis no Registro e na Busca com:
 
 Novo membro não recebe histórico inventado. Ele permanece sem base suficiente até acumular raids válidas.
 
-## 6. Histórico e rotação
+## 6. Consulta histórica do Registro
+
+A V7.8.3 usa as quatro entradas atuais do histórico somente para consulta visual:
+
+| Exibição | Confiança |
+|---|---|
+| Raid 133 | oficial |
+| Raid 132 | oficial |
+| Raid 131 | estimada |
+| Raid 130 | estimada |
+
+As labels 130 e 131 são inferidas na interface pela sequência oficial, sem renomear ou regravar os JSONs históricos.
+
+### Evolução individual
+
+- a tendência recente prioriza Raid 132 contra Raid 133;
+- Raids 130 e 131 servem como contexto histórico;
+- frequência conhecida abaixo de `15/21` aparece, mas é marcada como fora da média;
+- frequência desconhecida permanece estimada;
+- ausência de registro não vira dano zero;
+- somente a posição atual do Hall é exibida, pois não existem snapshots oficiais das posições anteriores.
+
+### Evolução coletiva no Registro
+
+A comparação coletiva existe somente em `web/pages/registro.html`; a página Raid não carrega o histórico da guilda.
+
+- o gráfico permanece em ordem cronológica, Raid 130 até Raid 133;
+- a tabela abre por padrão da Raid 133 até a 130;
+- o usuário pode alternar a tabela para ordem crescente;
+- dano total, participantes e média por membro são exibidos juntos;
+- os filtros individuais não alteram os totais da guilda.
+
+## 7. Histórico e rotação
 
 `raid_history.json` respeita `settings.maxStoredRaids`. A promoção de uma nova raid:
 
@@ -119,7 +151,7 @@ Políticas importantes:
 - saída de um membro não autoriza apagar evidência histórica arbitrariamente;
 - aliases preservam o nick canônico.
 
-## 7. Atualização de uma nova raid
+## 8. Atualização de uma nova raid
 
 ### Preparação
 
@@ -186,7 +218,7 @@ python tools/run_tests.py --quick
 
 Avisos de base estimada ou frequência histórica baixa podem ser esperados; erros bloqueiam o commit.
 
-## 8. Consulta estratégica de Raid
+## 9. Consulta estratégica de Raid
 
 A página Raid usa:
 
@@ -204,7 +236,7 @@ O cache local dura seis horas. A interface diferencia:
 
 Quando a API falhar, manter cache válido, mensagem clara e links oficiais. Não transformar falha externa em erro dos dados locais do Hall.
 
-## 9. Regras competitivas da Liga
+## 10. Regras competitivas da Liga
 
 Fluxo funcional:
 

@@ -30,6 +30,7 @@ Núcleo compartilhado
 
 Módulos independentes
 ├── web/assets/js/raid.js
+├── web/assets/js/registro-evolution.js
 ├── web/assets/js/liga.js
 ├── web/assets/js/liga-firebase.js
 └── web/assets/js/firebase-config.js
@@ -43,6 +44,20 @@ Pipeline e qualidade
 └── docs/
 ```
 
+## 2.1 Suíte de qualidade consolidada
+
+A manutenção automatizada utiliza um runner e três testes principais:
+
+```text
+tools/
+├── run_tests.py          # orquestra sintaxe, regras, regressões e navegador
+├── test_core.js          # regras funcionais executadas em Node.js
+├── test_regressions.py   # OCR, histórico, Registro, estrutura e higiene
+└── test_browser.py       # Playwright, interações e responsividade
+```
+
+Testes nomeados por versão foram absorvidos por `test_regressions.py`. Novas proteções devem ser adicionadas ao bloco temático correspondente, evitando um arquivo por release. A documentação canônica está em [`TESTES.md`](TESTES.md).
+
 ## 3. Páginas e scripts
 
 | Página | Arquivo | Scripts principais | Fonte de dados/serviço |
@@ -50,7 +65,7 @@ Pipeline e qualidade
 | Salão | `web/index.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | raids, histórico e insígnias |
 | Hall | `web/pages/hall.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | raid atual e histórico |
 | Buscar | `web/pages/oraculo.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | membros consolidados |
-| Registro | `web/pages/registro.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | raid atual e histórico |
+| Registro | `web/pages/registro.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js`, `registro-evolution.js` | raid atual e histórico |
 | Raid | `web/pages/raid.html` | `ui.js`, `raid.js` | API externa + cache local |
 | Galeria | `web/pages/galeria.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | `gallery/eventos.json` |
 | Liga | `web/pages/liga.html` | `ui.js`, `liga.js` | arenas, raid atual e Firebase |
@@ -96,19 +111,20 @@ Pipeline e qualidade
 - organiza filtros, cards, fichas e canvas de guardião;
 - não deve duplicar fórmulas de `hall-rules.js`.
 
+### `registro-evolution.js`
+
+- reutiliza o snapshot publicado por `app.js`, sem novo `fetch`;
+- mantém um único modal bloqueante e cacheia a apresentação por membro/viewport;
+- compartilha o mesmo motor SVG entre evolução individual e coletiva;
+- reorganiza a tabela coletiva sem recalcular ou recarregar os dados.
+
+
 ### `raid.js`
 
 - consulta `https://avalon-raid-api.cleidisonlima20.workers.dev`;
 - usa assets e links de `gtales.top`;
 - mantém cache local por seis horas;
 - preserva mensagens, fallback e última consulta.
-
-### `raid-evolution.js`
-
-- carrega `raid_history.json` somente na página Raid;
-- resume dano total, variação, média por participante e tendência coletiva;
-- desenha um gráfico SVG leve com até quatro raids;
-- diferencia fontes oficiais e estimadas sem alterar regras do Hall.
 
 
 ### `liga.js`
@@ -201,6 +217,9 @@ Regras:
 - não mascarar erros com `overflow-x: hidden` global;
 - preservar quatro heróis nos cards da Raid;
 - preservar tabela do Registro em desktop e cards em telas estreitas;
+- renderizar a evolução individual em um único modal sob demanda, com gráficos responsivos sem rolagem horizontal;
+- interromper segmentos de gráficos quando uma raid não possuir registro, sem ligar pontos separados por lacunas;
+- manter cabeçalho e células do Registro sincronizados pelo `colgroup`, com divisórias verticais somente no desktop;
 - testar cabeçalho, mascotes, filtros, modais e canvas em cada faixa.
 
 ## 9. Canvas e exportações

@@ -1,4 +1,4 @@
-# Documentação técnica — Portal Avalon V7.8.2
+# Documentação técnica — Portal Avalon V7.8.3.4
 
 Esta pasta é a fonte técnica consolidada do Portal Avalon. Ela foi reduzida para poucos arquivos, evitando READMEs duplicados, relatórios fragmentados, imagens de evidência e documentos de versões intermediárias.
 
@@ -11,7 +11,7 @@ Esta pasta é a fonte técnica consolidada do Portal Avalon. Ela foi reduzida pa
 | 3 | [`LIGA_FIREBASE.md`](LIGA_FIREBASE.md) | Liga V7.8.1, autenticação, Firestore, rascunhos, arquivos e encerramento. |
 | 4 | [`MANUTENCAO_E_DEPLOY.md`](MANUTENCAO_E_DEPLOY.md) | Execução local, alterações seguras, OCR, Git, release e solução de problemas. |
 | 5 | [`TESTES.md`](TESTES.md) | Comandos, cobertura, baseline atual e histórico consolidado de validações. |
-| 6 | [`CHANGELOG.md`](CHANGELOG.md) | Evolução resumida do Portal até a V7.8.2. |
+| 6 | [`CHANGELOG.md`](CHANGELOG.md) | Evolução resumida do Portal até a V7.8.3.4. |
 
 ## Visão geral
 
@@ -22,7 +22,7 @@ Principais áreas:
 - **Salão:** apresentação e resumo da raid atual;
 - **Hall:** classificação de evolução pessoal;
 - **Buscar:** ficha individual do guardião;
-- **Registro:** tabela e filtros dos membros atuais;
+- **Registro:** tabela e filtros dos membros atuais, consulta individual e comparação coletiva das Raids 130–133;
 - **Raid:** consulta externa de composições e estratégias;
 - **Galeria:** eventos e imagens da guilda;
 - **Liga:** torneios internos com Firebase em tempo real.
@@ -86,9 +86,9 @@ raid_hall/
 
 ## Estado atual
 
-- **Versão funcional:** V7.8.2 — Blindagem do OCR, Raid 133 oficial e evolução coletiva.
+- **Versão funcional:** V7.8.3.4 — Limpeza da Raid e consolidação dos testes.
 - **Aplicação:** estática, sem framework ou build obrigatório.
 - **Deploy recomendado:** Cloudflare Pages publicando `web/`.
 - **Liga:** Firebase Authentication + Cloud Firestore, carregados em segundo plano.
 - **Documentação:** consolidada em sete arquivos essenciais.
-- **Testes:** suíte única e multiplataforma em `tools/run_tests.py`, incluindo regressões da V7.8.2.
+- **Testes:** runner único em `tools/run_tests.py` e três arquivos principais (`test_core.js`, `test_regressions.py`, `test_browser.py`); instalação, cobertura e diagnóstico ficam em `docs/TESTES.md`.

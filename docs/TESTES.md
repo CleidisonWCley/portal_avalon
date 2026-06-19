@@ -1,120 +1,250 @@
-# Testes e regressões
+# Testes e regressões do Portal Avalon
 
-## Objetivo
+Este é o documento canônico da suíte. Outros READMEs e manuais devem apresentar apenas os comandos essenciais e apontar para esta página.
 
-A suíte protege regras, estrutura, dados, assets, carregamento e experiência responsiva. Os testes atuais ficam em `tools/` e não usam nomes de versões antigas.
+## 1. Objetivo
 
-## Comando principal
+A suíte protege:
 
-Na raiz do projeto:
+- sintaxe JavaScript;
+- regras do Hall, ranking, ausentes e classificações;
+- OCR, revisão e promoção segura das raids;
+- JSONs publicados e histórico;
+- Registro, evolução individual e coletiva;
+- casos especiais como retorno à batalha e ausência de dados;
+- Raid estratégica sem dependência do histórico da guilda;
+- Liga, Firebase e separação de papéis;
+- referências locais, assets, documentação e higiene do repositório;
+- carregamento real, acessibilidade e responsividade em navegador.
 
-```bash
-python tools/run_tests.py
+## 2. Arquitetura consolidada
+
+A suíte possui somente três arquivos principais de teste:
+
+```text
+tools/
+├── test_core.js          # regras funcionais executadas em Node.js
+├── test_regressions.py   # dados, OCR, Registro, estrutura e higiene
+└── test_browser.py       # Playwright, interações e responsividade
 ```
 
-Modos:
+O runner oficial é:
 
-```bash
-python tools/run_tests.py --quick
-python tools/run_tests.py --browser
-python tools/run_tests.py --all
+```text
+tools/run_tests.py
 ```
 
-- padrão: regressões estáticas e navegador quando Playwright estiver instalado;
-- `--quick`: sintaxe, regras, estrutura, referências, assets, OCR V7.8.2 e histórico;
-- `--browser`: apenas Playwright, falhando quando a dependência não existe;
-- `--all`: suíte completa e obrigatória.
+Testes nomeados por versão ou arquivos estruturais paralelos não devem ser recriados. Novas regressões entram no bloco temático correspondente de `test_regressions.py`.
 
-## Dependências
+## 3. Pré-requisitos
 
-Obrigatórias:
+Obrigatórios:
 
-- Python 3.10+;
-- Node.js.
+- Python 3.10 ou superior;
+- Node.js disponível no `PATH`;
+- dependências do OCR instaladas quando a suíte importar seus módulos.
 
-Opcionais para navegador:
+Para testes de navegador:
+
+- Playwright para Python;
+- Chromium instalado pelo Playwright.
+
+## 4. Ambiente virtual
+
+Mantenha o ambiente virtual fora do repositório para que a higiene não encontre `.venv` dentro de `raid_hall`.
+
+PowerShell:
+
+```powershell
+python -m venv "$env:USERPROFILE\Documents\AmbientesPython\raid_hall_venv"
+& "$env:USERPROFILE\Documents\AmbientesPython\raid_hall_venv\Scripts\Activate.ps1"
+```
+
+Confirme o interpretador:
+
+```powershell
+python -c "import sys; print(sys.executable)"
+```
+
+## 5. Dependências do OCR
+
+Na raiz do projeto, com o ambiente ativo:
+
+```bash
+python -m pip install -r ocr/guild-rank-ocr/requirements.txt
+```
+
+Confirme o OpenCV:
+
+```bash
+python -c "import cv2; print(cv2.__version__)"
+```
+
+## 6. Playwright e Chromium
 
 ```bash
 python -m pip install playwright
 python -m playwright install chromium
 ```
 
-## Cobertura
+Verifique:
 
-### `test_core.js`
+```bash
+python -m playwright --version
+```
 
-- limites matemáticos do Hall;
-- ranking dinâmico e membros ausentes;
-- independência entre ranking de dano e Hall;
-- métricas dos cards;
-- estrutura do Registro;
-- motores de canvas da Liga;
-- chaves de rascunho, arquivos e acesso da V7.8.1;
-- isolamento entre participante e organizador;
-- loader, reveal, feedback e retorno ao topo;
-- caminhos canônicos sem versão embutida;
-- documentação consolidada;
-- README oficial atualizado.
+## 7. Comandos oficiais
 
-### `test_project.py`
-
-- leitura de todos os JSONs;
-- referências locais de HTML;
-- links Markdown;
-- formato exato da pasta `docs/`;
-- orçamento de imagens críticas;
-- migração para assets WebP em `display/`;
-- ausência de evidências, caches e pacotes locais.
-
-### `test_v7_8_2.py`
-
-- existência dos quatro artefatos identificados da Raid 133;
-- diferença entre OCR bruto e dados revisados;
-- número, data, dano total e participação oficiais;
-- isolamento das correções entre Raid 133 e Raid 134;
-- aliases curtos protegidos contra fuzzy incorreto;
-- quinta imagem limitada às posições 29 e 30;
-- promoção da Raid 133, preservação da Raid 132 e limite do histórico;
-- presença da seção Evolução da Guilda.
-
-### `validate_raid_history.py`
-
-- integridade do histórico;
-- estrutura da raid atual;
-- consistência dos dados usados no Hall e Registro.
-
-### `test_browser.py`
-
-- sete páginas em celular, tablet e desktop;
-- loader concluindo;
-- imagens críticas carregadas;
-- ausência de erros JavaScript;
-- ausência de overflow horizontal;
-- layout responsivo do Registro;
-- gateway da Liga;
-- botão global de retorno ao topo.
-
-## Antes do commit
-
-Execute:
+### Suíte rápida
 
 ```bash
 python tools/run_tests.py --quick
 ```
 
-Quando houver alteração visual, de loader, responsividade, Liga ou imagens, execute:
+Executa:
+
+1. sintaxe de todos os JavaScripts publicados;
+2. `test_core.js`;
+3. `test_regressions.py`;
+4. `validate_raid_history.py`.
+
+Não abre navegador.
+
+### Somente navegador
+
+```bash
+python tools/run_tests.py --browser
+```
+
+Exige Playwright e Chromium.
+
+### Suíte completa
 
 ```bash
 python tools/run_tests.py --all
 ```
 
-Além da automação, faça teste manual no endereço local e confirme o console sem erros.
+Executa a suíte rápida e os testes de navegador. Falha se Playwright não estiver disponível.
 
-## Antes de uma nova raid
+### Modo automático
 
-1. confira `raid_N_bruto.csv`, `raid_N_revisado.csv` e `raid_N_relatorio.json`;
-2. confirme zero pendências antes da promoção;
-3. execute:
+```bash
+python tools/run_tests.py
+```
+
+Executa a suíte rápida e acrescenta navegador quando Playwright estiver instalado.
+
+## 8. Cobertura por arquivo
+
+### `test_core.js`
+
+- limites matemáticos do Hall;
+- ranking dinâmico e ausentes;
+- métricas essenciais dos cards;
+- estrutura e filtros do Registro;
+- Liga, papéis e arquivos locais;
+- loader, reveal, feedback e retorno ao topo;
+- caminhos canônicos e versão documental.
+
+### `test_regressions.py`
+
+O arquivo é dividido por responsabilidade:
+
+#### OCR e histórico
+
+- artefatos bruto, revisado, JSON e relatório da Raid 133;
+- dano, participação e pendências;
+- correções isoladas por raid;
+- aliases curtos protegidos;
+- quinta imagem limitada às posições 29 e 30;
+- Raid 133 atual, Raid 132 anterior e histórico com quatro entradas.
+
+#### Limpeza da Raid
+
+- ausência do dashboard coletivo em `raid.html`;
+- ausência de `raid-evolution.js`;
+- ausência de CSS `.raid-evolution-*`;
+- evolução coletiva restrita ao Registro.
+
+#### Registro
+
+- evolução individual e coletiva;
+- Raids 130–133 e fontes oficial/estimada;
+- snapshot único e nenhum segundo `fetch`;
+- modal único, bloqueio, foco, X e cache;
+- gráficos responsivos sem rolagem lateral;
+- retorno à batalha e ausência de dados;
+- segmentos interrompidos quando faltam raids;
+- `colgroup`, nove colunas e alinhamento desktop.
+
+#### Projeto
+
+- validade de JSONs;
+- referências HTML e links Markdown;
+- sete documentos canônicos;
+- orçamento de imagens críticas;
+- migração WebP;
+- ausência de `.venv`, caches, ZIPs e pacotes locais;
+- confirmação de apenas três arquivos principais de teste.
+
+### `test_browser.py`
+
+- sete páginas em celular, tablet e desktop;
+- loader e imagens críticas;
+- ausência de erros JavaScript e overflow horizontal;
+- Registro em onze larguras, modal, foco, casos sem histórico e ordenação;
+- Raid restrita a boss, elemento, times e resultados;
+- ausência de requisição a `raid_history.json` na página Raid;
+- Liga e botão global de retorno ao topo.
+
+### `validate_raid_history.py`
+
+- estrutura da raid atual e das entradas históricas;
+- consistência dos dados consumidos por Hall e Registro;
+- avisos para bases estimadas e frequências excluídas da média.
+
+## 9. Responsabilidade atual das páginas
+
+### Registro
+
+É a única página que apresenta evolução individual e coletiva. Reutiliza o histórico carregado por `app.js` e não deve executar um segundo `fetch`.
+
+### Raid
+
+É exclusiva para consulta estratégica de bosses, elementos, composições, equipamentos, chains, vídeos e cache da API. Não deve carregar:
+
+- `raid-evolution.js`;
+- `raid_history.json`;
+- cards ou gráficos coletivos da guilda.
+
+## 10. Antes do commit
+
+```bash
+python tools/run_tests.py --quick
+python tools/run_tests.py --all
+git status
+git diff --stat
+git diff --check
+```
+
+Não inclua `.venv`, `__pycache__`, screenshots, caches, arquivos temporários ou credenciais.
+
+## 11. Antes do deploy
+
+- branch correta e sincronizada;
+- árvore de trabalho limpa;
+- suíte aplicável aprovada;
+- hospedagem apontando para `web/`;
+- páginas testadas por HTTP, nunca por `file://`;
+- console e Network sem erros inesperados.
+
+## 12. Antes de promover uma nova raid
+
+1. revise `raid_N_bruto.csv`;
+2. confira `raid_N_revisado.csv`;
+3. confirme `raid_N_relatorio.json` validado e sem pendências;
+4. promova os JSONs;
+5. execute:
 
 ```bash
 python tools/validate_raid_history.py \
@@ -124,11 +254,50 @@ python tools/validate_raid_history.py \
 python tools/run_tests.py --quick
 ```
 
+## 13. Avisos esperados
 
-## Política de manutenção
+O validador pode emitir avisos sem bloquear a suíte:
 
-- manter `test_v7_8_2.py` enquanto ele validar os artefatos oficiais desta migração; novos casos gerais devem ir para os testes temáticos;
-- adicionar novos casos ao arquivo temático correspondente;
-- manter o runner único e multiplataforma;
-- evitar testes presos a nomes, danos ou quantidade fixa de membros quando esses dados mudam a cada raid;
-- atualizar este documento quando a cobertura mudar.
+- base estimada;
+- frequência histórica abaixo de `15/21`, excluída da média;
+- membro ausente em uma base antiga.
+
+Erros estruturais, duplicidades, JSON inválido ou inconsistência entre raid atual e histórico devem bloquear o commit.
+
+## 14. Erros comuns
+
+### `ModuleNotFoundError: No module named 'cv2'`
+
+```bash
+python -m pip install -r ocr/guild-rank-ocr/requirements.txt
+```
+
+### `artefatos locais encontrados: ['.venv']`
+
+Remova a `.venv` de dentro do repositório e use um ambiente externo.
+
+### Playwright não instalado
+
+```bash
+python -m pip install playwright
+python -m playwright install chromium
+```
+
+### JSON não carrega no navegador
+
+```bash
+python -m http.server 8000 --directory web
+```
+
+### Teste da Raid encontra histórico
+
+Confirme que `raid.html` não referencia `raid-evolution.js` e que `raid.js` não solicita `raid_history.json`.
+
+## 15. Política de manutenção
+
+- `tools/run_tests.py` é o único runner oficial;
+- mantenha somente `test_core.js`, `test_regressions.py` e `test_browser.py` como testes principais;
+- acrescente regressões ao bloco temático adequado em vez de criar um arquivo por versão;
+- não replique instruções completas em outros documentos;
+- atualize este arquivo quando dependências, comandos ou cobertura mudarem;
+- evite testes presos a danos ou nomes mutáveis, salvo artefatos oficiais auditados.

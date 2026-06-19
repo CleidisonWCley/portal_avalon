@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Registro da Batalha • Portal Avalon</title>
-<meta content="Tabela geral da Raid com dano atual, raid anterior, média histórica e percentual evolutivo." name="description"/>
+<meta content="Registro da Raid com ranking atual, evolução individual e comparação coletiva das Raids 130 a 133." name="description"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
@@ -95,18 +95,24 @@
 <option value="hall">Hall evolutivo</option>
 <option value="ausente">Ausente</option>
 </select>
-<select aria-label="Filtrar por confiança da base" id="confidence-filter">
-<option value="todos">Toda base histórica</option>
-<option value="oficial">Base oficial</option>
-<option value="estimada">Base estimada</option>
-</select>
 </div>
 <div class="table-wrap">
 <table class="battle-table">
+<colgroup class="registro-column-layout" aria-hidden="true">
+<col class="registro-col-rank"/>
+<col class="registro-col-member"/>
+<col class="registro-col-damage"/>
+<col class="registro-col-frequency"/>
+<col class="registro-col-average"/>
+<col class="registro-col-evolution"/>
+<col class="registro-col-hall"/>
+<col class="registro-col-patent"/>
+<col class="registro-col-participation"/>
+</colgroup>
 <thead>
 <tr>
-<th class="sticky-rank"># Dano</th>
-<th class="sticky-member">Guardião</th>
+<th># Dano</th>
+<th>Guardião</th>
 <th>Dano atual</th>
 <th>Frequência</th>
 <th>Média base</th>
@@ -114,7 +120,6 @@
 <th># Hall</th>
 <th>Patente</th>
 <th>Participação</th>
-<th>Base</th>
 </tr>
 </thead>
 <tbody id="members-table"></tbody>
@@ -122,7 +127,68 @@
 </div>
 </div>
 </section>
+<section class="section-block registro-guild-evolution-stage reveal" id="registro-guild-evolution" aria-labelledby="registro-guild-evolution-title">
+<div class="registro-guild-evolution-panel medieval-card gold-frame">
+<div class="registro-guild-evolution-head">
+<div>
+<p class="eyebrow">Histórico coletivo</p>
+<h2 id="registro-guild-evolution-title">Evolução recente da Guilda</h2>
+<p>Comparação entre as Raids 130, 131, 132 e 133, com distinção entre bases estimadas e fontes oficiais.</p>
+</div>
+</div>
+<div class="registro-guild-metrics" id="registro-guild-metrics" aria-live="polite"></div>
+<div id="registro-guild-chart"></div>
+<div class="registro-history-legend" aria-label="Legenda das fontes">
+<span><i class="official" aria-hidden="true"></i>Fonte oficial</span>
+<span><i class="estimated" aria-hidden="true"></i>Base estimada</span>
+</div>
+<div class="registro-guild-table-head">
+<div>
+<h3>Comparativo por raid</h3>
+<p>A tabela começa pela raid mais recente. O gráfico permanece em ordem cronológica.</p>
+</div>
+<label class="registro-order-control" for="registro-guild-order">
+<span>Ordenar raids</span>
+<select id="registro-guild-order">
+<option value="desc">Mais recente primeiro</option>
+<option value="asc">Mais antiga primeiro</option>
+</select>
+</label>
+</div>
+<div class="registro-guild-table-wrap">
+<table class="registro-guild-table">
+<thead>
+<tr>
+<th>Raid</th>
+<th>Dano total</th>
+<th>Participantes</th>
+<th>Média por membro</th>
+<th>Variação</th>
+<th>Fonte</th>
+</tr>
+</thead>
+<tbody id="registro-guild-table-body"></tbody>
+</table>
+</div>
+</div>
+</section>
 </main>
+<div class="registro-evolution-modal" id="registro-evolution-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="registro-evolution-modal-title">
+  <div class="registro-evolution-modal-backdrop" aria-hidden="true"></div>
+  <section class="registro-evolution-dialog medieval-card gold-frame" id="registro-evolution-dialog" tabindex="-1">
+    <header class="registro-evolution-dialog-head">
+      <div>
+        <p class="eyebrow">Jornada do guardião</p>
+        <h2 id="registro-evolution-modal-title">Evolução individual</h2>
+        <p>Raids 130 a 133, com prioridade para as fontes oficiais mais recentes.</p>
+      </div>
+      <button class="registro-evolution-close" type="button" data-registro-evolution-close aria-label="Fechar evolução">
+        <span aria-hidden="true">×</span>
+      </button>
+    </header>
+    <div class="registro-evolution-dialog-body" id="registro-evolution-modal-content"></div>
+  </section>
+</div>
 <button aria-label="Voltar ao topo da página" class="site-back-top hidden" id="back-to-top" type="button">
 <span aria-hidden="true" class="material-symbols-outlined">arrow_upward</span>
 <span>Voltar ao topo</span>
@@ -135,6 +201,7 @@
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/hall-rules.js"></script>
 <script src="../assets/js/app.js"></script>
+<script src="../assets/js/registro-evolution.js"></script>
 </body>
 </html>
 

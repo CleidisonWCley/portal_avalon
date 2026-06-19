@@ -2,8 +2,8 @@
 
 Portal estático da Guilda Avalon para acompanhar raids, evolução dos guardiões, histórico de desempenho, estratégias e torneios internos.
 
-**Versão funcional atual:** V7.8.2 — blindagem do OCR, Raid 133 oficial e evolução coletiva.  
-**Base anterior preservada:** V7.8.1.1 — suíte de regressão e README consolidados.
+**Versão funcional atual:** V7.8.3.4 — remoção do dashboard legado da Raid e consolidação dos testes.
+**Base funcional preservada:** V7.8.3.3 — casos especiais e alinhamento estrutural do Registro.
 
 > Este é o README oficial e a entrada principal do projeto. A documentação técnica consolidada está em [`docs/`](docs/README.md).
 
@@ -12,8 +12,8 @@ Portal estático da Guilda Avalon para acompanhar raids, evolução dos guardiõ
 - Salão com apresentação e identidade da Guilda Avalon;
 - Hall da Evolução baseado em frequência, dano, histórico e crescimento pessoal;
 - busca individual e fichas dos guardiões;
-- Registro com ranking de dano, Hall evolutivo e membros ausentes;
-- Raid com estratégias, times, mapas, consulta externa e evolução histórica da guilda;
+- Registro com ranking de dano, Hall evolutivo, evolução individual em modal bloqueante, casos sem histórico tratados e comparação coletiva responsiva das Raids 130–133;
+- Raid dedicada à consulta estratégica de bosses, elementos, times, equipamentos, chains e vídeos;
 - Galeria histórica da guilda;
 - Liga Avalon com modos competitivos, chaves, mapas, pódio e exportações;
 - transmissão da Liga em tempo real com Firebase;
@@ -67,7 +67,7 @@ Sete documentos essenciais:
 
 ### `tools/`
 
-Ferramentas permanentes para promover e validar raids, além da suíte consolidada de regressão. Consulte [`tools/README.md`](tools/README.md).
+Ferramentas permanentes para promover e validar raids, além da suíte consolidada em `test_core.js`, `test_regressions.py` e `test_browser.py`. Consulte [`tools/README.md`](tools/README.md).
 
 ### `ocr/`
 
@@ -75,25 +75,15 @@ Subprojeto de extração de rankings por imagem. Possui ambiente e README própr
 
 ## Testes de regressão
 
-Teste rápido, sem navegador:
+Comandos principais:
 
 ```bash
 python tools/run_tests.py --quick
-```
-
-Suíte padrão, executando Playwright quando estiver disponível:
-
-```bash
-python tools/run_tests.py
-```
-
-Suíte completa, exigindo Playwright:
-
-```bash
+python tools/run_tests.py --browser
 python tools/run_tests.py --all
 ```
 
-Os testes cobrem sintaxe, regras do Hall, dados, referências, assets, Liga V7.8.1, OCR V7.8.2, promoção segura, carregamento, responsividade e ausência de overflow.
+A instalação, cobertura, interpretação dos avisos e solução de problemas estão centralizadas em [`docs/TESTES.md`](docs/TESTES.md).
 
 ## Fluxo resumido de uma nova raid
 
@@ -167,7 +157,6 @@ O projeto não exige build. A pasta publicada é `web/` e pode ser servida por q
 
 Fluxo recomendado:
 
-```bash
 git status
 git diff --stat
 python tools/run_tests.py --quick
@@ -175,18 +164,15 @@ git add -A
 git diff --cached --stat
 git commit -m "descrição objetiva"
 git push origin main
-```
 
 As instruções completas estão em [`docs/MANUTENCAO_E_DEPLOY.md`](docs/MANUTENCAO_E_DEPLOY.md).
 
 ## Segurança
-
 Não versionar:
-
 - senhas ou tokens privados;
 - Service Account do Firebase;
 - `.env` com segredos;
 - screenshots e evidências locais;
 - ambientes virtuais, caches ou pacotes gerados.
-
 A configuração pública do Firebase para aplicações web não substitui as regras do Firestore nem a validação administrativa por UID.
+**Versão funcional atual:** V7.8.3.4 — remoção do dashboard legado da Raid e consolidação dos testes.

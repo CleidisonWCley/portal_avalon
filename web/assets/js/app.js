@@ -211,11 +211,32 @@ function getBadgeName(id) {
   return state.insignias[id].nome;
 }
 
-function getHistoryRaids() {
+function getAllHistoryRaids() {
   const raids = Array.isArray(state.history?.raids) ? state.history.raids : [];
   return raids
-    .filter(raid => raid && Number(raid.order) > 0)
+    .filter(raid => raid && Number(raid.order) >= 0)
     .sort((a, b) => Number(a.order) - Number(b.order));
+}
+
+function getHistoryRaids() {
+  return getAllHistoryRaids().filter(raid => Number(raid.order) > 0);
+}
+
+function raidNumberFromHistory(raid, latestRaidNumber = null) {
+  const direct = Number(raid?.raidNumber);
+  if (Number.isInteger(direct) && direct > 0) return direct;
+
+  const textual = `${raid?.id || ''} ${raid?.label || ''}`.match(/(?:raid[_\s-]*)(\d+)/i);
+  if (textual) return Number(textual[1]);
+
+  const latest = Number(latestRaidNumber);
+  const order = Number(raid?.order);
+  return Number.isInteger(latest) && Number.isFinite(order) ? latest - order : null;
+}
+
+function registroRaidLabel(raid, latestRaidNumber = null) {
+  const number = raidNumberFromHistory(raid, latestRaidNumber);
+  return Number.isInteger(number) && number > 0 ? `Raid ${number}` : (raid?.label || 'Raid histórica');
 }
 
 function historyMemberForRaid(raid, memberName) {
@@ -1002,27 +1023,6 @@ function renderRegistroKpis() {
   `;
 }
 
-function syncConfidenceFilterOptions() {
-  const select = $('#confidence-filter');
-  if (!select) return;
-  const optional = [
-    ['parcial', 'Base parcial'],
-    ['insuficiente', 'Base insuficiente']
-  ];
-  optional.forEach(([value, label]) => {
-    const exists = state.members.some(member => member.baseConfidence === value);
-    const current = select.querySelector(`option[value="${value}"]`);
-    if (exists && !current) {
-      const option = document.createElement('option');
-      option.value = value;
-      option.textContent = label;
-      select.appendChild(option);
-    } else if (!exists && current) {
-      current.remove();
-    }
-  });
-}
-
 function compareRegistroMembers(a, b, mode) {
   if (mode === 'hall') {
     if (a.hallRank && b.hallRank) return a.hallRank - b.hallRank;
@@ -1041,11 +1041,11 @@ function compareRegistroMembers(a, b, mode) {
 function renderTable() {
   const table = $('#members-table');
   if (!table) return;
+  document.dispatchEvent(new CustomEvent('avalon:registro-table-rendering'));
   const search = $('#table-search')?.value.trim().toLowerCase() || '';
   const statusFilter = $('#status-filter')?.value || 'todos';
   const trendFilter = $('#trend-filter')?.value || 'todos';
   const rankingFilter = $('#ranking-filter')?.value || 'dano';
-  const confidenceFilter = $('#confidence-filter')?.value || 'todos';
 
   const sorted = [...state.members].sort((a, b) => compareRegistroMembers(a, b, rankingFilter));
 
@@ -1058,8 +1058,7 @@ function renderTable() {
       || (statusFilter === 'sem_comparativo' ? !member.comparativoValido : false);
     const matchesTrend = trendFilter === 'todos' || trendKey(member) === trendFilter;
     const matchesRankingMode = rankingFilter !== 'ausente' || member.ausenteAtual;
-    const matchesConfidence = confidenceFilter === 'todos' || member.baseConfidence === confidenceFilter;
-    return matchesSearch && matchesStatus && matchesTrend && matchesRankingMode && matchesConfidence;
+    return matchesSearch && matchesStatus && matchesTrend && matchesRankingMode;
   });
 
   table.innerHTML = filtered.map(member => {
@@ -1073,8 +1072,24 @@ function renderTable() {
 
     return `
       <tr class="registro-member-card ${absent ? 'member-row-absent' : ''}">
-        <td class="sticky-rank registro-rank-cell" data-label="Ranking de dano">${currentRankLabel(member)}</td>
-        <td class="member-name-cell sticky-member registro-member-cell" data-label="Guardião">${member.nome}</td>
+        <td class="registro-rank-cell" data-label="Ranking de dano">${currentRankLabel(member)}</td>
+        <td class="member-name-cell registro-member-cell" data-label="Guardião">
+          <div class="registro-member-identity">
+            <span>${member.nome}</span>
+            <button
+              class="registro-evolution-toggle"
+              type="button"
+              data-registro-evolution="${normalizeMemberKey(member.nome)}"
+              aria-expanded="false"
+              aria-controls="registro-evolution-modal"
+              aria-haspopup="dialog"
+              aria-label="Ver evolução de ${member.nome}"
+            >
+              <span class="registro-evolution-toggle-icon" aria-hidden="true">↗</span>
+              <span class="registro-evolution-toggle-label">Ver evolução</span>
+            </button>
+          </div>
+        </td>
         <td class="numeric-cell registro-damage-cell" data-label="Dano atual">${absent ? '—' : formatDamageShort(member.danoAtual)}</td>
         <td class="registro-frequency-cell" data-label="Frequência">${member.frequencia || '—'}</td>
         <td class="numeric-cell registro-average-cell" data-label="Média base">${member.mediaBase === null ? 'Sem base' : formatDamageShort(member.mediaBase)}</td>
@@ -1082,14 +1097,105 @@ function renderTable() {
         <td class="registro-hall-cell" data-label="Posição no Hall">${hallPosition}</td>
         <td class="registro-patent-cell" data-label="Patente">${member.hallBadgeId ? getBadgeName(member.hallBadgeId) : 'Sem patente'}</td>
         <td class="registro-participation-cell" data-label="Participação"><span class="status-badge status-${member.retornoBatalha ? 'retorno_batalha' : status}">${participation}</span></td>
-        <td class="registro-base-cell" data-label="Base histórica"><span class="history-confidence ${confidenceClass(member.baseConfidence)}">${confidenceLabel(member.baseConfidence)}</span></td>
       </tr>
     `;
   }).join('') || `
     <tr class="registro-empty-row">
-      <td class="registro-empty-cell" colspan="10">Nenhum registro encontrado com os filtros atuais.</td>
+      <td class="registro-empty-cell" colspan="9">Nenhum registro encontrado com os filtros atuais.</td>
     </tr>
   `;
+  document.dispatchEvent(new CustomEvent('avalon:registro-table-rendered'));
+}
+
+function registroTimelineForMember(member) {
+  const raids = getAllHistoryRaids();
+  const latestRaidNumber = raids.length ? raidNumberFromHistory(raids[0]) : null;
+  const minimumAttacks = Number(state.historySettings?.minBaselineAttacks || 15);
+
+  return raids.map(raid => {
+    const entry = historicalEntry(raid, member.nome);
+    const order = Number(raid.order || 0);
+    const isCurrent = order === 0;
+    if (!entry) {
+      return {
+        raidId: raid.id,
+        raidNumber: raidNumberFromHistory(raid, latestRaidNumber),
+        label: registroRaidLabel(raid, latestRaidNumber),
+        order,
+        confidence: raid.confidence || 'estimada',
+        source: raid.source || 'unknown',
+        damage: null,
+        frequency: null,
+        attacks: null,
+        knownFrequency: false,
+        eligibleForBaseline: false,
+        status: 'sem_registro'
+      };
+    }
+
+    const damage = Number(entry.damage || 0);
+    const knownFrequency = entry.attacks !== null && entry.attacks !== undefined;
+    const eligibleForBaseline = !isCurrent
+      && damage > 0
+      && (!knownFrequency || Number(entry.attacks) >= minimumAttacks);
+    const estimated = (raid.confidence || entry.confidence) === 'estimada' || raid.source === 'seed_planilha';
+    let status = isCurrent ? 'raid_atual' : 'incluida_media';
+    if (!isCurrent && knownFrequency && Number(entry.attacks) < minimumAttacks) status = 'fora_media_frequencia';
+    else if (!isCurrent && estimated) status = 'base_estimada';
+
+    return {
+      raidId: raid.id,
+      raidNumber: raidNumberFromHistory(raid, latestRaidNumber),
+      label: registroRaidLabel(raid, latestRaidNumber),
+      order,
+      confidence: raid.confidence || entry.confidence || 'estimada',
+      source: raid.source || entry.source || 'unknown',
+      damage,
+      frequency: entry.frequency,
+      attacks: entry.attacks,
+      knownFrequency,
+      eligibleForBaseline,
+      status
+    };
+  });
+}
+
+function getRegistroSnapshot() {
+  const raids = getAllHistoryRaids();
+  const latestRaidNumber = raids.length ? raidNumberFromHistory(raids[0]) : null;
+  return {
+    generatedAt: state.history?.generatedAt || null,
+    settings: { ...state.historySettings },
+    raids: raids.map(raid => ({
+      id: raid.id,
+      order: Number(raid.order || 0),
+      raidNumber: raidNumberFromHistory(raid, latestRaidNumber),
+      label: registroRaidLabel(raid, latestRaidNumber),
+      confidence: raid.confidence || 'estimada',
+      source: raid.source || 'unknown',
+      summary: { ...(raid.summary || {}) }
+    })),
+    members: state.members.map(member => ({
+      key: normalizeMemberKey(member.nome),
+      name: member.nome,
+      currentDamage: Number(member.danoAtual || 0),
+      currentFrequency: member.frequencia || null,
+      averageBase: member.mediaBase,
+      baseConfidence: member.baseConfidence,
+      returnToBattle: Boolean(member.retornoBatalha),
+      absent: Boolean(member.ausenteAtual),
+      timeline: registroTimelineForMember(member)
+    }))
+  };
+}
+
+function publishRegistroSnapshot() {
+  if (document.body?.dataset?.page !== 'registro') return;
+  const snapshot = getRegistroSnapshot();
+  window.AvalonRegistroData = Object.freeze({
+    getSnapshot: () => snapshot
+  });
+  document.dispatchEvent(new CustomEvent('avalon:registro-ready', { detail: snapshot }));
 }
 
 function renderGalleryYearFilters() {
@@ -1212,7 +1318,7 @@ function bindEvents() {
     });
   }
 
-  ['#table-search', '#status-filter', '#trend-filter', '#ranking-filter', '#confidence-filter'].forEach(selector => {
+  ['#table-search', '#status-filter', '#trend-filter', '#ranking-filter'].forEach(selector => {
     const element = $(selector);
     if (!element) return;
     element.addEventListener('input', renderTable);
@@ -1308,7 +1414,6 @@ function renderCurrentPage(page) {
     renderMemberCard(null);
   } else if (page === 'registro') {
     renderRegistroKpis();
-    syncConfidenceFilterOptions();
     renderTable();
   }
 }
@@ -1319,6 +1424,7 @@ async function init() {
   applyLoadedData(loaded);
   renderCurrentPage(page);
   bindEvents();
+  publishRegistroSnapshot();
   initRevealAnimations();
 }
 
@@ -1344,8 +1450,12 @@ if (typeof module !== 'undefined' && module.exports) {
     hallRankMembers,
     hallUnclassifiedMembers,
     memberAtHallPosition,
+    getAllHistoryRaids,
     getHistoryRaids,
     historicalEntry,
+    raidNumberFromHistory,
+    registroRaidLabel,
+    getRegistroSnapshot,
     normalizeMemberKey,
     parseAttackCount,
     isRankableByDamage,

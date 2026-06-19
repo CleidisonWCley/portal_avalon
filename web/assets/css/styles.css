@@ -5113,35 +5113,6 @@ button.league-unit {
   backdrop-filter: blur(12px);
 }
 
-.registro-page .battle-table .sticky-rank {
-  position: sticky;
-  left: 0;
-  z-index: 7;
-  min-width: 92px;
-  width: 92px;
-  text-align: center;
-}
-
-.registro-page .battle-table .sticky-member {
-  position: sticky;
-  left: 92px;
-  z-index: 6;
-  min-width: 148px;
-  background: rgba(10,14,26,0.98);
-  box-shadow: 10px 0 18px rgba(0,0,0,0.12);
-}
-
-.registro-page .battle-table th.sticky-rank,
-.registro-page .battle-table th.sticky-member {
-  z-index: 9;
-  background: linear-gradient(180deg, rgba(45,36,20,1), rgba(17,21,34,1));
-}
-
-.registro-page .battle-table tbody tr:hover .sticky-rank,
-.registro-page .battle-table tbody tr:hover .sticky-member {
-  background: rgba(32,29,25,0.99);
-}
-
 .numeric-cell {
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -5149,11 +5120,6 @@ button.league-unit {
 
 .member-row-absent {
   opacity: 0.84;
-}
-
-.member-row-absent .sticky-rank,
-.member-row-absent .sticky-member {
-  background: rgba(22,18,24,0.98);
 }
 
 
@@ -5550,149 +5516,671 @@ html.avalon-motion-ready .reveal.is-visible {
 /* Desktop amplo */
 
 /* ============================================================
-   PORTAL AVALON — EVOLUÇÃO SIMPLES DA GUILDA
+   PORTAL AVALON — REGISTRO V7.8.3.2
+   TABELA LIMPA, MODAL MAIS LEGÍVEL E HALL SEPARADO DA TENDÊNCIA
 ============================================================ */
 
-.raid-evolution-panel {
-  padding: clamp(1.15rem, 2.4vw, 2rem);
-  overflow: hidden;
+.registro-member-identity {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.38rem;
+  min-width: 0;
 }
 
-.raid-evolution-metrics {
+.registro-member-identity > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.18;
+}
+
+.registro-evolution-toggle,
+.registro-evolution-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  border: 1px solid rgba(79, 140, 255, 0.26);
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: rgba(79, 140, 255, 0.07);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 850;
+  line-height: 1;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.registro-evolution-toggle {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0.34rem 0.56rem;
+}
+
+.registro-evolution-toggle-icon,
+.registro-trend-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.registro-evolution-close > span {
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.registro-evolution-toggle:hover,
+.registro-evolution-toggle[aria-expanded="true"],
+.registro-evolution-close:hover {
+  border-color: rgba(242, 199, 102, 0.46);
+  color: var(--gold);
+  background: rgba(242, 199, 102, 0.09);
+}
+
+.registro-evolution-toggle:active,
+.registro-evolution-close:active {
+  transform: translateY(1px);
+}
+
+.registro-evolution-toggle:focus-visible,
+.registro-evolution-close:focus-visible,
+.registro-order-control select:focus-visible {
+  outline: 3px solid rgba(79, 140, 255, 0.34);
+  outline-offset: 2px;
+}
+
+.registro-evolution-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  place-items: center;
+  padding: clamp(0.5rem, 2vw, 1.25rem);
+}
+
+.registro-evolution-modal.open {
+  display: grid;
+}
+
+.registro-evolution-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 5, 12, 0.82);
+}
+
+.registro-evolution-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(1160px, calc(100vw - clamp(1rem, 4vw, 3rem)));
+  max-height: min(92dvh, 900px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0;
+  border-color: rgba(242, 199, 102, 0.34);
+  background:
+    radial-gradient(circle at 88% 0%, rgba(79, 140, 255, 0.08), transparent 34%),
+    linear-gradient(145deg, rgba(17, 24, 39, 0.985), rgba(5, 8, 17, 0.995));
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.56), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.registro-evolution-dialog-head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1rem 0.9rem 1.15rem;
+  border-bottom: 1px solid rgba(242, 199, 102, 0.14);
+  background: rgba(8, 12, 23, 0.96);
+}
+
+.registro-evolution-dialog-head h2,
+.registro-guild-evolution-head h2,
+.registro-guild-table-head h3 {
+  margin: 0.16rem 0 0.3rem;
+  color: var(--text);
+  font-family: var(--font-title);
+}
+
+.registro-evolution-dialog-head p:not(.eyebrow),
+.registro-guild-evolution-head p,
+.registro-guild-table-head p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.registro-evolution-close {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: rgba(6, 9, 19, 0.92);
+}
+
+.registro-evolution-dialog-body {
+  padding: clamp(0.85rem, 2vw, 1.3rem);
+}
+
+.registro-evolution-modal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.75fr);
+  gap: 1rem;
+  min-width: 0;
+}
+
+.registro-evolution-modal-main,
+.registro-evolution-modal-history {
+  min-width: 0;
+}
+
+.registro-evolution-metrics,
+.registro-guild-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.85rem;
-  margin: 1.35rem 0 1rem;
+  gap: 0.65rem;
+  margin: 0 0 0.9rem;
 }
 
-.raid-evolution-metric {
+.registro-evolution-metric {
   min-width: 0;
-  padding: 1rem;
-  border: 1px solid rgba(79, 140, 255, 0.24);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(25, 36, 62, 0.9), rgba(10, 16, 31, 0.9));
+  min-height: 112px;
+  padding: 0.88rem;
+  border: 1px solid rgba(79, 140, 255, 0.16);
+  border-radius: 13px;
+  background: rgba(10, 16, 31, 0.62);
 }
 
-.raid-evolution-metric > span,
-.raid-evolution-metric small {
+.registro-evolution-metric > span,
+.registro-evolution-metric small {
   display: block;
   color: var(--muted);
 }
 
-.raid-evolution-metric > span {
-  margin-bottom: 0.45rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+.registro-evolution-metric > span {
+  margin-bottom: 0.3rem;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
 }
 
-.raid-evolution-metric strong {
+.registro-evolution-metric strong {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.28rem;
   min-width: 0;
-  font-family: var(--font-title);
-  font-size: clamp(1.05rem, 2vw, 1.42rem);
   color: var(--text);
+  font-family: var(--font-title);
+  font-size: clamp(0.92rem, 1.35vw, 1.16rem);
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
-.raid-evolution-metric strong .material-symbols-outlined {
-  font-size: 1.25em;
+.registro-evolution-metric strong .registro-trend-icon {
+  font-size: 1.05em;
 }
 
-.raid-evolution-metric small {
-  margin-top: 0.35rem;
-  font-size: 0.78rem;
+.registro-trend-label {
+  display: inline-block;
+  white-space: nowrap;
 }
 
-.raid-evolution-metric.positive strong { color: var(--green); }
-.raid-evolution-metric.negative strong { color: var(--red); }
-.raid-evolution-metric.stable strong { color: var(--amber); }
+.registro-evolution-metric small {
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+}
 
-.raid-evolution-chart-scroll {
+.registro-evolution-metric.positive strong,
+.registro-table-variation.positive { color: var(--green); }
+.registro-evolution-metric.negative strong,
+.registro-table-variation.negative { color: var(--red); }
+.registro-evolution-metric.stable strong,
+.registro-table-variation.stable { color: var(--amber); }
+.registro-evolution-metric.neutral strong,
+.registro-table-variation.neutral { color: var(--muted); }
+
+.registro-evolution-chart-frame {
   width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  border: 1px solid rgba(242, 199, 102, 0.16);
-  border-radius: 18px;
-  background: rgba(5, 9, 19, 0.66);
-  scrollbar-width: thin;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.25rem;
+  border: 1px solid rgba(242, 199, 102, 0.14);
+  border-radius: 15px;
+  background: rgba(5, 9, 19, 0.56);
 }
 
-.raid-evolution-chart {
+.registro-evolution-chart {
   display: block;
   width: 100%;
-  min-width: 650px;
+  max-width: 100%;
   height: auto;
 }
 
-.raid-evolution-grid-line {
-  stroke: rgba(170, 176, 192, 0.16);
+.registro-evolution-grid-line {
+  stroke: rgba(170, 176, 192, 0.13);
   stroke-width: 1;
-  stroke-dasharray: 5 7;
+  stroke-dasharray: 4 8;
 }
 
-.raid-evolution-axis-label,
-.raid-evolution-label,
-.raid-evolution-value {
+.registro-evolution-axis-label,
+.registro-evolution-label,
+.registro-evolution-value,
+.registro-evolution-missing-label {
   font-family: var(--font-body);
   fill: var(--muted);
 }
 
-.raid-evolution-axis-label { font-size: 12px; }
-.raid-evolution-label { font-size: 13px; font-weight: 700; }
-.raid-evolution-value { font-size: 13px; font-weight: 800; fill: var(--text); }
+.registro-evolution-axis-label { font-size: 11px; }
+.registro-evolution-label { font-size: 12px; font-weight: 850; }
+.registro-evolution-value { font-size: 12px; font-weight: 900; fill: var(--text); }
+.registro-evolution-missing-label { font-size: 11px; font-weight: 750; }
 
-.raid-evolution-line {
+.registro-evolution-line {
   fill: none;
   stroke: var(--gold);
-  stroke-width: 4;
+  stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 7px rgba(242, 199, 102, 0.3));
 }
 
-.raid-evolution-point circle {
-  stroke-width: 4;
-  stroke: rgba(7, 10, 19, 0.95);
+.registro-evolution-point circle,
+.registro-evolution-point path {
+  stroke: rgba(7, 10, 19, 0.96);
+  stroke-width: 2.5;
 }
 
-.raid-evolution-point.official circle { fill: var(--gold); }
-.raid-evolution-point.estimated circle { fill: var(--blue); }
+.registro-evolution-point.official circle,
+.registro-evolution-point.official path { fill: var(--gold); }
+.registro-evolution-point.estimated circle,
+.registro-evolution-point.estimated path { fill: var(--blue); }
+.registro-evolution-point.partial circle,
+.registro-evolution-point.partial path { fill: var(--amber); }
 
-.raid-evolution-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem 1.25rem;
-  margin-top: 0.85rem;
+.registro-chart-hint {
+  margin: -0.2rem 0 0.45rem;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.68rem;
+  text-align: center;
 }
 
-.raid-evolution-legend span {
+.registro-history-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.registro-history-item {
+  min-width: 0;
+  padding: 0.72rem;
+  border: 1px solid rgba(216, 222, 233, 0.1);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.022);
+}
+
+.registro-history-item.official { border-color: rgba(242, 199, 102, 0.22); }
+.registro-history-item.estimated { border-color: rgba(79, 140, 255, 0.21); }
+.registro-history-item.partial { border-color: rgba(224, 168, 74, 0.24); }
+
+.registro-history-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.registro-history-item dl,
+.registro-history-item dl div { margin: 0; }
+.registro-history-item dl { display: grid; gap: 0.42rem; }
+.registro-history-item dl div { display: grid; gap: 0.1rem; }
+
+.registro-history-item dt {
+  color: var(--muted);
+  font-size: 0.63rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.registro-history-item dd {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.registro-source-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: center;
+  max-width: 100%;
+  padding: 0.27rem 0.46rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
 }
 
-.raid-evolution-legend i {
-  width: 0.72rem;
-  height: 0.72rem;
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+.registro-source-badge.official {
+  color: var(--gold);
+  background: rgba(242, 199, 102, 0.09);
+  border: 1px solid rgba(242, 199, 102, 0.22);
 }
 
-.raid-evolution-legend i.official { background: var(--gold); }
-.raid-evolution-legend i.estimated { background: var(--blue); }
+.registro-source-badge.estimated {
+  color: #9ec5ff;
+  background: rgba(79, 140, 255, 0.09);
+  border: 1px solid rgba(79, 140, 255, 0.22);
+}
 
-.raid-evolution-empty {
-  margin: 1rem 0 0;
+.registro-source-badge.partial {
+  color: var(--amber);
+  background: rgba(224, 168, 74, 0.09);
+  border: 1px solid rgba(224, 168, 74, 0.22);
+}
+
+.registro-evolution-note {
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.registro-evolution-empty {
+  margin: 0;
   padding: 1rem;
-  border: 1px dashed rgba(170, 176, 192, 0.24);
+  border: 1px dashed rgba(170, 176, 192, 0.22);
   border-radius: 14px;
   color: var(--muted);
   text-align: center;
+}
+
+.registro-guild-evolution-stage { padding-top: 0.6rem; }
+
+.registro-guild-evolution-panel {
+  padding: clamp(1rem, 2vw, 1.55rem);
+  overflow: hidden;
+}
+
+.registro-guild-evolution-head,
+.registro-guild-table-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.registro-guild-metrics { margin-top: 0.9rem; }
+
+.registro-history-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.1rem;
+  margin-top: 0.65rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.registro-history-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.registro-history-legend i {
+  width: 0.66rem;
+  height: 0.66rem;
+  border-radius: 50%;
+}
+
+.registro-history-legend i.official { background: var(--gold); }
+.registro-history-legend i.estimated {
+  border-radius: 2px;
+  background: var(--blue);
+  transform: rotate(45deg);
+}
+
+.registro-guild-table-head {
+  align-items: end;
+  margin-top: 1rem;
+}
+
+.registro-order-control {
+  display: grid;
+  gap: 0.3rem;
+  min-width: min(100%, 220px);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.registro-order-control select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.55rem 0.68rem;
+  border: 1px solid rgba(216, 222, 233, 0.15);
+  border-radius: 11px;
+  color: var(--text);
+  background: rgba(6, 9, 19, 0.92);
+  font: inherit;
+  text-transform: none;
+}
+
+.registro-guild-table-wrap {
+  width: 100%;
+  margin-top: 0.65rem;
+  overflow: hidden;
+  border: 1px solid rgba(242, 199, 102, 0.13);
+  border-radius: 14px;
+}
+
+.registro-guild-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.registro-guild-table th,
+.registro-guild-table td {
+  padding: 0.68rem 0.58rem;
+  border-bottom: 1px solid rgba(216, 222, 233, 0.075);
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.registro-guild-table th {
+  color: var(--gold);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(242, 199, 102, 0.045);
+}
+
+.registro-guild-table tbody tr:last-child td { border-bottom: 0; }
+.registro-guild-table tbody tr:hover { background: rgba(79, 140, 255, 0.035); }
+.registro-table-variation { font-weight: 900; }
+
+/* Tabela principal compactada para notebook e desktop, sem rolagem lateral. */
+.registro-page .battle-table,
+.registro-panel table {
+  width: 100%;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
+
+.registro-page .battle-table th,
+.registro-page .battle-table td {
+  padding: 0.64rem 0.42rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.registro-page .battle-table th {
+  font-size: 0.65rem;
+  line-height: 1.25;
+}
+
+.registro-page .registro-participation-cell .status-badge {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.3rem 0.34rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.12;
+  text-align: center;
+  justify-content: center;
+}
+
+.registro-page .table-wrap {
+  overflow-x: hidden;
+}
+
+
+
+/* ============================================================
+   PORTAL AVALON — REGISTRO V7.8.3.3
+   CASOS ESPECIAIS, COLUNAS SINCRONIZADAS E LEITURA ESTRUTURAL
+============================================================ */
+
+/* Cards adaptáveis: textos excepcionais nunca ultrapassam o contêiner. */
+.registro-evolution-metric {
+  display: grid;
+  grid-template-rows: auto minmax(0, auto) auto;
+  align-content: start;
+  height: auto;
+  min-height: 112px;
+  overflow: hidden;
+}
+
+.registro-evolution-metric strong {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+  line-height: 1.16;
+}
+
+.registro-trend-label {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
+.registro-evolution-metric small {
+  line-height: 1.28;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.registro-history-list {
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+
+.registro-history-item {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: start;
+  height: 100%;
+  overflow: hidden;
+}
+
+.registro-history-item-head {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.registro-history-item-head > strong,
+.registro-history-item dd {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
+/* Uma única matriz de colunas governa cabeçalho e células. */
+.registro-column-layout .registro-col-rank { width: 5.5%; }
+.registro-column-layout .registro-col-member { width: 18%; }
+.registro-column-layout .registro-col-damage { width: 10%; }
+.registro-column-layout .registro-col-frequency { width: 8%; }
+.registro-column-layout .registro-col-average { width: 10.5%; }
+.registro-column-layout .registro-col-evolution { width: 9%; }
+.registro-column-layout .registro-col-hall { width: 8%; }
+.registro-column-layout .registro-col-patent { width: 16%; }
+.registro-column-layout .registro-col-participation { width: 15%; }
+
+.registro-page .battle-table th,
+.registro-page .battle-table td {
+  vertical-align: middle;
+  border-right: 1px solid rgba(216, 222, 233, 0.075);
+}
+
+.registro-page .battle-table th:last-child,
+.registro-page .battle-table td:last-child {
+  border-right: 0;
+}
+
+.registro-page .battle-table th:nth-child(2),
+.registro-page .battle-table td:nth-child(2) {
+  border-right-color: rgba(242, 199, 102, 0.16);
+}
+
+.registro-page .battle-table th:nth-child(1),
+.registro-page .battle-table th:nth-child(3),
+.registro-page .battle-table th:nth-child(4),
+.registro-page .battle-table th:nth-child(5),
+.registro-page .battle-table th:nth-child(6),
+.registro-page .battle-table th:nth-child(7),
+.registro-page .battle-table td:nth-child(1),
+.registro-page .battle-table td:nth-child(3),
+.registro-page .battle-table td:nth-child(4),
+.registro-page .battle-table td:nth-child(5),
+.registro-page .battle-table td:nth-child(6),
+.registro-page .battle-table td:nth-child(7),
+.registro-page .battle-table td:nth-child(9) {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.registro-page .battle-table th:nth-child(2),
+.registro-page .battle-table th:nth-child(8),
+.registro-page .battle-table td:nth-child(2),
+.registro-page .battle-table td:nth-child(8) {
+  text-align: left;
+}
+
+/* As larguras deixam de depender apenas do cabeçalho. */
+.registro-page .battle-table th:nth-child(1),
+.registro-page .battle-table th:nth-child(2),
+.registro-page .battle-table th:nth-child(3),
+.registro-page .battle-table th:nth-child(4),
+.registro-page .battle-table th:nth-child(5),
+.registro-page .battle-table th:nth-child(6),
+.registro-page .battle-table th:nth-child(7),
+.registro-page .battle-table th:nth-child(8),
+.registro-page .battle-table th:nth-child(9) {
+  width: auto;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .registro-evolution-modal-backdrop { backdrop-filter: blur(4px); }
 }
 
 @media (min-width: 1181px) {
@@ -5703,6 +6191,32 @@ html.avalon-motion-ready .reveal.is-visible {
 
 /* Notebook e tablet horizontal */
 @media (max-width: 1180px) {
+  .registro-member-identity {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .registro-evolution-toggle {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    padding: 0.34rem 0.5rem;
+  }
+
+  .registro-evolution-toggle-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: nowrap;
+  }
+
+  .registro-evolution-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
 .league-mode-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -5750,6 +6264,44 @@ html.avalon-motion-ready .reveal.is-visible {
 
 /* Tablet, zoom elevado e componentes compactos */
 @media (max-width: 980px) {
+  .registro-column-layout { display: none; }
+
+  .registro-evolution-toggle {
+    width: auto;
+    min-width: 0;
+    height: auto;
+    padding: 0.42rem 0.68rem;
+  }
+
+  .registro-evolution-toggle-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  .registro-evolution-modal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .registro-evolution-metrics,
+  .registro-guild-metrics,
+  .registro-history-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .registro-guild-table-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .registro-order-control {
+    width: 100%;
+  }
+
   .guild-logo-flash,
   .podium-image-wrap {
     --avalon-flash-width: 34%;
@@ -5984,13 +6536,8 @@ html.avalon-motion-ready .reveal.is-visible {
     width: min(100% - 1rem, 1500px);
   }.registro-page .battle-table,
   .registro-panel table {
-    min-width: 1080px;
-  }.registro-page .battle-table .sticky-rank {
-    min-width: 82px;
-    width: 82px;
-  }.registro-page .battle-table .sticky-member {
-    left: 82px;
-    min-width: 132px;
+    min-width: 0 !important;
+    table-layout: fixed;
   }
   .podium-final-card,
   .podium-final-card.gold {
@@ -6130,11 +6677,10 @@ html.avalon-motion-ready .reveal.is-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "rank member"
-      "participation participation"
       "damage frequency"
       "average evolution"
       "hall patent"
-      "base base";
+      "participation participation";
     width: 100%;
     min-width: 0;
     overflow: hidden;
@@ -6199,17 +6745,15 @@ html.avalon-motion-ready .reveal.is-visible {
   }.registro-page .battle-table .registro-rank-cell::before,
   .registro-page .battle-table .registro-member-cell::before {
     display: none;
-  }.registro-damage-cell { grid-area: damage; }.registro-frequency-cell { grid-area: frequency; border-right: 0 !important; }.registro-average-cell { grid-area: average; }.registro-evolution-cell { grid-area: evolution; border-right: 0 !important; }.registro-hall-cell { grid-area: hall; }.registro-patent-cell { grid-area: patent; border-right: 0 !important; }.registro-participation-cell { grid-area: participation; border-right: 0 !important; text-align: center !important; }.registro-base-cell { grid-area: base; border-right: 0 !important; border-bottom: 0 !important; text-align: center !important; }.registro-page .numeric-cell {
+  }.registro-damage-cell { grid-area: damage; }.registro-frequency-cell { grid-area: frequency; border-right: 0 !important; }.registro-average-cell { grid-area: average; }.registro-evolution-cell { grid-area: evolution; border-right: 0 !important; }.registro-hall-cell { grid-area: hall; }.registro-patent-cell { grid-area: patent; border-right: 0 !important; }.registro-participation-cell { grid-area: participation; border-right: 0 !important; border-bottom: 0 !important; text-align: center !important; }.registro-page .numeric-cell {
     text-align: left;
   }.registro-page .status-badge,
-  .registro-page .history-confidence,
   .registro-page .hall-table-status {
     max-width: 100%;
     white-space: normal;
     text-align: center;
     justify-content: center;
-  }.registro-page .registro-participation-cell .status-badge,
-  .registro-page .registro-base-cell .history-confidence {
+  }.registro-page .registro-participation-cell .status-badge {
     width: 100%;
   }.registro-page .member-row-absent {
     opacity: 0.9;
@@ -6229,14 +6773,128 @@ html.avalon-motion-ready .reveal.is-visible {
   }.registro-page .battle-table .registro-empty-cell::before {
     display: none;
   }
-
-  .raid-evolution-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 /* Celular */
 @media (max-width: 720px) {
+  .registro-evolution-modal {
+    padding: 0.35rem;
+  }
+
+  .registro-evolution-dialog {
+    width: calc(100vw - 0.7rem);
+    max-height: 95dvh;
+  }
+
+  .registro-evolution-dialog-head {
+    padding: 0.82rem 0.75rem 0.72rem 0.9rem;
+  }
+
+  .registro-evolution-dialog-head p:not(.eyebrow) {
+    font-size: 0.74rem;
+  }
+
+  .registro-evolution-dialog-body {
+    padding: 0.72rem;
+  }
+
+  .registro-evolution-modal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .registro-evolution-metrics,
+  .registro-guild-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .registro-history-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .registro-evolution-chart-frame {
+    padding: 0;
+  }
+
+  .registro-member-identity {
+    width: 100%;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 0.42rem;
+  }
+
+  .registro-evolution-toggle {
+    width: 100%;
+    min-height: 40px;
+  }
+
+
+  .registro-guild-table-wrap {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .registro-guild-table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .registro-guild-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .registro-guild-table tbody {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .registro-guild-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: hidden;
+    border: 1px solid rgba(242, 199, 102, 0.16);
+    border-radius: 14px;
+    background: rgba(8, 12, 23, 0.82);
+  }
+
+  .registro-guild-table td {
+    display: block;
+    min-width: 0;
+    padding: 0.68rem;
+    border-right: 1px solid rgba(216, 222, 233, 0.06);
+    border-bottom: 1px solid rgba(216, 222, 233, 0.08);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .registro-guild-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.24rem;
+    color: var(--muted);
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .registro-guild-table td:nth-child(even) {
+    border-right: 0;
+  }
+
+  .registro-guild-table td:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
 .site-header {
     align-items: flex-start;
   }
@@ -6983,27 +7641,17 @@ html.avalon-motion-ready .reveal.is-visible {
   h2 {
     font-size: 1.72rem;
   }
-
-  .raid-evolution-panel {
-    padding: 1rem;
-  }
-
-  .raid-evolution-metrics {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
-  }
-
-  .raid-evolution-metric {
-    padding: 0.85rem;
-  }
-
-  .raid-evolution-chart {
-    min-width: 590px;
-  }
 }
 
 /* Acessibilidade: movimento reduzido */
 @media (prefers-reduced-motion: reduce) {
+  .registro-evolution-modal-backdrop { backdrop-filter: none !important; }
+  .registro-evolution-modal, .registro-evolution-dialog { transition: none !important; }
+  .registro-evolution-toggle,
+  .registro-evolution-close {
+    transition: none;
+  }
+
   html {
     scroll-behavior: auto;
   }

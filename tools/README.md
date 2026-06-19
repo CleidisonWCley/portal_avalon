@@ -1,16 +1,21 @@
-# Ferramentas e testes do Portal Avalon
+# Ferramentas do Portal Avalon
 
-A pasta `tools/` possui duas responsabilidades: manutenção dos dados de raid e regressão do Portal. Os scripts não são carregados pelo site publicado.
+A pasta `tools/` reúne utilitários de manutenção das raids e a suíte automatizada. Esses scripts não são carregados pelo site publicado.
 
-## Testes
+## Suíte consolidada
 
-Comando recomendado em Windows, Linux ou macOS:
-
-```bash
-python tools/run_tests.py
+```text
+tools/
+├── run_tests.py
+├── test_core.js
+├── test_regressions.py
+├── test_browser.py
+├── validate_raid_history.py
+├── promote_raid_history.py
+└── seed_raid_history_from_xlsx.py
 ```
 
-Modos disponíveis:
+Comandos oficiais:
 
 ```bash
 python tools/run_tests.py --quick
@@ -18,40 +23,17 @@ python tools/run_tests.py --browser
 python tools/run_tests.py --all
 ```
 
-- padrão: regressões estáticas e testes de navegador quando Playwright estiver disponível;
-- `--quick`: sintaxe, regras, estrutura, referências, dados e histórico;
-- `--browser`: somente navegador, exigindo Playwright;
-- `--all`: suíte completa, falhando se Playwright não estiver instalado.
+`test_regressions.py` concentra OCR, histórico, Registro, estrutura, referências, assets e higiene. Não crie novos arquivos `test_vX_Y_Z.py`.
 
-Dependências mínimas:
-
-- Python 3.10 ou superior;
-- Node.js;
-- Playwright apenas para testes de navegador.
-
-Instalação opcional do Playwright:
-
-```bash
-python -m pip install playwright
-python -m playwright install chromium
-```
-
-### Arquivos da suíte
-
-- `run_tests.py`: runner único e multiplataforma;
-- `test_core.js`: regras do Hall, estrutura funcional, Liga V7.8.1, UI e README;
-- `test_project.py`: JSON, referências, documentação, assets e higiene do repositório;
-- `test_browser.py`: carregamento, páginas, responsividade e ausência de overflow;
-- `validate_raid_history.py`: integridade entre raid atual e histórico;
-- `test_v7_8_2.py`: artefatos OCR, isolamento das correções, Raid 133 e evolução coletiva.
+Pré-requisitos, ambiente virtual, Playwright, cobertura, avisos esperados e solução de problemas estão centralizados em [`../docs/TESTES.md`](../docs/TESTES.md).
 
 ## Atualização de raid
 
-- `seed_raid_history_from_xlsx.py`: prepara histórico inicial a partir da planilha;
-- `promote_raid_history.py`: promove uma raid validada e atualiza os três JSONs publicados;
+- `seed_raid_history_from_xlsx.py`: prepara o histórico inicial a partir da planilha;
+- `promote_raid_history.py`: promove uma raid validada e atualiza os JSONs publicados;
 - `validate_raid_history.py`: valida o estado final antes do commit.
 
-Exemplo para a Raid 134:
+Exemplo para uma nova raid oficial:
 
 ```bash
 cd ocr/guild-rank-ocr
@@ -70,4 +52,4 @@ python tools/validate_raid_history.py \
   --current web/data/raids/raid_atual.json
 ```
 
-Não crie novos arquivos nomeados por versão. Quando surgir uma regressão, acrescente o caso ao teste temático correspondente.
+Não crie instruções paralelas de testes neste arquivo. Atualize sempre `docs/TESTES.md` quando a suíte mudar.

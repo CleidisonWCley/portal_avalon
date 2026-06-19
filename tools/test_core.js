@@ -96,14 +96,22 @@ test('frequência detalhada não é exposta nos cards públicos do Hall', () => 
   );
 });
 
-test('Registro mantém filtros, dez colunas e retorno ao topo global', () => {
+test('Registro preserva a tabela principal e adiciona evolução histórica', () => {
   const html = read('web/pages/registro.html');
+  const app = read('web/assets/js/app.js');
+  const evolution = read('web/assets/js/registro-evolution.js');
   assert(html.includes('id="ranking-filter"'));
   assert(html.includes('value="dano">Dano total'));
   assert(html.includes('value="hall">Hall evolutivo'));
   assert(html.includes('value="ausente">Ausente'));
+  assert(html.includes('id="registro-guild-evolution"'));
+  assert(html.includes('id="registro-guild-order"'));
+  assert(html.includes('../assets/js/registro-evolution.js'));
   assert(html.includes('class="site-back-top hidden"'));
-  assert.strictEqual((html.match(/<th(?:\s|>)/g) || []).length, 10);
+  assert.strictEqual((html.match(/<th(?:\s|>)/g) || []).length, 15);
+  assert(app.includes('function getRegistroSnapshot()'));
+  assert(app.includes('data-registro-evolution'));
+  assert(!evolution.includes('fetch('));
 });
 
 test('canvas da Liga usa motores únicos para chaves e pódio', () => {
@@ -206,9 +214,9 @@ test('documentação oficial está consolidada em sete arquivos', () => {
   );
 });
 
-test('README oficial aponta para V7.8.2 e para a estrutura atual', () => {
+test('README oficial aponta para V7.8.3.4 e para a estrutura atual', () => {
   const readme = read('README.md');
-  assert(readme.includes('V7.8.2'));
+  assert(readme.includes('V7.8.3.4'));
   assert(readme.includes('docs/README.md'));
   assert(readme.includes('python tools/run_tests.py'));
   assert(!readme.includes('docs/manutencao/'));

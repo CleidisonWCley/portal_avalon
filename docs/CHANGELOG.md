@@ -2,6 +2,64 @@
 
 O histórico detalhado permanece no Git. Este arquivo registra apenas as mudanças relevantes para compreensão e manutenção do estado atual.
 
+## V7.8.3.4 — Limpeza da Raid e consolidação dos testes
+
+- dashboard coletivo removido definitivamente da página Raid, que volta a ficar exclusiva para consulta estratégica;
+- `raid-evolution.js` excluído por não possuir consumidores ativos;
+- estilos `.raid-evolution-*` e regras responsivas legadas removidos;
+- testes da V7.8.2 e do navegador atualizados para a responsabilidade real da página Raid;
+- suíte passa a verificar que a Raid não requisita `raid_history.json`;
+- evolução individual e coletiva preservada exclusivamente no Registro;
+- instruções completas de testes centralizadas em `docs/TESTES.md`;
+- `test_project.py` e os testes nomeados por versão consolidados em `test_regressions.py`;
+- suíte permanente reduzida a `test_core.js`, `test_regressions.py` e `test_browser.py`;
+- `run_tests.py` passa a executar regressões por responsabilidade, sem depender do número da release;
+- READMEs e manual de manutenção reduzidos a referências ao documento canônico de testes.
+
+## V7.8.3.3 — Casos especiais e alinhamento estrutural do Registro
+
+- cards de tendência e histórico adaptados para `Retorno à batalha`, `Sem comparativo` e `Sem registro`;
+- textos longos passam a ajustar altura e quebra entre palavras sem ultrapassar os cards;
+- gráfico individual interrompe a linha quando há raids sem registro, evitando tendência contínua artificial;
+- tabela principal recebe `colgroup` único para sincronizar cabeçalho e células;
+- divisórias verticais discretas adicionadas no desktop para facilitar a leitura por coluna;
+- alinhamento numérico padronizado com dígitos tabulares;
+- comportamento em cards mobile preservado sem interferência do `colgroup`.
+
+## V7.8.3.2 — Simplificação visual e separação do Hall
+
+- coluna e filtro de base histórica removidos da tabela principal;
+- botão Ver evolução posicionado abaixo do nome do guardião;
+- tabela principal reduzida para nove colunas;
+- cards do modal ampliados e reorganizados em notebooks;
+- referências à posição do Hall removidas da tendência individual;
+- posição atual do Hall preservada somente na tabela principal.
+
+## V7.8.3.1 — Refinamento e desempenho do Registro
+
+- painel individual migrado da tabela para um único modal flutuante reutilizável;
+- página ao fundo bloqueada com foco retido, rolagem externa desativada e botão X sempre acessível;
+- remoção de `scrollIntoView`, linhas expansíveis e reconstruções que deslocavam a tabela;
+- motor SVG compartilhado entre gráficos individual e coletivo;
+- gráficos responsivos sem largura mínima, barra horizontal ou filtros SVG pesados;
+- tabela principal compactada para notebooks e desktop, mantendo cards abaixo de 980 px;
+- tabela coletiva sem rolagem lateral e ordenação 133→130 ou 130→133 preservada;
+- cache de conteúdo individual e apenas um listener de redimensionamento;
+- cobertura de navegador ampliada para 11 larguras entre 320 px e 1440 px.
+
+## V7.8.3 — Evolução individual e coletiva no Registro
+
+- consulta expansível por membro sem adicionar colunas à tabela principal;
+- gráfico individual sob demanda para as Raids 130, 131, 132 e 133;
+- tendência recente baseada prioritariamente nas fontes oficiais 132 e 133;
+- bases 130 e 131 identificadas visualmente como estimadas;
+- posição atual do Hall preservada, sem reconstruir posições históricas;
+- quadro, gráfico e tabela da evolução coletiva adicionados após a tabela de membros;
+- tabela coletiva exibida por padrão da Raid 133 para a 130, com ordenação crescente ou decrescente;
+- histórico reaproveitado do carregamento existente, sem segundo `fetch`;
+- painéis individuais renderizados apenas quando solicitados para proteger o desempenho mobile;
+- regressões ampliadas para sete larguras entre 320 px e 1366 px.
+
 ## V7.8.2 — Blindagem do OCR, Raid 133 e evolução da guilda
 
 - processamento identificado por número, data de encerramento e origem da raid;
