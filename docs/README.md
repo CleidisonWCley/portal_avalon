@@ -1,4 +1,4 @@
-# Documentação técnica — Portal Avalon V7.8.3.4
+# Documentação técnica — Portal Avalon V7.9.0.2
 
 Esta pasta é a fonte técnica consolidada do Portal Avalon. Ela foi reduzida para poucos arquivos, evitando READMEs duplicados, relatórios fragmentados, imagens de evidência e documentos de versões intermediárias.
 
@@ -11,7 +11,7 @@ Esta pasta é a fonte técnica consolidada do Portal Avalon. Ela foi reduzida pa
 | 3 | [`LIGA_FIREBASE.md`](LIGA_FIREBASE.md) | Liga V7.8.1, autenticação, Firestore, rascunhos, arquivos e encerramento. |
 | 4 | [`MANUTENCAO_E_DEPLOY.md`](MANUTENCAO_E_DEPLOY.md) | Execução local, alterações seguras, OCR, Git, release e solução de problemas. |
 | 5 | [`TESTES.md`](TESTES.md) | Comandos, cobertura, baseline atual e histórico consolidado de validações. |
-| 6 | [`CHANGELOG.md`](CHANGELOG.md) | Evolução resumida do Portal até a V7.8.3.4. |
+| 6 | [`CHANGELOG.md`](CHANGELOG.md) | Evolução resumida do Portal até a V7.9.0.2. |
 
 ## Visão geral
 
@@ -19,10 +19,11 @@ O Portal Avalon é uma aplicação web estática para a Guilda Avalon. O conteú
 
 Principais áreas:
 
-- **Salão:** apresentação e resumo da raid atual;
-- **Hall:** classificação de evolução pessoal;
+- **Salão:** apresentação, resumo da raid atual e Ramigam integrado ao propósito do portal;
+- **Hall:** classificação de evolução pessoal, bloco dos Defensores com Ramigam visual e tags temporárias automatizadas para novos/retornantes;
 - **Buscar:** ficha individual do guardião;
 - **Registro:** tabela e filtros dos membros atuais, consulta individual e comparação coletiva das Raids 130–133;
+- **Ciclo dos Guardiões:** pré-cadastro interno de membros sem raid válida e inferência automática de início/retorno, preservando estatísticas públicas;
 - **Raid:** consulta externa de composições e estratégias;
 - **Galeria:** eventos e imagens da guilda;
 - **Liga:** torneios internos com Firebase em tempo real.
@@ -86,7 +87,7 @@ raid_hall/
 
 ## Estado atual
 
-- **Versão funcional:** V7.8.3.4 — Limpeza da Raid e consolidação dos testes.
+- **Versão funcional:** V7.9.0.2 — automação do ciclo de novos e retornantes.
 - **Aplicação:** estática, sem framework ou build obrigatório.
 - **Deploy recomendado:** Cloudflare Pages publicando `web/`.
 - **Liga:** Firebase Authentication + Cloud Firestore, carregados em segundo plano.

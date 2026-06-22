@@ -51,12 +51,15 @@ NOMES_VALIDOS = [
     "PeSH",
     "utiago",
     "Carlinhozz",
+    "MJ馬McQueen",
+    "tang"
 ]
 
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
 # somente em correspondência exata e nunca entram no fuzzy matching.
 ALIASES_MEMBROS = {
-    "Cley": ["MJ_McQueen", "MJ馬McQueen"],
+    "Cley": ["cley"],
+    "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen"],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
     "CAPETTINI": ["Capettini", "capettini"],
     "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg"],
@@ -65,9 +68,15 @@ ALIASES_MEMBROS = {
     "Ger": ["cr"],
     "kia": ["Zz", "Kia"],
     "Drymus": ["ee"],
+    "tang": ["Tang", "TANG"],
 }
 
 CORRECOES_OCR_NOMES = {
+    "MJ_McQueen": "MJ馬McQueen",
+    "MJ McQueen": "MJ馬McQueen",
+    "MJMcQueen": "MJ馬McQueen",
+    "Tang": "tang",
+    "TANG": "tang",
     "wa": "Lux",
     "cr": "Ger",
     "Zz": "kia",

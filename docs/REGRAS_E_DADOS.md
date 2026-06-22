@@ -12,6 +12,7 @@
 | membros, aliases e correções por raid | `ocr/guild-rank-ocr/src/config.py` |
 | artefatos OCR identificados | `ocr/guild-rank-ocr/output/csv/raid_*` e `output/json/raid_*` |
 | insígnias | `web/data/insignias.json` |
+| ciclo dos guardiões | `web/data/guardians_registry.json` |
 | galeria | `web/data/gallery/eventos.json` |
 | modos e mapas da Liga | `web/data/arenas.json` |
 
@@ -53,6 +54,28 @@ A raid atual nunca entra na própria média.
 - frequência desconhecida (`null`): entra como base estimada;
 - dano vazio ou zero: não entra;
 - são necessárias pelo menos duas raids válidas para percentual confiável.
+
+## 3.1 Ciclo dos Guardiões
+
+A V7.9.0 adicionou um cadastro interno para membros que ainda não devem aparecer publicamente no Hall. A V7.9.0.2 automatiza a tag temporária quando o próprio histórico mostra início de jornada ou retorno à batalha.
+
+Estados operacionais:
+
+| Estado | Exibição pública | Efeito nos cálculos |
+|---|---|---|
+| `aguardando_primeira_raid` | não aparece sem dano e frequência válidos | não entra em média, ranking ou evolução |
+| primeira raid válida sem histórico suficiente | aparece como **Defensor em Início de Jornada** | não disputa ranking evolutivo sem base mínima |
+| retorno à batalha sem base mínima | aparece como **Defensor Retornante** | nova base de evolução em formação |
+| base comparativa mínima atingida | tag temporária some | volta às patentes normais do Hall |
+| `fora_da_guilda` sem raid válida | não aparece no Hall atual | histórico antigo é preservado |
+
+Regra central:
+
+```text
+sem dano válido + sem frequência válida + sem raid registrada = não renderizar no Hall
+```
+
+As tags `Defensor em Início de Jornada` e `Defensor Retornante` reutilizam a insígnia de **Defensor de Avalon**. Elas são reconhecimento narrativo temporário, não novas patentes competitivas, e podem ser inferidas sem cadastro manual quando houver raid válida e base comparativa insuficiente.
 
 ### Limite de melhor posição pela frequência atual
 

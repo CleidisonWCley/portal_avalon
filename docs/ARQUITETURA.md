@@ -36,7 +36,8 @@ Módulos independentes
 └── web/assets/js/firebase-config.js
 
 Dados publicados
-└── web/data/**/*.json
+├── web/data/**/*.json
+└── web/data/guardians_registry.json
 
 Pipeline e qualidade
 ├── ocr/
@@ -57,6 +58,10 @@ tools/
 ```
 
 Testes nomeados por versão foram absorvidos por `test_regressions.py`. Novas proteções devem ser adicionadas ao bloco temático correspondente, evitando um arquivo por release. A documentação canônica está em [`TESTES.md`](TESTES.md).
+
+### 2.2 Ciclo dos Guardiões
+
+`web/data/guardians_registry.json` guarda pré-cadastros e exceções de ciclo sem armazenar códigos do jogo. O arquivo não substitui `raid_atual.json`: a aplicação também infere automaticamente quando um guardião com raid válida está iniciando jornada ou retornando sem base comparativa mínima, mantendo ocultos apenas pré-cadastros sem dano/frequência válidos.
 
 ## 3. Páginas e scripts
 

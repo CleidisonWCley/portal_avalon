@@ -1,0 +1,31 @@
+{
+  "version": "7.9.0.2",
+  "updatedAt": "2026-06-22",
+  "policy": {
+    "hideWithoutValidRaid": true,
+    "temporaryTagsUntilBaseline": true,
+    "minBaselineRaidsSource": "raid_history.settings.minBaselineRaids",
+    "defenderBadgeId": "juramentado",
+    "notes": "Membros sem raid válida ficam apenas no cadastro interno. Tags de início/retorno também podem ser inferidas automaticamente e somem quando houver base comparativa mínima."
+  },
+  "members": [
+    {
+      "name": "MJ馬McQueen",
+      "lifecycle": "novo_membro",
+      "status": "aguardando_primeira_raid",
+      "firstValidRaid": null,
+      "visibleWithoutRaid": false,
+      "displayTag": "Defensor em Início de Jornada",
+      "note": "Pré-cadastro para a próxima base de raid. Não exibir até existir dano e frequência válidos."
+    },
+    {
+      "name": "tang",
+      "lifecycle": "novo_membro",
+      "status": "aguardando_primeira_raid",
+      "firstValidRaid": null,
+      "visibleWithoutRaid": false,
+      "displayTag": "Defensor em Início de Jornada",
+      "note": "Pré-cadastro para a próxima base de raid. Não exibir até existir dano e frequência válidos."
+    }
+  ]
+}

@@ -3,6 +3,7 @@ const AVALON_DATA_PATHS = {
   raidAnterior: 'data/raids/raid_anterior.json',
   raidHistory: 'data/raids/raid_history.json',
   raidManualOverrides: 'data/raids/raid_manual_overrides.json',
+  guardiansRegistry: 'data/guardians_registry.json',
   insignias: 'data/insignias.json',
   eventos: 'data/gallery/eventos.json'
 };
@@ -31,7 +32,9 @@ const BADGE_RULES = {
   guardiao: { label: 'Guardião de Bronze', position: 'Top 3' },
   vigia: { label: 'Vigia do Horizonte', position: 'Top 4–10' },
   ascendente: { label: 'Cavaleiro Ascendente', position: 'Top 11–20' },
-  juramentado: { label: 'Defensor de Avalon', position: 'Top 21–30' }
+  juramentado: { label: 'Defensor de Avalon', position: 'Top 21–30' },
+  inicio_jornada: { label: 'Defensor em Início de Jornada', position: 'Histórico em construção' },
+  retornante: { label: 'Defensor Retornante', position: 'Nova base de evolução' }
 };
 
 const AVALON_ACCESS = {

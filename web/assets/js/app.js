@@ -7,6 +7,7 @@ const state = {
   anterior: null,
   history: null,
   manualOverrides: {},
+  guardiansRegistry: { members: [], policy: {} },
   historySettings: {},
   insignias: {},
   galleryEvents: [],
@@ -128,13 +129,25 @@ function hallRankMembers() {
 
 function hallUnclassifiedMembers() {
   return [...state.members]
-    .filter(member => !Number.isInteger(member.hallRank))
+    .filter(member => !Number.isInteger(member.hallRank) && !member.lifecycleTagCode)
     .sort((a, b) => {
       if (a.hallReasonCode === 'ausente' && b.hallReasonCode !== 'ausente') return 1;
       if (b.hallReasonCode === 'ausente' && a.hallReasonCode !== 'ausente') return -1;
       if (a.comparativoValido && b.comparativoValido) return HallRules.compareCandidates(a, b);
       if (a.comparativoValido !== b.comparativoValido) return a.comparativoValido ? -1 : 1;
       return (a.currentRank || 999) - (b.currentRank || 999);
+    });
+}
+
+
+function specialDefenderMembers() {
+  return [...state.members]
+    .filter(member => member.lifecycleTagCode)
+    .sort((a, b) => {
+      const rankA = Number.isInteger(a.currentRank) ? a.currentRank : 999;
+      const rankB = Number.isInteger(b.currentRank) ? b.currentRank : 999;
+      if (rankA !== rankB) return rankA - rankB;
+      return String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR', { sensitivity: 'base' });
     });
 }
 
@@ -253,6 +266,84 @@ function manualOverrideFor(memberName, raidId) {
   return matchedName ? (members[matchedName]?.[raidId] || null) : null;
 }
 
+
+const LIFECYCLE_TAGS = Object.freeze({
+  inicio_jornada: {
+    code: 'inicio_jornada',
+    label: 'Defensor em Início de Jornada',
+    shortLabel: 'Início de Jornada',
+    badgeId: 'juramentado',
+    description: 'Primeira raid registrada. Histórico em construção.',
+    message: 'Todo defensor tem um ponto de partida. Avalon já registrou o início desta jornada.'
+  },
+  retornante: {
+    code: 'retornante',
+    label: 'Defensor Retornante',
+    shortLabel: 'Retornante',
+    badgeId: 'juramentado',
+    description: 'Retornou às muralhas de Avalon. Nova base de evolução em formação.',
+    message: 'O retorno de um guardião também faz parte da história de Avalon.'
+  }
+});
+
+function guardianRegistryMembers() {
+  return Array.isArray(state.guardiansRegistry?.members) ? state.guardiansRegistry.members : [];
+}
+
+function guardianRegistryRecord(memberName) {
+  const key = normalizeMemberKey(memberName);
+  if (!key) return null;
+  return guardianRegistryMembers().find(record => {
+    const aliases = Array.isArray(record.aliases) ? record.aliases : [];
+    return normalizeMemberKey(record.name) === key
+      || aliases.some(alias => normalizeMemberKey(alias) === key);
+  }) || null;
+}
+
+function hasValidRaidValues(member) {
+  const damage = Number(member?.danoAtual ?? member?.dano ?? 0);
+  const attacks = Number(member?.frequenciaAtualNum ?? parseAttackCount(member?.frequencia) ?? 0);
+  return !isAbsentStatus(member?.status_participacao) && damage > 0 && attacks > 0;
+}
+
+function shouldRenderRaidMember(member) {
+  const record = guardianRegistryRecord(member?.nome);
+  if (!record) return true;
+  const validRaid = hasValidRaidValues(member);
+  const status = String(record.status || '').toLowerCase();
+  const hiddenWithoutRaid = record.visibleWithoutRaid === false || state.guardiansRegistry?.policy?.hideWithoutValidRaid === true;
+
+  if (!validRaid && hiddenWithoutRaid && ['aguardando_primeira_raid', 'pre_cadastro', 'fora_da_guilda'].includes(status)) {
+    return false;
+  }
+
+  return true;
+}
+
+function lifecycleTagForContext({
+  record = null,
+  hasCurrentRaid = false,
+  baselineCount = 0,
+  minBaseline = 2,
+  returnToBattle = false,
+  hasHistoricalTrace = false
+} = {}) {
+  if (!hasCurrentRaid) return null;
+  if (Number(baselineCount || 0) >= Number(minBaseline || 2)) return null;
+
+  const lifecycle = String(record?.lifecycle || '').toLowerCase();
+  const status = String(record?.status || '').toLowerCase();
+  const registryNew = lifecycle === 'novo_membro' || status === 'aguardando_primeira_raid' || status === 'pre_cadastro';
+  const registryReturn = lifecycle === 'retornante' || status === 'retornante';
+
+  if (registryReturn) return LIFECYCLE_TAGS.retornante;
+  if (registryNew && !hasHistoricalTrace) return LIFECYCLE_TAGS.inicio_jornada;
+  if (returnToBattle && hasHistoricalTrace) return LIFECYCLE_TAGS.retornante;
+  if (!hasHistoricalTrace) return LIFECYCLE_TAGS.inicio_jornada;
+
+  return null;
+}
+
 function historicalEntry(raid, memberName) {
   const raw = historyMemberForRaid(raid, memberName);
   if (!raw) return null;
@@ -272,7 +363,8 @@ function historicalEntry(raid, memberName) {
 }
 
 function buildMembers() {
-  const baseMembers = state.atual?.membros || [];
+  const rawBaseMembers = state.atual?.membros || [];
+  const baseMembers = rawBaseMembers.filter(shouldRenderRaidMember);
   const previousRaids = getHistoryRaids();
   const settings = {
     baselineSize: 3,
@@ -362,6 +454,17 @@ function buildMembers() {
     const percentualEvolutivo = comparativoValido && mediaBase > 0 ? (evolucao / mediaBase) * 100 : null;
     const directPreviousAbsent = !directPrevious || danoAnterior <= 0 || (frequenciaAnteriorNum !== null && frequenciaAnteriorNum <= 0);
     const retornoBatalha = directPreviousAbsent && !ausenteAtual && danoAtual > 0;
+    const hasCurrentRaid = !ausenteAtual && danoAtual > 0 && frequenciaAtualNum > 0;
+    const hasHistoricalTrace = availableHistoryEntries.length > 0;
+    const registryRecord = guardianRegistryRecord(member.nome);
+    const lifecycleTag = lifecycleTagForContext({
+      record: registryRecord,
+      hasCurrentRaid,
+      baselineCount: validBaseline.length,
+      minBaseline,
+      returnToBattle: retornoBatalha,
+      hasHistoricalTrace
+    });
     const presencaMinimaHall = frequenciaAtualNum >= Number(settings.minCurrentAttacksForHall || 6);
     const comparisonStatus = retornoBatalha
       ? 'retorno_batalha'
@@ -393,7 +496,15 @@ function buildMembers() {
       badgeId: null,
       hallReasonCode: null,
       hallReason: null,
-      hallFirstAllowedPosition: HallRules.firstAllowedPosition(frequenciaAtualNum, settings)
+      hallFirstAllowedPosition: HallRules.firstAllowedPosition(frequenciaAtualNum, settings),
+      lifecycle: registryRecord?.lifecycle || 'ativo',
+      lifecycleStatus: registryRecord?.status || null,
+      lifecycleTagCode: lifecycleTag?.code || null,
+      lifecycleTagLabel: lifecycleTag?.label || null,
+      lifecycleTagShortLabel: lifecycleTag?.shortLabel || null,
+      lifecycleTagDescription: lifecycleTag?.description || null,
+      lifecycleTagMessage: lifecycleTag?.message || null,
+      lifecycleBadgeId: lifecycleTag?.badgeId || null
     };
   });
 
@@ -420,6 +531,12 @@ function buildMembers() {
     member.elegivelHall = false;
     member.hallReasonCode = code;
     member.hallReason = reason;
+
+    if (member.lifecycleTagCode) {
+      member.badgeId = member.lifecycleBadgeId || 'juramentado';
+      member.hallReasonCode = member.lifecycleTagCode;
+      member.hallReason = member.lifecycleTagDescription || member.lifecycleTagLabel;
+    }
   });
 }
 
@@ -575,6 +692,54 @@ function hallSlotTemplate(position) {
   `;
 }
 
+function ramigamDefendersIntroTemplate() {
+  return `
+    <section class="ramigam-defenders-panel medieval-card gold-frame">
+      <div class="ramigam-defenders-copy">
+        <p class="eyebrow">Registros de Avalon</p>
+        <h2>Os Defensores de Avalon</h2>
+        <p>
+          Todo defensor tem um ponto de partida. No início, no retorno ou em uma fase de queda,
+          cada jornada merece ser lembrada. Veja sua evolução, reconheça seu momento e continue escrevendo seu caminho em Avalon.
+        </p>
+      </div>
+      <img src="${rootPath('assets/img/mascots/display/ramigam-hall.webp')}" alt="Ramigam, guardião dos registros de Avalon" loading="lazy" decoding="async" width="512" height="512" />
+    </section>
+  `;
+}
+
+function defenderLifecycleItemTemplate(member) {
+  const badgeId = member.lifecycleBadgeId || 'juramentado';
+  return `
+    <article class="elite-item defender-lifecycle-item">
+      <img src="${getBadgeImage(badgeId, true)}" alt="${getBadgeName(badgeId)}" loading="lazy" decoding="async" width="320" height="320" />
+      <div>
+        <strong>${member.lifecycleTagLabel}: ${member.nome}</strong><br>
+        <span>Dano ${formatDamageShort(member.danoAtual)} • Histórico em construção</span>
+        <small class="history-inline">${member.lifecycleTagDescription || 'Nova base de evolução em formação.'}</small>
+      </div>
+    </article>
+  `;
+}
+
+function defenderLifecycleListTemplate() {
+  const members = specialDefenderMembers();
+  if (!members.length) return '';
+
+  return `
+    <div class="defender-lifecycle-box">
+      <div class="defender-lifecycle-heading">
+        <p class="eyebrow">Jornadas em formação</p>
+        <h3>Novos e retornantes</h3>
+        <p>Esses guardiões já têm raid válida, mas ainda aguardam base histórica mínima para disputar as patentes evolutivas.</p>
+      </div>
+      <div class="elite-list defender-lifecycle-list">
+        ${members.map(defenderLifecycleItemTemplate).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function rankGroupTemplate({ id, title, range, description, from, to }) {
   const positions = Array.from({ length: to - from + 1 }, (_, index) => from + index);
   return `
@@ -590,6 +755,7 @@ function rankGroupTemplate({ id, title, range, description, from, to }) {
       <div class="elite-list">
         ${positions.map(hallSlotTemplate).join('')}
       </div>
+      ${id === 'juramentado' ? defenderLifecycleListTemplate() : ''}
     </section>
   `;
 }
@@ -648,7 +814,7 @@ function renderHall() {
 
   const groups = $('#rank-groups');
   if (groups) {
-    groups.innerHTML = [
+    const hallGroups = [
       {
         id: 'vigia',
         title: 'Vigias do Horizonte',
@@ -669,11 +835,17 @@ function renderHall() {
         id: 'juramentado',
         title: 'Defensores de Avalon',
         range: 'Top 21–30',
-        description: 'Guardiões que permanecem em batalha e seguem construindo sua evolução.',
+        description: 'Guardiões que permanecem em batalha, iniciam sua jornada ou retornam às muralhas para reconstruir sua evolução.',
         from: 21,
         to: 30
       }
-    ].map(rankGroupTemplate).join('');
+    ];
+    groups.innerHTML = [
+      rankGroupTemplate(hallGroups[0]),
+      rankGroupTemplate(hallGroups[1]),
+      ramigamDefendersIntroTemplate(),
+      rankGroupTemplate(hallGroups[2])
+    ].join('');
   }
 
   renderOutsideHall();
@@ -681,14 +853,14 @@ function renderHall() {
 
 
 function memberCardTemplate(member) {
-  const badge = member.hallBadgeId;
+  const badge = member.hallBadgeId || member.lifecycleBadgeId;
   const image = badge ? getBadgeImage(badge, true) : rootPath('assets/img/brand/display/avalon-logo-small.webp');
   const status = getStatus(member);
   const comparisonLabel = member.retornoBatalha
     ? 'Retorno à Batalha'
     : (member.comparativoValido ? confidenceLabel(member.baseConfidence) : 'Base insuficiente');
-  const hallLabel = member.hallRank ? `#${member.hallRank}` : 'Fora do Hall';
-  const patentLabel = badge ? getBadgeName(badge) : 'Sem patente nesta raid';
+  const hallLabel = member.hallRank ? `#${member.hallRank}` : (member.lifecycleTagCode ? 'Defensores' : 'Fora do Hall');
+  const patentLabel = member.lifecycleTagLabel || (badge ? getBadgeName(badge) : 'Sem patente nesta raid');
   return `
     <div class="member-profile">
       <img src="${image}" alt="${badge ? getBadgeName(badge) : 'Símbolo Avalon'}" loading="lazy" decoding="async" width="180" height="180" />
@@ -696,7 +868,7 @@ function memberCardTemplate(member) {
         <p class="eyebrow">Ficha do Guardião</p>
         <h2 class="member-name">${member.nome}</h2>
         <p>${patentLabel}</p>
-        ${!member.hallRank ? `<small class="hall-profile-reason">${member.hallReason || 'Não classificado nesta raid'}</small>` : ''}
+        ${!member.hallRank ? `<small class="hall-profile-reason">${member.lifecycleTagDescription || member.hallReason || 'Não classificado nesta raid'}</small>` : ''}
       </div>
     </div>
     <div class="member-stats">
@@ -734,6 +906,7 @@ function slugFile(value) {
 function guardianShareMessage(member) {
   if (member.hallRank === 1) return 'O Desafiante de Avalon lidera a evolução desta raid.';
   if (member.hallRank) return `Patente conquistada pelo esforço: ${getBadgeName(member.hallBadgeId)}.`;
+  if (member.lifecycleTagMessage) return member.lifecycleTagMessage;
   if (member.retornoBatalha) return 'O retorno de um guardião nunca passa despercebido.';
   return member.hallReason || 'Seu esforço fortalece o legado da Avalon.';
 }
@@ -1350,10 +1523,10 @@ function initRevealAnimations() {
 }
 
 const PAGE_DATA_REQUIREMENTS = Object.freeze({
-  salao: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
-  hall: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
-  oraculo: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
-  registro: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'insignias'],
+  salao: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'guardiansRegistry', 'insignias'],
+  hall: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'guardiansRegistry', 'insignias'],
+  oraculo: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'guardiansRegistry', 'insignias'],
+  registro: ['raidAtual', 'raidAnterior', 'raidHistory', 'raidManualOverrides', 'guardiansRegistry', 'insignias'],
   galeria: ['eventos']
 });
 
@@ -1362,6 +1535,7 @@ const DATA_FALLBACKS = Object.freeze({
   raidAnterior: { resumo: {}, membros: [] },
   raidHistory: null,
   raidManualOverrides: { members: {} },
+  guardiansRegistry: { members: [], policy: {} },
   insignias: { insignias: [] },
   eventos: { eventos: [] }
 });
@@ -1389,6 +1563,7 @@ function applyLoadedData(loaded) {
   state.anterior = loaded.raidAnterior ?? DATA_FALLBACKS.raidAnterior;
   state.history = loaded.raidHistory ?? DATA_FALLBACKS.raidHistory;
   state.manualOverrides = loaded.raidManualOverrides ?? DATA_FALLBACKS.raidManualOverrides;
+  state.guardiansRegistry = loaded.guardiansRegistry ?? DATA_FALLBACKS.guardiansRegistry;
   const insigniasData = loaded.insignias ?? DATA_FALLBACKS.insignias;
   const galleryData = loaded.eventos ?? DATA_FALLBACKS.eventos;
   state.insignias = Object.fromEntries((insigniasData.insignias || []).map(item => [item.id, item]));
@@ -1449,6 +1624,7 @@ if (typeof module !== 'undefined' && module.exports) {
     buildMembers,
     hallRankMembers,
     hallUnclassifiedMembers,
+    specialDefenderMembers,
     memberAtHallPosition,
     getAllHistoryRaids,
     getHistoryRaids,

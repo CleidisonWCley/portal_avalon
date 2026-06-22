@@ -2,16 +2,17 @@
 
 Portal estático da Guilda Avalon para acompanhar raids, evolução dos guardiões, histórico de desempenho, estratégias e torneios internos.
 
-**Versão funcional atual:** V7.8.3.4 — remoção do dashboard legado da Raid e consolidação dos testes.
-**Base funcional preservada:** V7.8.3.3 — casos especiais e alinhamento estrutural do Registro.
+**Versão funcional atual:** V7.9.0.2 — automação do ciclo de novos e retornantes.
+**Base funcional preservada:** V7.8.3.4 — remoção do dashboard legado da Raid e consolidação dos testes.
 
 > Este é o README oficial e a entrada principal do projeto. A documentação técnica consolidada está em [`docs/`](docs/README.md).
 
 ## Recursos principais
 
-- Salão com apresentação e identidade da Guilda Avalon;
-- Hall da Evolução baseado em frequência, dano, histórico e crescimento pessoal;
+- Salão com apresentação, identidade da Guilda Avalon e Ramigam integrado ao card de propósito do portal;
+- Hall da Evolução baseado em frequência, dano, histórico, crescimento pessoal e ciclo automatizado de novos/retornantes;
 - busca individual e fichas dos guardiões;
+- pré-cadastro interno de guardiões sem raid válida, sem código do jogo e sem poluir Hall, médias ou rankings;
 - Registro com ranking de dano, Hall evolutivo, evolução individual em modal bloqueante, casos sem histórico tratados e comparação coletiva responsiva das Raids 130–133;
 - Raid dedicada à consulta estratégica de bosses, elementos, times, equipamentos, chains e vídeos;
 - Galeria histórica da guilda;
@@ -175,4 +176,3 @@ Não versionar:
 - screenshots e evidências locais;
 - ambientes virtuais, caches ou pacotes gerados.
 A configuração pública do Firebase para aplicações web não substitui as regras do Firestore nem a validação administrativa por UID.
-**Versão funcional atual:** V7.8.3.4 — remoção do dashboard legado da Raid e consolidação dos testes.

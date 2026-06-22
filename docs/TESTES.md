@@ -7,7 +7,8 @@ Este é o documento canônico da suíte. Outros READMEs e manuais devem apresent
 A suíte protege:
 
 - sintaxe JavaScript;
-- regras do Hall, ranking, ausentes e classificações;
+- regras do Hall, ranking, ausentes, classificações e tags temporárias;
+- ciclo dos guardiões, pré-cadastro e ocultação de membros sem raid válida;
 - OCR, revisão e promoção segura das raids;
 - JSONs publicados e histórico;
 - Registro, evolução individual e coletiva;
@@ -301,3 +302,7 @@ Confirme que `raid.html` não referencia `raid-evolution.js` e que `raid.js` nã
 - não replique instruções completas em outros documentos;
 - atualize este arquivo quando dependências, comandos ou cobertura mudarem;
 - evite testes presos a danos ou nomes mutáveis, salvo artefatos oficiais auditados.
+
+## 8. Cobertura V7.9.0.2
+
+A suíte valida o cadastro `guardians_registry.json` sem códigos do jogo, a conversão WebP do Ramigam, a ausência de PNG pesado nas telas públicas, a ocultação de pré-cadastros sem raid válida, a inferência automática de início/retorno, o caso real do Carlinhozz como Defensor Retornante, a remoção automática das tags temporárias quando a base histórica mínima é atingida e o refinamento visual/narrativo do Ramigam no Salão e no Hall.

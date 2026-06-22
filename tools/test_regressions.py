@@ -184,7 +184,7 @@ def test_registro_evolution() -> None:
     check(".registro-evolution-modal" in css, "evolução individual possui modal flutuante")
     check(".registro-guild-table" in css, "tabela coletiva possui estilos responsivos")
     check("@media (max-width: 720px)" in css, "mobile reutiliza breakpoint consolidado")
-    check("V7.8.3.4" in readme, "README identifica a versão funcional atual")
+    check("V7.9.0.2" in readme, "README identifica a versão funcional atual")
 
 
 def test_registro_modal_and_performance() -> None:
@@ -328,9 +328,30 @@ def test_project_structure() -> None:
         "assets/img/insignias/thumbs/guardiao.png",
     ):
         check(old_pattern not in source, f"referência antiga ausente: {old_pattern}")
+    registry = load_json(WEB / "data/guardians_registry.json")
+    registry_members = registry.get("members", [])
+    registry_names = {item.get("name") for item in registry_members}
+    check({"MJ馬McQueen", "tang"}.issubset(registry_names), "pré-cadastro dos novos guardiões existe")
+    check(not any("code" in item for item in registry_members), "cadastro web não mantém código do jogo")
+    check(registry.get("policy", {}).get("hideWithoutValidRaid") is True, "pré-cadastros sem raid válida permanecem ocultos")
+
     check((WEB / "assets/img/brand/display/avalon-logo.webp").exists(), "logo WebP publicada existe")
     check((WEB / "assets/img/mascots/display/cley.webp").exists(), "mascote WebP publicado existe")
+    check((WEB / "assets/img/mascots/display/ramigam.webp").exists(), "Ramigam WebP publicado existe")
+    check((WEB / "assets/img/mascots/display/ramigam-salao.webp").exists(), "Ramigam do Salão em WebP existe")
+    check((WEB / "assets/img/mascots/display/ramigam-hall.webp").exists(), "Ramigam do Hall em WebP existe")
+    check((WEB / "assets/img/mascots/display/ramigam.webp").stat().st_size <= 80 * 1024, "Ramigam WebP respeita orçamento leve")
     check((WEB / "assets/img/insignias/ranks/display/guardiao.webp").exists(), "insígnia WebP publicada existe")
+
+    public_source = read("web/index.html") + read("web/assets/js/app.js")
+    check("Ramigam.png" not in public_source, "telas públicas não referenciam PNG pesado do Ramigam")
+    check("assets/img/mascots/display/ramigam-salao.webp" in public_source, "Salão referencia Ramigam em WebP")
+    check("assets/img/mascots/display/ramigam-hall.webp" in public_source, "Hall referencia Ramigam em WebP")
+    check("ramigam-salao-section" not in public_source, "Salão não mantém card separado do Ramigam")
+    check("salao-purpose-ramigam" in public_source, "Ramigam fica integrado ao propósito do Salão")
+    check("Ramigam confia" not in public_source, "Hall não cita Ramigam diretamente no texto")
+    check("fase de queda" in public_source, "Hall acolhe também defensores em queda")
+    check("registryCode" not in public_source, "web não usa código do jogo no ciclo dos guardiões")
 
     forbidden = [ROOT / "docs/evidencias", ROOT / "node_modules", ROOT / ".venv", ROOT / "__pycache__"]
     present = [str(path.relative_to(ROOT)) for path in forbidden if path.exists()]

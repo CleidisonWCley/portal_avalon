@@ -2,6 +2,35 @@
 
 O histórico detalhado permanece no Git. Este arquivo registra apenas as mudanças relevantes para compreensão e manutenção do estado atual.
 
+## V7.9.0.2 — Automação do ciclo de novos e retornantes
+
+- ciclo dos guardiões passa a inferir automaticamente **Defensor em Início de Jornada** quando há raid válida sem histórico anterior suficiente;
+- retorno à batalha com histórico antigo e base insuficiente passa a virar **Defensor Retornante** sem cadastro manual;
+- Carlinhozz vira teste real do fluxo de retornante, saindo de **Às Margens do Hall** e entrando em **Novos e retornantes**;
+- removido o campo `code` do cadastro web, mantendo o Hall dependente apenas de nome, raid, frequência, dano e histórico;
+- pré-cadastros de MJ馬McQueen e tang seguem ocultos até terem dano e frequência válidos;
+- testes e documentação atualizados para a automação V7.9.0.2.
+
+## V7.9.0.1 — Refinamento narrativo do Ramigam
+
+- Salão deixa de ter card separado de apresentação do Ramigam;
+- Ramigam passa a aparecer integrado ao card `Propósito do Salão`, reforçando a ideia de registro sem alterar o texto institucional;
+- bloco dos Defensores no Hall passa a falar diretamente com os membros, incluindo início, retorno e fases de queda;
+- removida a frase que citava Ramigam diretamente no Hall, deixando o personagem responder pelo visual;
+- núcleo de raid, OCR, ranking, patentes e ciclo dos guardiões permanece preservado.
+
+## V7.9.0 — Ramigam e ciclo dos guardiões
+
+- Ramigam convertido para WebP e publicado no display dos mascotes;
+- Salão passa a ter presença institucional discreta do Ramigam como Arquiteto de Avalon;
+- Hall passa a exibir Ramigam antes dos Defensores de Avalon, reforçando início de jornada e retorno às muralhas;
+- criado `guardians_registry.json` para pré-cadastro de membros novos, retornantes ou removidos sem misturar com dados de raid;
+- membros sem raid válida permanecem ocultos do Hall, médias, rankings e evolução;
+- tags temporárias `Defensor em Início de Jornada` e `Defensor Retornante` reutilizam a insígnia de Defensor de Avalon;
+- tags somem automaticamente quando houver base comparativa mínima definida pelo histórico;
+- MJ馬McQueen e tang registrados como pré-cadastro aguardando primeira raid válida;
+- testes atualizados para validar Ramigam, WebP, ciclo de guardiões e documentação V7.9.0.
+
 ## V7.8.3.4 — Limpeza da Raid e consolidação dos testes
 
 - dashboard coletivo removido definitivamente da página Raid, que volta a ficar exclusiva para consulta estratégica;
