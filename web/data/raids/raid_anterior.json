@@ -1,542 +1,533 @@
 {
+  "raid": {
+    "number": 133,
+    "endedAt": "2026-06-17",
+    "source": "official",
+    "generatedAt": "2026-06-18T18:08:28"
+  },
   "resumo": {
     "guilda": "Avalon",
-    "gerado_em": "2026-06-07T01:20:41",
+    "raidNumber": 133,
+    "endedAt": "2026-06-17",
+    "source": "official",
+    "gerado_em": "2026-06-18T18:08:28",
+    "generatedAt": "2026-06-18T18:08:28",
     "capacidade_guilda": 30,
     "membros_cadastrados": 28,
     "vagas_estimadas": 2,
-    "participantes": 27,
-    "ausentes": 1,
+    "participantes": 28,
+    "ausentes": 0,
     "registros_revisar": 0,
-    "duplicados_detectados": 1,
-    "dano_total_guilda": 114017105299,
-    "raidNumber": 132,
-    "source": "official",
-    "generatedAt": "2026-06-07T01:20:41"
+    "duplicados_detectados": 0,
+    "dano_total_guilda": 116390205306
   },
   "membros": [
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 1,
-      "nome": "Cley",
-      "frequencia": "21/21",
-      "dano": 7007227970,
-      "status": "linha_corrigida",
-      "status_participacao": "completo"
-    },
-    {
-      "imagem_origem": "img1.jpeg",
-      "linha": 2,
-      "nome": "Hela",
-      "frequencia": "21/21",
-      "dano": 6872864703,
-      "status": "linha_corrigida",
-      "status_participacao": "completo"
-    },
-    {
-      "imagem_origem": "img1.jpeg",
-      "linha": 3,
+      "linha": "1",
       "nome": "Krelian",
       "frequencia": "21/21",
-      "dano": 6566449530,
+      "dano": 6513876469,
+      "status": "nome_corrigido",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img1.jpeg",
+      "linha": "2",
+      "nome": "Hela",
+      "frequencia": "21/21",
+      "dano": 6507664927,
+      "status": "",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img1.jpeg",
+      "linha": "3",
+      "nome": "Cley",
+      "frequencia": "21/21",
+      "dano": 6418524181,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 4,
+      "linha": "4",
       "nome": "Leon",
       "frequencia": "21/21",
-      "dano": 6136756694,
-      "status": "linha_corrigida",
+      "dano": 5965959874,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 5,
+      "linha": "5",
       "nome": "Sr_Mendes",
       "frequencia": "21/21",
-      "dano": 6047485963,
-      "status": "linha_corrigida",
+      "dano": 5935806658,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 6,
+      "linha": "6",
       "nome": "Gashak",
       "frequencia": "21/21",
-      "dano": 6045943039,
-      "status": "linha_corrigida",
+      "dano": 5886574256,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 7,
+      "linha": "7",
       "nome": "Lux",
       "frequencia": "21/21",
-      "dano": 5757010994,
+      "dano": 5868302434,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 1,
+      "linha": "1",
       "nome": "SkyLord",
       "frequencia": "21/21",
-      "dano": 5450006166,
-      "status": "linha_corrigida",
+      "dano": 5620127150,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 2,
+      "linha": "2",
       "nome": "Kanao",
       "frequencia": "21/21",
-      "dano": 5227989147,
+      "dano": 5542864960,
+      "status": "",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img2.jpeg",
+      "linha": "3",
+      "nome": "Dennis",
+      "frequencia": "19/21",
+      "dano": 5528603679,
+      "status": "",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img2.jpeg",
+      "linha": "4",
+      "nome": "Ger",
+      "frequencia": "21/21",
+      "dano": 5432498592,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 3,
+      "linha": "5",
+      "nome": "Wagnero",
+      "frequencia": "18/21",
+      "dano": 5002233689,
+      "status": "linha_corrigida",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img2.jpeg",
+      "linha": "6",
       "nome": "SirAudino",
       "frequencia": "21/21",
-      "dano": 5179854176,
+      "dano": 4983526750,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 4,
+      "linha": "7",
+      "nome": "Snowers",
+      "frequencia": "21/21",
+      "dano": 4889974560,
+      "status": "linha_corrigida",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img3.jpeg",
+      "linha": "1",
       "nome": "Aurora",
       "frequencia": "21/21",
-      "dano": 4689989569,
-      "status": "linha_corrigida",
+      "dano": 4772547570,
+      "status": "",
       "status_participacao": "completo"
     },
     {
-      "imagem_origem": "img2.jpeg",
-      "linha": 5,
-      "nome": "Snowers",
-      "frequencia": "19/21",
-      "dano": 4655762502,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img2.jpeg",
-      "linha": 6,
-      "nome": "Ger",
-      "frequencia": "18/21",
-      "dano": 4654615408,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img2.jpeg",
-      "linha": 7,
+      "imagem_origem": "img3.jpeg",
+      "linha": "2",
       "nome": "Capibara",
-      "frequencia": "16/21",
-      "dano": 4276834242,
-      "status": "linha_corrigida",
+      "frequencia": "18/21",
+      "dano": 4205867230,
+      "status": "nome_corrigido",
       "status_participacao": "participou_bem"
     },
     {
       "imagem_origem": "img3.jpeg",
-      "linha": 1,
-      "nome": "Wagnero",
-      "frequencia": "15/21",
-      "dano": 4199793235,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 2,
-      "nome": "ヴァルディネイ",
-      "frequencia": "15/21",
-      "dano": 4196284054,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 3,
-      "nome": "Dennis",
-      "frequencia": "15/21",
-      "dano": 4005294241,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 4,
+      "linha": "3",
       "nome": "カミナリ",
       "frequencia": "21/21",
-      "dano": 3924119148,
+      "dano": 3854104442,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img3.jpeg",
-      "linha": 5,
+      "linha": "4",
+      "nome": "Ramigam",
+      "frequencia": "17/21",
+      "dano": 3503543200,
+      "status": "nome_corrigido",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img3.jpeg",
+      "linha": "5",
       "nome": "Ino",
-      "frequencia": "19/21",
-      "dano": 3524310859,
+      "frequencia": "16/21",
+      "dano": 3168253423,
       "status": "linha_corrigida",
       "status_participacao": "participou_bem"
     },
     {
       "imagem_origem": "img3.jpeg",
-      "linha": 6,
+      "linha": "6",
+      "nome": "ヴァルディネイ",
+      "frequencia": "13/21",
+      "dano": 3126292007,
+      "status": "linha_corrigida",
+      "status_participacao": "baixa_participacao"
+    },
+    {
+      "imagem_origem": "img3.jpeg",
+      "linha": "7",
       "nome": "Cosmos",
-      "frequencia": "18/21",
-      "dano": 3455156171,
-      "status": "linha_corrigida",
+      "frequencia": "15/21",
+      "dano": 3025436863,
+      "status": "nome_corrigido",
       "status_participacao": "participou_bem"
     },
     {
-      "imagem_origem": "img3.jpeg",
-      "linha": 7,
+      "imagem_origem": "img4.jpeg",
+      "linha": "1",
+      "nome": "CAPETTINI",
+      "frequencia": "15/21",
+      "dano": 2983447047,
+      "status": "nome_corrigido",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img4.jpeg",
+      "linha": "2",
       "nome": "math",
       "frequencia": "11/21",
-      "dano": 2121268952,
-      "status": "linha_corrigida",
+      "dano": 2082005914,
+      "status": "",
       "status_participacao": "baixa_participacao"
     },
     {
       "imagem_origem": "img4.jpeg",
-      "linha": 2,
+      "linha": "3",
       "nome": "kia",
-      "frequencia": "18/21",
-      "dano": 1988357012,
-      "status": "linha_corrigida",
+      "frequencia": "15/21",
+      "dano": 1548969572,
+      "status": "nome_corrigido",
       "status_participacao": "participou_bem"
     },
     {
       "imagem_origem": "img4.jpeg",
-      "linha": 3,
-      "nome": "Ramigam",
-      "frequencia": "9/21",
-      "dano": 1877637550,
-      "status": "linha_corrigida",
-      "status_participacao": "baixa_participacao"
-    },
-    {
-      "imagem_origem": "img4.jpeg",
-      "linha": 4,
-      "nome": "Drymus",
-      "frequencia": "9/21",
-      "dano": 1790445105,
-      "status": "linha_corrigida",
-      "status_participacao": "baixa_participacao"
-    },
-    {
-      "imagem_origem": "img4.jpeg",
-      "linha": 5,
-      "nome": "CAPETTINI",
-      "frequencia": "9/21",
-      "dano": 1667651751,
-      "status": "linha_corrigida",
-      "status_participacao": "baixa_participacao"
-    },
-    {
-      "imagem_origem": "img4.jpeg",
-      "linha": 6,
+      "linha": "4",
       "nome": "PeSH",
-      "frequencia": "12/21",
-      "dano": 1634108517,
+      "frequencia": "14/21",
+      "dano": 1510787224,
       "status": "linha_corrigida",
       "status_participacao": "baixa_participacao"
     },
     {
       "imagem_origem": "img4.jpeg",
-      "linha": 7,
-      "nome": "utiago",
-      "frequencia": "6/21",
-      "dano": 1063888601,
+      "linha": "5",
+      "nome": "Carlinhozz",
+      "frequencia": "9/21",
+      "dano": 1432042582,
       "status": "linha_corrigida",
+      "status_participacao": "baixa_participacao"
+    },
+    {
+      "imagem_origem": "img4.jpeg",
+      "linha": "6",
+      "nome": "Drymus",
+      "frequencia": "3/21",
+      "dano": 548573759,
+      "status": "nome_corrigido",
       "status_participacao": "quase_ausente"
     },
     {
-      "imagem_origem": "",
-      "linha": "",
-      "nome": "Carlinhozz",
-      "frequencia": "0/21",
-      "dano": 0,
-      "status": "ausente",
-      "status_participacao": "ausente"
-    }
-  ],
-  "duplicados": [
-    {
       "imagem_origem": "img4.jpeg",
-      "linha": 1,
-      "nome": "math",
-      "frequencia": "11/21",
-      "dano": 2121268952,
-      "status": "linha_corrigida;duplicado",
-      "status_participacao": "baixa_participacao"
+      "linha": "7",
+      "nome": "utiago",
+      "frequencia": "3/21",
+      "dano": 531796294,
+      "status": "linha_corrigida",
+      "status_participacao": "quase_ausente"
     }
   ],
+  "duplicados": [],
   "raw_normalizado": [
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 1,
-      "nome": "Cley",
-      "frequencia": "21/21",
-      "dano": 7007227970,
-      "status": "linha_corrigida",
-      "status_participacao": "completo"
-    },
-    {
-      "imagem_origem": "img1.jpeg",
-      "linha": 2,
-      "nome": "Hela",
-      "frequencia": "21/21",
-      "dano": 6872864703,
-      "status": "linha_corrigida",
-      "status_participacao": "completo"
-    },
-    {
-      "imagem_origem": "img1.jpeg",
-      "linha": 3,
+      "linha": "1",
       "nome": "Krelian",
       "frequencia": "21/21",
-      "dano": 6566449530,
+      "dano": 6513876469,
+      "status": "nome_corrigido",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img1.jpeg",
+      "linha": "2",
+      "nome": "Hela",
+      "frequencia": "21/21",
+      "dano": 6507664927,
+      "status": "",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img1.jpeg",
+      "linha": "3",
+      "nome": "Cley",
+      "frequencia": "21/21",
+      "dano": 6418524181,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 4,
+      "linha": "4",
       "nome": "Leon",
       "frequencia": "21/21",
-      "dano": 6136756694,
-      "status": "linha_corrigida",
+      "dano": 5965959874,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 5,
+      "linha": "5",
       "nome": "Sr_Mendes",
       "frequencia": "21/21",
-      "dano": 6047485963,
-      "status": "linha_corrigida",
+      "dano": 5935806658,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 6,
+      "linha": "6",
       "nome": "Gashak",
       "frequencia": "21/21",
-      "dano": 6045943039,
-      "status": "linha_corrigida",
+      "dano": 5886574256,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img1.jpeg",
-      "linha": 7,
+      "linha": "7",
       "nome": "Lux",
       "frequencia": "21/21",
-      "dano": 5757010994,
+      "dano": 5868302434,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 1,
+      "linha": "1",
       "nome": "SkyLord",
       "frequencia": "21/21",
-      "dano": 5450006166,
-      "status": "linha_corrigida",
+      "dano": 5620127150,
+      "status": "nome_corrigido",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 2,
+      "linha": "2",
       "nome": "Kanao",
       "frequencia": "21/21",
-      "dano": 5227989147,
+      "dano": 5542864960,
+      "status": "",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img2.jpeg",
+      "linha": "3",
+      "nome": "Dennis",
+      "frequencia": "19/21",
+      "dano": 5528603679,
+      "status": "",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img2.jpeg",
+      "linha": "4",
+      "nome": "Ger",
+      "frequencia": "21/21",
+      "dano": 5432498592,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 3,
+      "linha": "5",
+      "nome": "Wagnero",
+      "frequencia": "18/21",
+      "dano": 5002233689,
+      "status": "linha_corrigida",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img2.jpeg",
+      "linha": "6",
       "nome": "SirAudino",
       "frequencia": "21/21",
-      "dano": 5179854176,
+      "dano": 4983526750,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img2.jpeg",
-      "linha": 4,
+      "linha": "7",
+      "nome": "Snowers",
+      "frequencia": "21/21",
+      "dano": 4889974560,
+      "status": "linha_corrigida",
+      "status_participacao": "completo"
+    },
+    {
+      "imagem_origem": "img3.jpeg",
+      "linha": "1",
       "nome": "Aurora",
       "frequencia": "21/21",
-      "dano": 4689989569,
-      "status": "linha_corrigida",
+      "dano": 4772547570,
+      "status": "",
       "status_participacao": "completo"
     },
     {
-      "imagem_origem": "img2.jpeg",
-      "linha": 5,
-      "nome": "Snowers",
-      "frequencia": "19/21",
-      "dano": 4655762502,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img2.jpeg",
-      "linha": 6,
-      "nome": "Ger",
-      "frequencia": "18/21",
-      "dano": 4654615408,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img2.jpeg",
-      "linha": 7,
+      "imagem_origem": "img3.jpeg",
+      "linha": "2",
       "nome": "Capibara",
-      "frequencia": "16/21",
-      "dano": 4276834242,
-      "status": "linha_corrigida",
+      "frequencia": "18/21",
+      "dano": 4205867230,
+      "status": "nome_corrigido",
       "status_participacao": "participou_bem"
     },
     {
       "imagem_origem": "img3.jpeg",
-      "linha": 1,
-      "nome": "Wagnero",
-      "frequencia": "15/21",
-      "dano": 4199793235,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 2,
-      "nome": "ヴァルディネイ",
-      "frequencia": "15/21",
-      "dano": 4196284054,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 3,
-      "nome": "Dennis",
-      "frequencia": "15/21",
-      "dano": 4005294241,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 4,
+      "linha": "3",
       "nome": "カミナリ",
       "frequencia": "21/21",
-      "dano": 3924119148,
+      "dano": 3854104442,
       "status": "linha_corrigida",
       "status_participacao": "completo"
     },
     {
       "imagem_origem": "img3.jpeg",
-      "linha": 5,
-      "nome": "Ino",
-      "frequencia": "19/21",
-      "dano": 3524310859,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 6,
-      "nome": "Cosmos",
-      "frequencia": "18/21",
-      "dano": 3455156171,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img3.jpeg",
-      "linha": 7,
-      "nome": "math",
-      "frequencia": "11/21",
-      "dano": 2121268952,
-      "status": "linha_corrigida",
-      "status_participacao": "baixa_participacao"
-    },
-    {
-      "imagem_origem": "img4.jpeg",
-      "linha": 1,
-      "nome": "math",
-      "frequencia": "11/21",
-      "dano": 2121268952,
-      "status": "linha_corrigida;duplicado",
-      "status_participacao": "baixa_participacao"
-    },
-    {
-      "imagem_origem": "img4.jpeg",
-      "linha": 2,
-      "nome": "kia",
-      "frequencia": "18/21",
-      "dano": 1988357012,
-      "status": "linha_corrigida",
-      "status_participacao": "participou_bem"
-    },
-    {
-      "imagem_origem": "img4.jpeg",
-      "linha": 3,
+      "linha": "4",
       "nome": "Ramigam",
-      "frequencia": "9/21",
-      "dano": 1877637550,
+      "frequencia": "17/21",
+      "dano": 3503543200,
+      "status": "nome_corrigido",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img3.jpeg",
+      "linha": "5",
+      "nome": "Ino",
+      "frequencia": "16/21",
+      "dano": 3168253423,
+      "status": "linha_corrigida",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img3.jpeg",
+      "linha": "6",
+      "nome": "ヴァルディネイ",
+      "frequencia": "13/21",
+      "dano": 3126292007,
       "status": "linha_corrigida",
       "status_participacao": "baixa_participacao"
     },
     {
-      "imagem_origem": "img4.jpeg",
-      "linha": 4,
-      "nome": "Drymus",
-      "frequencia": "9/21",
-      "dano": 1790445105,
-      "status": "linha_corrigida",
-      "status_participacao": "baixa_participacao"
+      "imagem_origem": "img3.jpeg",
+      "linha": "7",
+      "nome": "Cosmos",
+      "frequencia": "15/21",
+      "dano": 3025436863,
+      "status": "nome_corrigido",
+      "status_participacao": "participou_bem"
     },
     {
       "imagem_origem": "img4.jpeg",
-      "linha": 5,
+      "linha": "1",
       "nome": "CAPETTINI",
-      "frequencia": "9/21",
-      "dano": 1667651751,
-      "status": "linha_corrigida",
+      "frequencia": "15/21",
+      "dano": 2983447047,
+      "status": "nome_corrigido",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img4.jpeg",
+      "linha": "2",
+      "nome": "math",
+      "frequencia": "11/21",
+      "dano": 2082005914,
+      "status": "",
       "status_participacao": "baixa_participacao"
     },
     {
       "imagem_origem": "img4.jpeg",
-      "linha": 6,
+      "linha": "3",
+      "nome": "kia",
+      "frequencia": "15/21",
+      "dano": 1548969572,
+      "status": "nome_corrigido",
+      "status_participacao": "participou_bem"
+    },
+    {
+      "imagem_origem": "img4.jpeg",
+      "linha": "4",
       "nome": "PeSH",
-      "frequencia": "12/21",
-      "dano": 1634108517,
+      "frequencia": "14/21",
+      "dano": 1510787224,
       "status": "linha_corrigida",
       "status_participacao": "baixa_participacao"
     },
     {
       "imagem_origem": "img4.jpeg",
-      "linha": 7,
+      "linha": "5",
+      "nome": "Carlinhozz",
+      "frequencia": "9/21",
+      "dano": 1432042582,
+      "status": "linha_corrigida",
+      "status_participacao": "baixa_participacao"
+    },
+    {
+      "imagem_origem": "img4.jpeg",
+      "linha": "6",
+      "nome": "Drymus",
+      "frequencia": "3/21",
+      "dano": 548573759,
+      "status": "nome_corrigido",
+      "status_participacao": "quase_ausente"
+    },
+    {
+      "imagem_origem": "img4.jpeg",
+      "linha": "7",
       "nome": "utiago",
-      "frequencia": "6/21",
-      "dano": 1063888601,
+      "frequencia": "3/21",
+      "dano": 531796294,
       "status": "linha_corrigida",
       "status_participacao": "quase_ausente"
     }
-  ],
-  "raid": {
-    "number": 132,
-    "endedAt": null,
-    "source": "official",
-    "generatedAt": "2026-06-07T01:20:41"
-  }
+  ]
 }

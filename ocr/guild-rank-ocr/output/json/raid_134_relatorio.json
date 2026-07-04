@@ -1,0 +1,112 @@
+{
+  "raidNumber": 134,
+  "endedAt": "2026-07-01",
+  "source": "official",
+  "status": "validada",
+  "promovida": true,
+  "imagens": [
+    "img1.jpeg",
+    "img2.jpeg",
+    "img3.jpeg",
+    "img4.jpeg",
+    "img5.jpeg"
+  ],
+  "linhasProcessadas": 30,
+  "participantes": 30,
+  "ausentes": 0,
+  "danoTotal": 127145853257,
+  "registrosCorrigidos": 5,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 0,
+  "erros": [],
+  "correcoesAplicadas": [
+    {
+      "raidNumber": 134,
+      "imagem_origem": "img2.jpeg",
+      "linha": 5,
+      "antes": {
+        "nome": "Kanao",
+        "frequencia": "71/21",
+        "dano": "5146046379",
+        "status": "nome_corrigido;frequencia_suspeita"
+      },
+      "depois": {
+        "nome": "Kanao",
+        "frequencia": "21/21",
+        "dano": 5146046379,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 134,
+      "imagem_origem": "img2.jpeg",
+      "linha": 6,
+      "antes": {
+        "nome": "FY",
+        "frequencia": "12/31",
+        "dano": "0117927651",
+        "status": "revisar;frequencia_suspeita"
+      },
+      "depois": {
+        "nome": "Sr_Mendes",
+        "frequencia": "18/21",
+        "dano": 5011237651,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 134,
+      "imagem_origem": "img2.jpeg",
+      "linha": 7,
+      "antes": {
+        "nome": "SkyLord",
+        "frequencia": "12/31",
+        "dano": "271",
+        "status": "nome_corrigido;frequencia_suspeita;dano_suspeito"
+      },
+      "depois": {
+        "nome": "SkyLord",
+        "frequencia": "18/21",
+        "dano": 4910370115,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 134,
+      "imagem_origem": "img5.jpeg",
+      "linha": 1,
+      "antes": {
+        "nome": "CAPETTINI",
+        "frequencia": "12/21",
+        "dano": "2181520708",
+        "status": "nome_corrigido"
+      },
+      "depois": {
+        "nome": "PeSH",
+        "frequencia": "12/21",
+        "dano": 919946595,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 134,
+      "imagem_origem": "img5.jpeg",
+      "linha": 2,
+      "antes": {
+        "nome": "Lux",
+        "frequencia": "",
+        "dano": "0",
+        "status": "nome_corrigido;frequencia_suspeita;dano_suspeito"
+      },
+      "depois": {
+        "nome": "Drymus",
+        "frequencia": "3/21",
+        "dano": 530981851,
+        "status": "linha_corrigida"
+      }
+    }
+  ],
+  "promovidaEm": "2026-07-03T22:53:41Z",
+  "raidAnterior": 133,
+  "historicoArmazenado": 4
+}

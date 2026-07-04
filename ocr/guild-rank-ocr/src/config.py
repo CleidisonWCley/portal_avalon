@@ -58,23 +58,28 @@ NOMES_VALIDOS = [
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
 # somente em correspondência exata e nunca entram no fuzzy matching.
 ALIASES_MEMBROS = {
-    "Cley": ["cley"],
-    "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen"],
+    "Cley": ["cley", "ley" , "SESH"],
+    "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen"],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
     "CAPETTINI": ["Capettini", "capettini"],
-    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg"],
-    "カミナリ": ["Kaminari", "737"],
-    "Lux": ["LUX", "wa"],
-    "Ger": ["cr"],
-    "kia": ["Zz", "Kia"],
+    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   "],
+    "カミナリ": ["Kaminari", "737", "757"],
+    "Lux": ["LUX", "wa", "_     "],
+    "Ger": ["cr","co"],
+    "kia": ["Zz", "Kia", "oa an"],
     "Drymus": ["ee"],
     "tang": ["Tang", "TANG"],
+    "utiago": [ "Utiago", "utage", "Utage"],
+    "Kanao": ["Kanao","kenao", "Kenao"],
+    "PeSH": ["PESH","pesh", "Pesh", "NUGZRD",],
+    "SkyLord": ["eect "]
 }
 
 CORRECOES_OCR_NOMES = {
     "MJ_McQueen": "MJ馬McQueen",
     "MJ McQueen": "MJ馬McQueen",
     "MJMcQueen": "MJ馬McQueen",
+    "MyiBMcQueen": "MJ馬McQueen",
     "Tang": "tang",
     "TANG": "tang",
     "wa": "Lux",
@@ -82,9 +87,17 @@ CORRECOES_OCR_NOMES = {
     "Zz": "kia",
     "zz": "kia",
     "ee": "Drymus",
+    "oa an": "kia",
     "737": "カミナリ",
+    "757": "カミナリ",
     "Sry Heg": "ヴァルディネイ",
     "SryHeg": "ヴァルディネイ",
+    "utage": "utiago",
+    "Utage": "utiago",
+    "ornee et   ": "ヴァルディネイ",
+    "_     ": "Lux",
+    "co": "Ger",
+    "eect ": "SkyLord"
 }
 
 # ============================================================
@@ -163,8 +176,17 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img4.jpeg", 5): {"nome": "Carlinhozz", "frequencia": "9/21", "dano": 1432042582},
         ("img4.jpeg", 7): {"nome": "utiago", "frequencia": "3/21", "dano": 531796294},
     }
-}
 
+}
+CORRECOES_LINHAS_POR_RAID = {
+    134: {
+        ("img2.jpeg", 5): {"nome": "Kanao","frequencia": "21/21","dano": 5146046379, },
+        ("img2.jpeg", 6): {"nome":"Sr_Mendes","frequencia":"18/21","dano": 5011237651}, 
+        ("img2.jpeg", 7): {"nome": "SkyLord","frequencia": "18/21","dano": 4910370115,},
+        ("img5.jpeg", 1): {"nome":"PeSH","frequencia":"12/21","dano":919946595},
+        ("img5.jpeg", 2): {"nome":"Drymus","frequencia":"3/21","dano":530981851},
+    }
+}
 # ============================================================
 # CONFIGURAÇÃO DE SAÍDA
 # ============================================================
