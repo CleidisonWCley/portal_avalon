@@ -1,0 +1,77 @@
+{
+  "raidNumber": 135,
+  "endedAt": "2026-07-15",
+  "source": "official",
+  "status": "validada",
+  "promovida": true,
+  "imagens": [
+    "img1.jpeg",
+    "img2.jpeg",
+    "img3.jpeg",
+    "img4.jpeg"
+  ],
+  "linhasProcessadas": 28,
+  "participantes": 24,
+  "ausentes": 3,
+  "danoTotal": 107359021063,
+  "registrosCorrigidos": 3,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 0,
+  "erros": [],
+  "correcoesAplicadas": [
+    {
+      "raidNumber": 135,
+      "imagem_origem": "img2.jpeg",
+      "linha": 6,
+      "antes": {
+        "nome": "Aurora",
+        "frequencia": "71/71",
+        "dano": "5190475037",
+        "status": "nome_corrigido;frequencia_suspeita"
+      },
+      "depois": {
+        "nome": "Aurora",
+        "frequencia": "21/21",
+        "dano": 5190475037,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 135,
+      "imagem_origem": "img2.jpeg",
+      "linha": 7,
+      "antes": {
+        "nome": "Snowers",
+        "frequencia": "12/",
+        "dano": "46177",
+        "status": "nome_corrigido;frequencia_suspeita;dano_suspeito"
+      },
+      "depois": {
+        "nome": "Snowers",
+        "frequencia": "18/21",
+        "dano": 4545986172,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 135,
+      "imagem_origem": "img3.jpeg",
+      "linha": 4,
+      "antes": {
+        "nome": "Sr_Mendes",
+        "frequencia": "1/21",
+        "dano": "4317518896",
+        "status": "nome_corrigido"
+      },
+      "depois": {
+        "nome": "Sr_Mendes",
+        "frequencia": "15/21",
+        "dano": 4317518896,
+        "status": "linha_corrigida"
+      }
+    }
+  ],
+  "promovidaEm": "2026-07-22T18:51:50Z",
+  "raidAnterior": 134,
+  "historicoArmazenado": 4
+}

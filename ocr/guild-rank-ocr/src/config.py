@@ -29,8 +29,7 @@ NOMES_VALIDOS = [
     "Leon",
     "Sr_Mendes",
     "Gashak",
-    "Lux",
-    "SkyLord",
+    "Lux"
     "Kanao",
     "SirAudino",
     "Aurora",
@@ -46,13 +45,13 @@ NOMES_VALIDOS = [
     "math",
     "kia",
     "Ramigam",
-    "Drymus",
     "CAPETTINI",
     "PeSH",
     "utiago",
     "Carlinhozz",
     "MJ馬McQueen",
     "tang"
+    "Haru_Urara"
 ]
 
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
@@ -62,17 +61,19 @@ ALIASES_MEMBROS = {
     "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen"],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
     "CAPETTINI": ["Capettini", "capettini"],
-    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   "],
-    "カミナリ": ["Kaminari", "737", "757"],
-    "Lux": ["LUX", "wa", "_     "],
+    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", ],
+    "カミナリ": ["Kaminari", "737", "757", "ast",],
+    "Lux": ["LUX", "wa", "_     ", "oa"],
     "Ger": ["cr","co"],
-    "kia": ["Zz", "Kia", "oa an"],
-    "Drymus": ["ee"],
+    "kia": ["Zz", "Kia", "oa an",],
     "tang": ["Tang", "TANG"],
     "utiago": [ "Utiago", "utage", "Utage"],
-    "Kanao": ["Kanao","kenao", "Kenao"],
+    "Kanao": ["Kanao","kenao", "Kenao", "Kaneo Sn "],
     "PeSH": ["PESH","pesh", "Pesh", "NUGZRD",],
-    "SkyLord": ["eect "]
+    "Haru_Urara": ["tangHaru_Urara"],
+    "Aurora": ["jurors"],
+    "Ino": ["ro"],
+    "Snowers": ["cnowers mm "],
 }
 
 CORRECOES_OCR_NOMES = {
@@ -97,7 +98,14 @@ CORRECOES_OCR_NOMES = {
     "ornee et   ": "ヴァルディネイ",
     "_     ": "Lux",
     "co": "Ger",
-    "eect ": "SkyLord"
+    "cnowers mm": "Snowers",
+    "jurors": "Aurora",
+    "ro": "Ino",
+    "io": "Kia ",
+    "areca": "ヴァルディネイ",
+    "Kaneo Sn ": "Kanao",
+    "ast": "カミナリ",
+    "tangHaru_Urara": "Haru_Urara"
 }
 
 # ============================================================
@@ -186,6 +194,15 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img5.jpeg", 1): {"nome":"PeSH","frequencia":"12/21","dano":919946595},
         ("img5.jpeg", 2): {"nome":"Drymus","frequencia":"3/21","dano":530981851},
     }
+}
+
+CORRECOES_LINHAS_POR_RAID = {
+    135: {
+        ("img2.jpeg", 6): {"nome": "Aurora","frequencia": "21/21","dano": 5190475037},
+        ("img2.jpeg", 7): {"nome":"Snowers","frequencia":"18/21","dano": 4545986172}, 
+        ( "img3.jpeg",4): {"nome":"Sr_Mendes","frequencia":"15/21","dano": 4317518896},
+}
+
 }
 # ============================================================
 # CONFIGURAÇÃO DE SAÍDA
