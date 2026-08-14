@@ -112,6 +112,15 @@ def consolidar_registros(registros: list[dict]) -> tuple[list[dict], list[dict]]
         atual_suspeito = STATUS_DANO_SUSPEITO in atual.get("status", "") or STATUS_FREQUENCIA_SUSPEITA in atual.get("status", "")
         novo_suspeito = STATUS_DANO_SUSPEITO in reg.get("status", "") or STATUS_FREQUENCIA_SUSPEITA in reg.get("status", "")
 
+        # Duplicata "conflitante" é quando os dois registros discordam no
+        # dano — sinal de que pode não ser a mesma linha capturada duas
+        # vezes (ex.: colisão de nome), e precisa de revisão manual. Quando
+        # o dano bate, é o caso comum de sobreposição intencional entre
+        # duas capturas consecutivas (mesma linha fotografada duas vezes) e
+        # pode ser resolvido automaticamente sem bloquear a promoção.
+        conflitante = reg.get("dano", 0) != atual.get("dano", 0)
+        reg["conflitante"] = conflitante
+
         escolher_novo = False
         if atual_suspeito and not novo_suspeito:
             escolher_novo = True
@@ -120,6 +129,7 @@ def consolidar_registros(registros: list[dict]) -> tuple[list[dict], list[dict]]
 
         if escolher_novo:
             atual["status"] = juntar_status(atual.get("status", ""), STATUS_DUPLICADO)
+            atual["conflitante"] = conflitante
             duplicados.append(atual)
             por_nome[nome] = reg
         else:
@@ -190,6 +200,7 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
         "ausentes": len(ausentes),
         "registros_revisar": len(revisar),
         "duplicados_detectados": len(duplicados),
+        "duplicados_conflitantes": sum(1 for d in duplicados if d.get("conflitante")),
         "dano_total_guilda": dano_total,
     }
 
@@ -238,8 +249,8 @@ def validar_dados_tratados(dados: dict) -> list[str]:
     if pendentes:
         erros.append("Registros pendentes de revisão: " + ", ".join(pendentes))
 
-    if int(resumo.get("duplicados_detectados") or 0) > 0:
-        erros.append("Foram detectados registros duplicados na coleta.")
+    if int(resumo.get("duplicados_conflitantes") or 0) > 0:
+        erros.append("Foram detectados registros duplicados com dados conflitantes (dano diferente para o mesmo nome).")
 
     for membro in membros:
         freq = membro.get("frequencia", "")

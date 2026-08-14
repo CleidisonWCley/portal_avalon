@@ -87,14 +87,6 @@ def main():
                 errors.append(f"Frequência inválida em {raid.get('id')}: {name}")
             if attacks is None and raid.get("role") == "previous":
                 warnings.append(f"Base estimada: {raid.get('id')} / {name}")
-            if (
-                raid.get("role") == "previous"
-                and attacks is not None
-                and int(attacks) < int(history.get("settings", {}).get("minBaselineAttacks", 15))
-            ):
-                warnings.append(
-                    f"Excluído da média por frequência: {raid.get('id')} / {name} ({attacks}/21)"
-                )
 
     print(f"Raids: {len(raids)} | erros: {len(errors)} | avisos: {len(warnings)}")
     for item in errors:
@@ -108,3 +100,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

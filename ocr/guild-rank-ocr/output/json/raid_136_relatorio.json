@@ -1,0 +1,245 @@
+{
+  "raidNumber": 136,
+  "endedAt": "2026-07-29",
+  "source": "official",
+  "status": "validada",
+  "promovida": false,
+  "imagens": [
+    "img1.jpeg",
+    "img2.jpeg",
+    "img3.jpeg",
+    "img4.jpeg",
+    "img5.jpeg"
+  ],
+  "linhasProcessadas": 30,
+  "participantes": 28,
+  "ausentes": 1,
+  "danoTotal": 127245912960,
+  "registrosCorrigidos": 13,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 2,
+  "erros": [],
+  "correcoesAplicadas": [
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img1.jpeg",
+      "linha": 3,
+      "antes": {
+        "nome": "ctey amass",
+        "frequencia": "21/21",
+        "dano": "6791215007",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Cley",
+        "frequencia": "21/21",
+        "dano": 6791215007,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img1.jpeg",
+      "linha": 4,
+      "antes": {
+        "nome": "Ekretian fag",
+        "frequencia": "21/21",
+        "dano": "6768643794",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Krelian",
+        "frequencia": "21/21",
+        "dano": 6768643794,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img1.jpeg",
+      "linha": 5,
+      "antes": {
+        "nome": "Ie emcquer",
+        "frequencia": "21/21",
+        "dano": "6659104205",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "MJ馬McQueen",
+        "frequencia": "21/21",
+        "dano": 6659104205,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img1.jpeg",
+      "linha": 6,
+      "antes": {
+        "nome": "Gashak",
+        "frequencia": "21/21",
+        "dano": "6453921540",
+        "status": "nome_corrigido"
+      },
+      "depois": {
+        "nome": "Gashak",
+        "frequencia": "21/21",
+        "dano": 6453921540,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img2.jpeg",
+      "linha": 3,
+      "antes": {
+        "nome": "hu",
+        "frequencia": "21/21",
+        "dano": "6251944076",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Lux",
+        "frequencia": "21/21",
+        "dano": 6251944076,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img2.jpeg",
+      "linha": 6,
+      "antes": {
+        "nome": "iPkanao mmm",
+        "frequencia": "21/21",
+        "dano": "5391553217",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Kanao",
+        "frequencia": "21/21",
+        "dano": 5391553217,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img3.jpeg",
+      "linha": 4,
+      "antes": {
+        "nome": "S Cor",
+        "frequencia": "17/21",
+        "dano": "4374399105",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Ger",
+        "frequencia": "17/21",
+        "dano": 4374399105,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img3.jpeg",
+      "linha": 5,
+      "antes": {
+        "nome": "lossv me",
+        "frequencia": "21/21",
+        "dano": "3971075271",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "カミナリ",
+        "frequencia": "21/21",
+        "dano": 3971075271,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img4.jpeg",
+      "linha": 1,
+      "antes": {
+        "nome": "jane fa",
+        "frequencia": "18/21",
+        "dano": "3677476051",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Ino",
+        "frequencia": "18/21",
+        "dano": 3677476051,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img4.jpeg",
+      "linha": 4,
+      "antes": {
+        "nome": "Cosmos",
+        "frequencia": "15/21",
+        "dano": "2698406766",
+        "status": "nome_corrigido"
+      },
+      "depois": {
+        "nome": "Cosmos",
+        "frequencia": "15/21",
+        "dano": 2698406766,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img5.jpeg",
+      "linha": 3,
+      "antes": {
+        "nome": "RocsH EE",
+        "frequencia": "18/21",
+        "dano": "1965689627",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "PeSH",
+        "frequencia": "18/21",
+        "dano": 1965689627,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img5.jpeg",
+      "linha": 4,
+      "antes": {
+        "nome": "Po",
+        "frequencia": "18/21",
+        "dano": "1953658609",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "kia",
+        "frequencia": "18/21",
+        "dano": 1953658609,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 136,
+      "imagem_origem": "img5.jpeg",
+      "linha": 6,
+      "antes": {
+        "nome": "iG cartinnozz",
+        "frequencia": "3/21",
+        "dano": "415155293",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Carlinhozz",
+        "frequencia": "3/21",
+        "dano": 415155293,
+        "status": "linha_corrigida"
+      }
+    }
+  ]
+}

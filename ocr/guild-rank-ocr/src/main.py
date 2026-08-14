@@ -14,7 +14,7 @@ from src.config import (
     NUMERO_LINHAS,
     PADRAO_NOME_IMAGEM,
 )
-from src.ocr.extractor import processar_imagem
+from src.ocr.extractor import numero_linhas_padrao_para_imagem, processar_imagem
 from src.utils.export import exportar_csv
 from src.utils.postprocess import salvar_json, tratar_dados_ocr, validar_dados_tratados
 from src.utils.review import aplicar_correcoes_raid, correcoes_da_raid
@@ -72,10 +72,10 @@ def listar_imagens(pasta: Path) -> list[Path]:
     return imagens
 
 
-def linhas_da_pagina(pagina: int) -> int:
-    inicio = (pagina - 1) * NUMERO_LINHAS
+def linhas_da_pagina(pagina: int, numero_linhas: int = NUMERO_LINHAS) -> int:
+    inicio = (pagina - 1) * numero_linhas
     restantes = CAPACIDADE_GUILDA - inicio
-    return max(0, min(NUMERO_LINHAS, restantes))
+    return max(0, min(numero_linhas, restantes))
 
 
 def caminhos_saida(output_dir: Path, raid_numero: int) -> dict[str, Path]:
@@ -120,9 +120,10 @@ def main() -> int:
         print(f"Nenhuma correção revisada cadastrada para a Raid {args.raid}.")
 
     todos_dados = []
+    numero_linhas_pagina = numero_linhas_padrao_para_imagem(str(imagens[0])) if imagens else NUMERO_LINHAS
     for imagem in imagens:
         pagina = numero_pagina(imagem)
-        dados = processar_imagem(str(imagem), numero_linhas=linhas_da_pagina(pagina))
+        dados = processar_imagem(str(imagem), numero_linhas=linhas_da_pagina(pagina, numero_linhas_pagina))
         todos_dados.extend(dados)
         print()
 
@@ -193,3 +194,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+    

@@ -29,7 +29,7 @@ NOMES_VALIDOS = [
     "Leon",
     "Sr_Mendes",
     "Gashak",
-    "Lux"
+    "Lux",
     "Kanao",
     "SirAudino",
     "Aurora",
@@ -50,8 +50,8 @@ NOMES_VALIDOS = [
     "utiago",
     "Carlinhozz",
     "MJ馬McQueen",
-    "tang"
-    "Haru_Urara"
+    "tang",
+    "Haru_Urara",
 ]
 
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
@@ -137,20 +137,58 @@ STATUS_LINHA_CORRIGIDA = "linha_corrigida"
 STATUS_NOME_CORRIGIDO = "nome_corrigido"
 
 # ============================================================
+# ============================================================
 # COORDENADAS DO OCR - MODO RESPONSIVO
 # ============================================================
+# Existem dois perfis de calibração porque o layout do jogo NÃO escala de
+# forma uniforme entre tablet/desktop e celular — no celular o painel de
+# ranking divide espaço com um menu lateral que não existe no tablet, então
+# escalar as coordenadas do tablet proporcionalmente à imagem inteira faz
+# os recortes "andarem" pra fora do lugar (mais quanto mais à direita o
+# campo estiver). Por isso cada perfil tem sua própria imagem de referência.
 
-LARGURA_BASE = 1599
-ALTURA_BASE = 999
+# --- Perfil TABLET/DESKTOP (referência original) ---
+LARGURA_BASE_TABLET = 1599
+ALTURA_BASE_TABLET = 999
 
-REGIOES_BASE_PIXELS = {
+REGIOES_BASE_PIXELS_TABLET = {
     "nome": (610, 63, 185, 50),
     "frequencia": (1000, 72, 145, 56),
     "dano": (1190, 68, 310, 62),
 }
 
-INCREMENTO_Y_BASE = 113
-NUMERO_LINHAS = 7
+INCREMENTO_Y_BASE_TABLET = 113
+NUMERO_LINHAS_TABLET = 7
+
+# --- Perfil CELULAR (calibrado em print de celular 2340x1080, deitado) ---
+LARGURA_BASE_CELULAR = 2340
+ALTURA_BASE_CELULAR = 1080
+
+REGIOES_BASE_PIXELS_CELULAR = {
+    "nome": (818, 70, 190, 50),
+    "frequencia": (1340, 100, 125, 44),
+    "dano": (1595, 100, 250, 48),
+}
+
+INCREMENTO_Y_BASE_CELULAR = 138
+# No celular, a lista de ranking mostra menos linhas por print que no
+# tablet (o card de cada membro ocupa proporcionalmente mais altura).
+NUMERO_LINHAS_CELULAR = 6
+
+# Proporção largura/altura a partir da qual uma imagem é tratada como
+# print de celular. Tablet fica perto de 1.6; celular deitado normalmente
+# fica em 1.9+ (ex.: 2340x1080 = 2.17). O limiar fica no meio do caminho
+# entre os dois formatos de referência conhecidos.
+LIMIAR_PROPORCAO_CELULAR = 1.85
+
+# Nomes mantidos por compatibilidade com código antigo — sempre apontam
+# para o perfil TABLET; código novo deve escolher o perfil dinamicamente
+# via `selecionar_perfil()` em src/ocr/extractor.py.
+LARGURA_BASE = LARGURA_BASE_TABLET
+ALTURA_BASE = ALTURA_BASE_TABLET
+REGIOES_BASE_PIXELS = REGIOES_BASE_PIXELS_TABLET
+INCREMENTO_Y_BASE = INCREMENTO_Y_BASE_TABLET
+NUMERO_LINHAS = NUMERO_LINHAS_TABLET
 
 # Compatibilidade com código antigo.
 REGIOES_BASE = REGIOES_BASE_PIXELS
@@ -183,26 +221,37 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img4.jpeg", 4): {"nome": "PeSH", "frequencia": "14/21", "dano": 1510787224},
         ("img4.jpeg", 5): {"nome": "Carlinhozz", "frequencia": "9/21", "dano": 1432042582},
         ("img4.jpeg", 7): {"nome": "utiago", "frequencia": "3/21", "dano": 531796294},
-    }
-
-}
-CORRECOES_LINHAS_POR_RAID = {
+    },
     134: {
-        ("img2.jpeg", 5): {"nome": "Kanao","frequencia": "21/21","dano": 5146046379, },
-        ("img2.jpeg", 6): {"nome":"Sr_Mendes","frequencia":"18/21","dano": 5011237651}, 
-        ("img2.jpeg", 7): {"nome": "SkyLord","frequencia": "18/21","dano": 4910370115,},
-        ("img5.jpeg", 1): {"nome":"PeSH","frequencia":"12/21","dano":919946595},
-        ("img5.jpeg", 2): {"nome":"Drymus","frequencia":"3/21","dano":530981851},
-    }
-}
-
-CORRECOES_LINHAS_POR_RAID = {
+        ("img2.jpeg", 5): {"nome": "Kanao", "frequencia": "21/21", "dano": 5146046379},
+        ("img2.jpeg", 6): {"nome": "Sr_Mendes", "frequencia": "18/21", "dano": 5011237651},
+        ("img2.jpeg", 7): {"nome": "SkyLord", "frequencia": "18/21", "dano": 4910370115},
+        ("img5.jpeg", 1): {"nome": "PeSH", "frequencia": "12/21", "dano": 919946595},
+        ("img5.jpeg", 2): {"nome": "Drymus", "frequencia": "3/21", "dano": 530981851},
+    },
     135: {
-        ("img2.jpeg", 6): {"nome": "Aurora","frequencia": "21/21","dano": 5190475037},
-        ("img2.jpeg", 7): {"nome":"Snowers","frequencia":"18/21","dano": 4545986172}, 
-        ( "img3.jpeg",4): {"nome":"Sr_Mendes","frequencia":"15/21","dano": 4317518896},
-}
-
+        ("img2.jpeg", 6): {"nome": "Aurora", "frequencia": "21/21", "dano": 5190475037},
+        ("img2.jpeg", 7): {"nome": "Snowers", "frequencia": "18/21", "dano": 4545986172},
+        ("img3.jpeg", 4): {"nome": "Sr_Mendes", "frequencia": "15/21", "dano": 4317518896},
+    },
+    136: {
+        # Conferidas contra os screenshots oficiais da Raid 136 (deslocamento
+        # de scroll já corrigido no OCR; só o nome ficou "revisar" nestas
+        # linhas — frequência e dano já batiam com a imagem).
+        ("img1.jpeg", 3): {"nome": "Cley", "frequencia": "21/21", "dano": 6791215007},
+        ("img1.jpeg", 4): {"nome": "Krelian", "frequencia": "21/21", "dano": 6768643794},
+        ("img1.jpeg", 5): {"nome": "MJ馬McQueen", "frequencia": "21/21", "dano": 6659104205},
+        ("img1.jpeg", 6): {"nome": "Gashak", "frequencia": "21/21", "dano": 6453921540},
+        ("img2.jpeg", 3): {"nome": "Lux", "frequencia": "21/21", "dano": 6251944076},
+        ("img2.jpeg", 6): {"nome": "Kanao", "frequencia": "21/21", "dano": 5391553217},
+        ("img3.jpeg", 4): {"nome": "Ger", "frequencia": "17/21", "dano": 4374399105},
+        ("img3.jpeg", 5): {"nome": "カミナリ", "frequencia": "21/21", "dano": 3971075271},
+        ("img4.jpeg", 1): {"nome": "Ino", "frequencia": "18/21", "dano": 3677476051},
+        ("img4.jpeg", 4): {"nome": "Cosmos", "frequencia": "15/21", "dano": 2698406766},
+        ("img5.jpeg", 3): {"nome": "PeSH", "frequencia": "18/21", "dano": 1965689627},
+        ("img5.jpeg", 4): {"nome": "kia", "frequencia": "18/21", "dano": 1953658609},
+        ("img5.jpeg", 6): {"nome": "Carlinhozz", "frequencia": "3/21", "dano": 415155293},
+    },
 }
 # ============================================================
 # CONFIGURAÇÃO DE SAÍDA

@@ -268,21 +268,13 @@ function manualOverrideFor(memberName, raidId) {
 
 
 const LIFECYCLE_TAGS = Object.freeze({
-  inicio_jornada: {
-    code: 'inicio_jornada',
-    label: 'Defensor em Início de Jornada',
-    shortLabel: 'Início de Jornada',
+  em_construcao: {
+    code: 'em_construcao',
+    label: 'Guardião em Construção',
+    shortLabel: 'Em Construção',
     badgeId: 'juramentado',
-    description: 'Primeira raid registrada. Histórico em construção.',
-    message: 'Todo defensor tem um ponto de partida. Avalon já registrou o início desta jornada.'
-  },
-  retornante: {
-    code: 'retornante',
-    label: 'Defensor Retornante',
-    shortLabel: 'Retornante',
-    badgeId: 'juramentado',
-    description: 'Retornou às muralhas de Avalon. Nova base de evolução em formação.',
-    message: 'O retorno de um guardião também faz parte da história de Avalon.'
+    description: 'Base de comparação em formação. Ainda não há raids válidas suficientes para o cálculo normal do Hall.',
+    message: 'Todo guardião constrói sua base de evolução com o tempo — o histórico de Avalon está sendo formado.'
   }
 });
 
@@ -321,27 +313,18 @@ function shouldRenderRaidMember(member) {
 }
 
 function lifecycleTagForContext({
-  record = null,
   hasCurrentRaid = false,
   baselineCount = 0,
-  minBaseline = 2,
-  returnToBattle = false,
-  hasHistoricalTrace = false
+  minBaseline = 2
 } = {}) {
   if (!hasCurrentRaid) return null;
   if (Number(baselineCount || 0) >= Number(minBaseline || 2)) return null;
-
-  const lifecycle = String(record?.lifecycle || '').toLowerCase();
-  const status = String(record?.status || '').toLowerCase();
-  const registryNew = lifecycle === 'novo_membro' || status === 'aguardando_primeira_raid' || status === 'pre_cadastro';
-  const registryReturn = lifecycle === 'retornante' || status === 'retornante';
-
-  if (registryReturn) return LIFECYCLE_TAGS.retornante;
-  if (registryNew && !hasHistoricalTrace) return LIFECYCLE_TAGS.inicio_jornada;
-  if (returnToBattle && hasHistoricalTrace) return LIFECYCLE_TAGS.retornante;
-  if (!hasHistoricalTrace) return LIFECYCLE_TAGS.inicio_jornada;
-
-  return null;
+  // Regra única: baseline insuficiente = Guardião em Construção, seja o
+  // guardião novo na guilda ou retornando de uma ausência. Assim que
+  // acumular raids válidas suficientes, sai direto para o rank normal do
+  // Hall com a média + dano atual, sem passar por uma categoria especial
+  // de "retornante".
+  return LIFECYCLE_TAGS.em_construcao;
 }
 
 function historicalEntry(raid, memberName) {
@@ -404,6 +387,7 @@ function buildMembers() {
       .map(raid => historicalEntry(raid, member.nome));
 
     let availableHistoryEntries = historyEntries.filter(Boolean);
+    const hasStructuredHistoricalTrace = availableHistoryEntries.length > 0;
     if (!availableHistoryEntries.length && state.hasComparison) {
       const fallback = fallbackPreviousMap.get(normalizeMemberKey(member.nome));
       if (fallback) {
@@ -429,12 +413,14 @@ function buildMembers() {
     const baselineDetails = availableHistoryEntries.map(entry => {
       const knownFrequency = entry.attacks !== null && entry.attacks !== undefined;
       const validDamage = Number(entry.damage || 0) > 0;
-      const validFrequency = !knownFrequency || Number(entry.attacks) >= Number(settings.minBaselineAttacks || 15);
+      // A frequência não decide mais se a raid conta pra média — isso é
+      // uma questão do Hall (minCurrentAttacksForHall / hallPositionRules),
+      // não do cálculo de base. Pra base, basta ter dano registrado.
       return {
         ...entry,
         knownFrequency,
-        valid: validDamage && validFrequency,
-        excludedReason: !validDamage ? 'sem_dano' : (!validFrequency ? 'frequencia_baixa' : null)
+        valid: validDamage,
+        excludedReason: !validDamage ? 'sem_dano' : null
       };
     });
 
@@ -453,17 +439,21 @@ function buildMembers() {
     const evolucao = comparativoValido ? danoAtual - mediaBase : null;
     const percentualEvolutivo = comparativoValido && mediaBase > 0 ? (evolucao / mediaBase) * 100 : null;
     const directPreviousAbsent = !directPrevious || danoAnterior <= 0 || (frequenciaAnteriorNum !== null && frequenciaAnteriorNum <= 0);
-    const retornoBatalha = directPreviousAbsent && !ausenteAtual && danoAtual > 0;
     const hasCurrentRaid = !ausenteAtual && danoAtual > 0 && frequenciaAtualNum > 0;
-    const hasHistoricalTrace = availableHistoryEntries.length > 0;
+    // Retorno à batalha cobre tanto ausência total na raid anterior quanto
+    // presença com frequência abaixo do mínimo de baseline (sem base válida
+    // para comparação). A segunda condição só vale para histórico
+    // estruturado real (raids oficiais registradas), não para o fallback
+    // legado de uma única raid estimada — senão um membro genuinamente novo
+    // que só coincide com esse fallback seria confundido com um retornante.
+    const retornoBatalha = (directPreviousAbsent || (hasStructuredHistoricalTrace && !hasEnoughBaseline))
+      && !ausenteAtual
+      && danoAtual > 0;
     const registryRecord = guardianRegistryRecord(member.nome);
     const lifecycleTag = lifecycleTagForContext({
-      record: registryRecord,
       hasCurrentRaid,
       baselineCount: validBaseline.length,
-      minBaseline,
-      returnToBattle: retornoBatalha,
-      hasHistoricalTrace
+      minBaseline
     });
     const presencaMinimaHall = frequenciaAtualNum >= Number(settings.minCurrentAttacksForHall || 6);
     const comparisonStatus = retornoBatalha
@@ -730,7 +720,7 @@ function defenderLifecycleListTemplate() {
     <div class="defender-lifecycle-box">
       <div class="defender-lifecycle-heading">
         <p class="eyebrow">Jornadas em formação</p>
-        <h3>Novos e retornantes</h3>
+        <h3>Guardiões em Construção</h3>
         <p>Esses guardiões já têm raid válida, mas ainda aguardam base histórica mínima para disputar as patentes evolutivas.</p>
       </div>
       <div class="elite-list defender-lifecycle-list">
