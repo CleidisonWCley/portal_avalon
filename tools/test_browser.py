@@ -255,11 +255,72 @@ def test_registro_evolution(browser) -> None:
 
     print(f"PASS | {len(results)} larguras do Registro com modal e gráficos responsivos")
 
+def build_retorno_batalha_fixture():
+    """Injeta um guardião sintético com o cenário completo de retorno à
+    batalha (ausente na raid imediatamente anterior, com rastro histórico
+    mais antigo, participando de novo na raid atual) nos dados reais atuais
+    — assim o teste independe de qual membro real da guilda hoje bate com
+    esse padrão específico."""
+    atual = json.loads((WEB / "data/raids/raid_atual.json").read_text(encoding="utf-8"))
+    history = json.loads((WEB / "data/raids/raid_history.json").read_text(encoding="utf-8"))
+
+    synthetic_name = "GuardiaoRetornoTeste"
+    atual["membros"] = [m for m in atual["membros"] if m.get("nome") != synthetic_name] + [{
+        "imagem_origem": "fixture",
+        "linha": "99",
+        "nome": synthetic_name,
+        "frequencia": "18/21",
+        "dano": 1234567890,
+        "status": "",
+        "status_participacao": "baixa_participacao"
+    }]
+
+    raids_by_order = sorted(history.get("raids", []), key=lambda item: int(item.get("order", 0)))
+    for raid in raids_by_order:
+        members = [m for m in raid.get("members", []) if m.get("name") != synthetic_name]
+        order = int(raid.get("order", 0))
+        if order == 2:
+            # Rastro histórico mais antigo: garante hasStructuredHistoricalTrace.
+            members.append({
+                "name": synthetic_name,
+                "damage": 987654321,
+                "frequency": "17/21",
+                "attacks": 17,
+                "status_participacao": "baixa_participacao",
+                "source": "fixture"
+            })
+        # order == 1 fica sem entrada de propósito: ausência direta na raid
+        # anterior é o que garante retornoBatalha = true.
+        raid["members"] = members
+
+    return (
+        json.dumps(atual, ensure_ascii=False).encode("utf-8"),
+        json.dumps(history, ensure_ascii=False).encode("utf-8"),
+    )
+
+
+def new_page_with_fixture(context, viewport: dict, relative: str, overrides: dict):
+    page = context.new_page()
+    page.set_viewport_size(viewport)
+    page.route("**/*", route_assets)
+    for url, body in overrides.items():
+        page.route(url, lambda route, request, b=body: route.fulfill(status=200, body=b, content_type="application/json"))
+    page.set_content(page_html(relative), wait_until="domcontentloaded")
+    page.locator("#avalon-page-loader").wait_for(state="hidden", timeout=15000)
+    page.wait_for_timeout(180)
+    return page
+
+
 def test_registro_special_cases(browser) -> None:
     context = browser.new_context()
     try:
+        atual_fixture, history_fixture = build_retorno_batalha_fixture()
+        overrides = {
+            "https://assets.local/data/raids/raid_atual.json": atual_fixture,
+            "https://assets.local/data/raids/raid_history.json": history_fixture,
+        }
         for viewport in ({"width": 390, "height": 844}, {"width": 1024, "height": 900}):
-            page = new_page(context, viewport, "pages/registro.html")
+            page = new_page_with_fixture(context, viewport, "pages/registro.html", overrides)
             label = f"registro-special@{viewport['width']}"
 
             if viewport["width"] >= 981:
@@ -274,34 +335,16 @@ def test_registro_special_cases(browser) -> None:
                     assert abs(header["x"] - cell["x"]) <= 1.5, (label, index, header, cell)
                     assert abs(header["width"] - cell["width"]) <= 1.5, (label, index, header, cell)
 
-            retorno_rows = page.locator(".battle-table tbody tr.registro-member-card").filter(
-                has=page.locator(".status-retorno_batalha")
-            )
-            candidate_count = retorno_rows.count()
-            assert candidate_count >= 1, f"{label}: nenhum membro com status Retorno à Batalha encontrado"
+            trigger = page.locator('button[aria-label="Ver evolução de GuardiaoRetornoTeste"]')
+            assert trigger.count() == 1, f"{label}: guardião sintético de teste não apareceu na tabela"
+            trigger.click()
 
             modal = page.locator("#registro-evolution-modal")
-            matched = False
-            for index in range(candidate_count):
-                trigger = retorno_rows.nth(index).locator('button[aria-label^="Ver evolução de "]')
-                assert trigger.count() == 1, f"{label}: caso Retorno à Batalha não encontrado"
-                trigger.click()
-                assert modal.get_attribute("aria-hidden") == "false", f"{label}: modal especial não abriu"
-
-                has_label = modal.get_by_text("Retorno à batalha", exact=True).count() == 1
-                has_note = modal.get_by_text("sem raid oficial anterior", exact=False).count() >= 1
-                has_gap = modal.locator(".registro-evolution-missing-label").count() >= 1
-                no_connecting_line = modal.locator(".registro-evolution-line").count() == 0
-
-                if has_label and has_note and has_gap and no_connecting_line:
-                    matched = True
-                    break
-                page.locator("[data-registro-evolution-close]").click()
-
-            assert matched, (
-                f"{label}: nenhum dos {candidate_count} membros com Retorno à Batalha exibe o caso "
-                "completo (rótulo + nota de raid anterior + lacuna no gráfico + sem linha conectando)"
-            )
+            assert modal.get_attribute("aria-hidden") == "false", f"{label}: modal especial não abriu"
+            assert modal.get_by_text("Retorno à batalha", exact=True).count() == 1, f"{label}: rótulo de retorno não apareceu"
+            assert modal.get_by_text("sem raid oficial anterior", exact=False).count() >= 1, f"{label}: nota de raid anterior ausente não apareceu"
+            assert modal.locator(".registro-evolution-missing-label").count() >= 1, f"{label}: lacuna do gráfico não apareceu"
+            assert modal.locator(".registro-evolution-line").count() == 0, f"{label}: gráfico conectou raids através de lacunas"
 
             metric_boxes = page.locator("#registro-evolution-modal .registro-evolution-metric").evaluate_all(
                 "els => els.map(el => ({sw:el.scrollWidth,cw:el.clientWidth,sh:el.scrollHeight,ch:el.clientHeight}))"

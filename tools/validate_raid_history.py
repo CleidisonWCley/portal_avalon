@@ -61,7 +61,6 @@ def main():
     if official_numbers != sorted(official_numbers, reverse=True):
         errors.append(f"Raids oficiais fora da ordem decrescente: {official_numbers}")
 
-    roster = {normalize(member["nome"]) for member in current.get("membros", [])}
     for raid in raids:
         seen = set()
         registered = int(raid.get("summary", {}).get("registeredMembers") or 0)
@@ -78,8 +77,9 @@ def main():
             if key in seen:
                 errors.append(f"Membro duplicado em {raid.get('id')}: {name}")
             seen.add(key)
-            if key not in roster:
-                errors.append(f"Membro fora do roster atual em {raid.get('id')}: {name}")
+            # Não comparamos contra o roster atual aqui: raids antigas
+            # legitimamente têm membros que já saíram da guilda desde
+            # então — isso é rotatividade normal, não um erro de dado.
             if int(member.get("damage") or member.get("dano") or 0) < 0:
                 errors.append(f"Dano negativo em {raid.get('id')}: {name}")
             attacks = member.get("attacks")
@@ -100,4 +100,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

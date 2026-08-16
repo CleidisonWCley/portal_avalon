@@ -125,6 +125,34 @@ test('ciclo dos guardiões automatiza início, retorno e remoção de tags tempo
     assert(!app.hallUnclassifiedMembers().some(member => member.nome === 'GuardiaoAuto'), 'novo automático não deve cair em Às Margens do Hall');
     assert(app.specialDefenderMembers().some(member => member.nome === 'GuardiaoAuto'), 'guardião em construção deve aparecer em Novos e retornantes');
 
+    const oneRaidBaseline = {
+      imagem_origem: 'manual',
+      linha: '31',
+      nome: 'GuardiaoUmaRaid',
+      frequencia: '21/21',
+      dano: 1500000000,
+      status: 'teste',
+      status_participacao: 'completo'
+    };
+    const historyWithOneRaid = {
+      ...originalHistory,
+      raids: originalHistory.raids.map(raid => (
+        Number(raid.order) === 1
+          ? { ...raid, members: [...raid.members, { name: 'GuardiaoUmaRaid', damage: 1000000000, frequency: '9/21', attacks: 9, status_participacao: 'baixa_participacao', source: 'teste' }] }
+          : raid
+      ))
+    };
+    app.state.atual = { ...originalAtual, membros: [...originalAtual.membros, oneRaidBaseline] };
+    app.state.history = historyWithOneRaid;
+    app.buildMembers();
+    const umaRaid = app.state.members.find(member => member.nome === 'GuardiaoUmaRaid');
+    assert(umaRaid, 'membro com exatamente 1 raid anterior válida deve existir');
+    assert.strictEqual(umaRaid.baselineCount, 1, 'baselineCount deve refletir a única raid anterior válida');
+    assert.strictEqual(umaRaid.baseConfidence, 'parcial', 'base parcial deve ativar com 1 raid válida (Opção B)');
+    assert.strictEqual(umaRaid.comparativoValido, true, '1 raid válida deve gerar comparativo direto, não Guardião em Construção');
+    assert.strictEqual(umaRaid.mediaBase, 1000000000, 'comparativo direto usa o dano da única raid anterior válida, sem média de verdade');
+    assert.strictEqual(umaRaid.lifecycleTagCode, null, 'com comparativo válido, não deve carregar tag de Guardião em Construção');
+
     const pendingPreCadastro = {
       imagem_origem: 'manual',
       linha: '29',

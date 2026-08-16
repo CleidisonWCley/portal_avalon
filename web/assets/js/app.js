@@ -314,16 +314,15 @@ function shouldRenderRaidMember(member) {
 
 function lifecycleTagForContext({
   hasCurrentRaid = false,
-  baselineCount = 0,
-  minBaseline = 2
+  hasComparativo = false
 } = {}) {
   if (!hasCurrentRaid) return null;
-  if (Number(baselineCount || 0) >= Number(minBaseline || 2)) return null;
-  // Regra única: baseline insuficiente = Guardião em Construção, seja o
+  if (hasComparativo) return null;
+  // Regra única: sem nenhum comparativo possível (nem a média completa,
+  // nem o comparativo direto de 1 raid) = Guardião em Construção, seja o
   // guardião novo na guilda ou retornando de uma ausência. Assim que
-  // acumular raids válidas suficientes, sai direto para o rank normal do
-  // Hall com a média + dano atual, sem passar por uma categoria especial
-  // de "retornante".
+  // acumular pelo menos 1 raid anterior válida, sai direto para o rank
+  // normal do Hall, sem passar por uma categoria especial de "retornante".
   return LIFECYCLE_TAGS.em_construcao;
 }
 
@@ -427,9 +426,14 @@ function buildMembers() {
     const validBaseline = baselineDetails.filter(entry => entry.valid);
     const minBaseline = Number(settings.minBaselineRaids || 2);
     const hasEnoughBaseline = validBaseline.length >= minBaseline;
+    // Com 2+ raids válidas, mediaBase é a média de verdade. Com só 1,
+    // não dá pra tirar média — mas dá pra comparar diretamente a raid
+    // atual contra essa única raid anterior (comparativo 1-para-1, não
+    // uma média), em vez de deixar o membro sem nenhum comparativo. Isso
+    // reaproveita o baseConfidence 'parcial' que já existia no código.
     const mediaBase = hasEnoughBaseline
       ? Math.round(validBaseline.reduce((total, entry) => total + Number(entry.damage), 0) / validBaseline.length)
-      : null;
+      : (validBaseline.length >= 1 ? Number(validBaseline[0].damage) : null);
     const hasUnknownFrequency = validBaseline.some(entry => !entry.knownFrequency);
     const baseConfidence = !hasEnoughBaseline
       ? (validBaseline.length ? 'parcial' : 'insuficiente')
@@ -452,8 +456,7 @@ function buildMembers() {
     const registryRecord = guardianRegistryRecord(member.nome);
     const lifecycleTag = lifecycleTagForContext({
       hasCurrentRaid,
-      baselineCount: validBaseline.length,
-      minBaseline
+      hasComparativo: comparativoValido
     });
     const presencaMinimaHall = frequenciaAtualNum >= Number(settings.minCurrentAttacksForHall || 6);
     const comparisonStatus = retornoBatalha

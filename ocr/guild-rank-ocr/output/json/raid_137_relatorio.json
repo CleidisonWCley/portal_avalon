@@ -1,0 +1,94 @@
+{
+  "raidNumber": 137,
+  "endedAt": "2026-08-12",
+  "source": "official",
+  "status": "validada",
+  "promovida": true,
+  "imagens": [
+    "img1.jpeg",
+    "img2.jpeg",
+    "img3.jpeg",
+    "img4.jpeg"
+  ],
+  "linhasProcessadas": 28,
+  "participantes": 27,
+  "ausentes": 2,
+  "danoTotal": 125388863154,
+  "registrosCorrigidos": 4,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 1,
+  "erros": [],
+  "correcoesAplicadas": [
+    {
+      "raidNumber": 137,
+      "imagem_origem": "img2.jpeg",
+      "linha": 5,
+      "antes": {
+        "nome": "__",
+        "frequencia": "18/21",
+        "dano": "4974077734",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "Lux",
+        "frequencia": "18/21",
+        "dano": 4974077734,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 137,
+      "imagem_origem": "img2.jpeg",
+      "linha": 7,
+      "antes": {
+        "nome": "SirAudino",
+        "frequencia": "18/71",
+        "dano": "4496492369",
+        "status": "frequencia_suspeita"
+      },
+      "depois": {
+        "nome": "SirAudino",
+        "frequencia": "18/21",
+        "dano": 4496492369,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 137,
+      "imagem_origem": "img3.jpeg",
+      "linha": 5,
+      "antes": {
+        "nome": "1st",
+        "frequencia": "21/21",
+        "dano": "4097292708",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "カミナリ",
+        "frequencia": "21/21",
+        "dano": 4097292708,
+        "status": "linha_corrigida"
+      }
+    },
+    {
+      "raidNumber": 137,
+      "imagem_origem": "img3.jpeg",
+      "linha": 6,
+      "antes": {
+        "nome": "Cee red",
+        "frequencia": "15/21",
+        "dano": "3911443163",
+        "status": "revisar"
+      },
+      "depois": {
+        "nome": "ヴァルディネイ",
+        "frequencia": "15/21",
+        "dano": 3911443163,
+        "status": "linha_corrigida"
+      }
+    }
+  ],
+  "promovidaEm": "2026-08-15T01:57:26Z",
+  "raidAnterior": 136,
+  "historicoArmazenado": 4
+}

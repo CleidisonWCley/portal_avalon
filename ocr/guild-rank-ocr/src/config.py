@@ -235,9 +235,6 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img3.jpeg", 4): {"nome": "Sr_Mendes", "frequencia": "15/21", "dano": 4317518896},
     },
     136: {
-        # Conferidas contra os screenshots oficiais da Raid 136 (deslocamento
-        # de scroll já corrigido no OCR; só o nome ficou "revisar" nestas
-        # linhas — frequência e dano já batiam com a imagem).
         ("img1.jpeg", 3): {"nome": "Cley", "frequencia": "21/21", "dano": 6791215007},
         ("img1.jpeg", 4): {"nome": "Krelian", "frequencia": "21/21", "dano": 6768643794},
         ("img1.jpeg", 5): {"nome": "MJ馬McQueen", "frequencia": "21/21", "dano": 6659104205},
@@ -251,6 +248,12 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img5.jpeg", 3): {"nome": "PeSH", "frequencia": "18/21", "dano": 1965689627},
         ("img5.jpeg", 4): {"nome": "kia", "frequencia": "18/21", "dano": 1953658609},
         ("img5.jpeg", 6): {"nome": "Carlinhozz", "frequencia": "3/21", "dano": 415155293},
+    },
+    137: {
+        ("img2.jpeg", 5): {"nome": "Lux", "frequencia": "18/21", "dano": 4974077734},
+        ("img2.jpeg", 7): {"nome": "SirAudino", "frequencia": "18/21", "dano": 4496492369},
+        ("img3.jpeg", 5): {"nome": "カミナリ", "frequencia": "21/21", "dano": 4097292708},
+        ("img3.jpeg", 6): {"nome": "ヴァルディネイ", "frequencia": "15/21", "dano": 3911443163},
     },
 }
 # ============================================================
