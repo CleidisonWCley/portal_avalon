@@ -1086,6 +1086,23 @@ tr:hover .member-name-cell,
   flex: 1 1 260px;
 }
 
+.registro-export-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  font-size: 0.86rem;
+}
+
+.registro-export-button .material-symbols-outlined {
+  font-size: 1.05rem;
+}
+
+.registro-export-button:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;

@@ -1344,12 +1344,17 @@ function getRegistroSnapshot() {
     members: state.members.map(member => ({
       key: normalizeMemberKey(member.nome),
       name: member.nome,
+      rank: Number.isInteger(member.currentRank) ? member.currentRank : null,
       currentDamage: Number(member.danoAtual || 0),
       currentFrequency: member.frequencia || null,
+      currentAttacks: Number(member.frequenciaAtualNum || 0),
       averageBase: member.mediaBase,
       baseConfidence: member.baseConfidence,
+      evolutionPercent: member.percentualEvolutivo,
       returnToBattle: Boolean(member.retornoBatalha),
       absent: Boolean(member.ausenteAtual),
+      statusCode: member.retornoBatalha ? 'retorno_batalha' : getStatus(member),
+      statusLabel: member.retornoBatalha ? 'Retorno à Batalha' : operationStatusLabel(getStatus(member)),
       timeline: registroTimelineForMember(member)
     }))
   };

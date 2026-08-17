@@ -71,6 +71,10 @@
 <div class="registro-kpis" id="registro-kpis"></div>
 </div>
 <div class="filters-bar">
+<button class="btn btn-secondary registro-export-button" id="registro-export-image" type="button">
+<span aria-hidden="true" class="material-symbols-outlined">photo_camera</span>
+Baixar tabela
+</button>
 <input id="table-search" placeholder="Filtrar por nick..." type="search"/>
 <select aria-label="Filtrar por situação" id="status-filter">
 <option value="todos">Todos</option>
@@ -135,6 +139,10 @@
 <h2 id="registro-guild-evolution-title">Evolução recente da Guilda</h2>
 <p>Comparação entre as Raids oficiais recentes.</p>
 </div>
+<button class="btn btn-secondary registro-export-button" id="registro-export-guild-chart" type="button">
+<span aria-hidden="true" class="material-symbols-outlined">photo_camera</span>
+Baixar gráfico
+</button>
 </div>
 <div class="registro-guild-metrics" id="registro-guild-metrics" aria-live="polite"></div>
 <div id="registro-guild-chart"></div>
@@ -202,6 +210,7 @@
 <script src="../assets/js/hall-rules.js"></script>
 <script src="../assets/js/app.js"></script>
 <script src="../assets/js/registro-evolution.js"></script>
+<script src="../assets/js/registro-table-image.js"></script>
 </body>
 </html>
 
