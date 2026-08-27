@@ -58,18 +58,18 @@ NOMES_VALIDOS = [
 # somente em correspondência exata e nunca entram no fuzzy matching.
 ALIASES_MEMBROS = {
     "Cley": ["cley", "ley" , "SESH"],
-    "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen"],
+    "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen", "MisBMcQueen ff" ],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
     "CAPETTINI": ["Capettini", "capettini"],
-    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", ],
-    "カミナリ": ["Kaminari", "737", "757", "ast",],
+    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", "Eee eeed" ],
+    "カミナリ": ["Kaminari", "737", "757", "ast", "net ae "],
     "Lux": ["LUX", "wa", "_     ", "oa"],
     "Ger": ["cr","co"],
     "kia": ["Zz", "Kia", "oa an",],
     "tang": ["Tang", "TANG"],
     "utiago": [ "Utiago", "utage", "Utage"],
     "Kanao": ["Kanao","kenao", "Kenao", "Kaneo Sn "],
-    "PeSH": ["PESH","pesh", "Pesh", "NUGZRD",],
+    "PeSH": ["PESH","pesh", "Pesh", "NUGZRD", "res  "],
     "Haru_Urara": ["tangHaru_Urara"],
     "Aurora": ["jurors"],
     "Ino": ["ro"],
@@ -81,6 +81,7 @@ CORRECOES_OCR_NOMES = {
     "MJ McQueen": "MJ馬McQueen",
     "MJMcQueen": "MJ馬McQueen",
     "MyiBMcQueen": "MJ馬McQueen",
+    "MisBMcQueen ff": "MJ馬McQueen",
     "Tang": "tang",
     "TANG": "tang",
     "wa": "Lux",
@@ -93,6 +94,7 @@ CORRECOES_OCR_NOMES = {
     "757": "カミナリ",
     "Sry Heg": "ヴァルディネイ",
     "SryHeg": "ヴァルディネイ",
+    "Eee eeed": "ヴァルディネイ",
     "utage": "utiago",
     "Utage": "utiago",
     "ornee et   ": "ヴァルディネイ",
@@ -105,7 +107,9 @@ CORRECOES_OCR_NOMES = {
     "areca": "ヴァルディネイ",
     "Kaneo Sn ": "Kanao",
     "ast": "カミナリ",
-    "tangHaru_Urara": "Haru_Urara"
+    "tangHaru_Urara": "Haru_Urara",
+    "net ae ": "カミナリ",
+    "res  ": "PeSH"
 }
 
 # ============================================================

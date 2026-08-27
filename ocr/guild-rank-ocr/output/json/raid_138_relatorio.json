@@ -1,0 +1,25 @@
+{
+  "raidNumber": 138,
+  "endedAt": "2026-08-26",
+  "source": "official",
+  "status": "validada",
+  "promovida": true,
+  "imagens": [
+    "img1.jpeg",
+    "img2.jpeg",
+    "img3.jpeg",
+    "img4.jpeg"
+  ],
+  "linhasProcessadas": 28,
+  "participantes": 27,
+  "ausentes": 2,
+  "danoTotal": 127845598237,
+  "registrosCorrigidos": 0,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 0,
+  "erros": [],
+  "correcoesAplicadas": [],
+  "promovidaEm": "2026-08-27T18:43:20Z",
+  "raidAnterior": 137,
+  "historicoArmazenado": 4
+}
