@@ -1,0 +1,44 @@
+{
+  "raidNumber": 139,
+  "endedAt": "2026-09-09",
+  "source": "official",
+  "status": "validada",
+  "promovida": true,
+  "imagens": [
+    "img1.jpeg",
+    "img2.jpeg",
+    "img3.jpeg",
+    "img4.jpeg",
+    "img5.jpeg"
+  ],
+  "linhasProcessadas": 30,
+  "participantes": 29,
+  "ausentes": 0,
+  "danoTotal": 121198516774,
+  "registrosCorrigidos": 1,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 1,
+  "erros": [],
+  "correcoesAplicadas": [
+    {
+      "raidNumber": 139,
+      "imagem_origem": "img4.jpeg",
+      "linha": 3,
+      "antes": {
+        "nome": "Ger",
+        "frequencia": "12/21",
+        "dano": "29898388831",
+        "status": "nome_corrigido;dano_suspeito"
+      },
+      "depois": {
+        "nome": "Ger ",
+        "frequencia": "12/21",
+        "dano": 2989838881,
+        "status": "linha_corrigida"
+      }
+    }
+  ],
+  "promovidaEm": "2026-09-14T19:09:34Z",
+  "raidAnterior": 138,
+  "historicoArmazenado": 4
+}

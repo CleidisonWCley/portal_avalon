@@ -95,7 +95,6 @@ def main():
 
     old_published = enrich_legacy_current(old_published, old_number)
     max_raids = int(history.get("settings", {}).get("maxStoredRaids", 4))
-    roster = {normalize(member["nome"]): member["nome"] for member in new_json.get("membros", [])}
 
     resumo = new_json.get("resumo", {})
     generated = resumo.get("generatedAt") or resumo.get("gerado_em", "")
@@ -160,14 +159,7 @@ def main():
         else:
             item["label"] = f"Raid anterior {item['order']}"
 
-        filtered = []
-        for member in item.get("members", []):
-            key = normalize(member.get("name") or member.get("nome"))
-            if key in roster:
-                member_item = dict(member)
-                member_item["name"] = roster[key]
-                filtered.append(member_item)
-        item["members"] = filtered
+        item["members"] = list(item.get("members", []))
         rotated.append(item)
         if len(rotated) >= max_raids:
             break

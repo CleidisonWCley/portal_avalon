@@ -36,7 +36,6 @@ NOMES_VALIDOS = [
     "Snowers",
     "Ger",
     "Capibara",
-    "Wagnero",
     "ヴァルディネイ",
     "Dennis",
     "カミナリ",
@@ -52,28 +51,32 @@ NOMES_VALIDOS = [
     "MJ馬McQueen",
     "tang",
     "Haru_Urara",
+    "Algebra"
 ]
 
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
 # somente em correspondência exata e nunca entram no fuzzy matching.
 ALIASES_MEMBROS = {
-    "Cley": ["cley", "ley" , "SESH"],
-    "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen", "MisBMcQueen ff" ],
+    "Cley": ["cley", "ley" , "SESH", "oey ime"],
+    "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen", "MisBMcQueen ff", "ie memcquer"],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
     "CAPETTINI": ["Capettini", "capettini"],
-    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", "Eee eeed" ],
-    "カミナリ": ["Kaminari", "737", "757", "ast", "net ae "],
-    "Lux": ["LUX", "wa", "_     ", "oa"],
-    "Ger": ["cr","co"],
-    "kia": ["Zz", "Kia", "oa an",],
+    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", "Eee eeed", "slornse " ],
+    "カミナリ": ["Kaminari", "737", "757", "ast", "net ae ", "lossy "],
+    "Lux": ["LUX", "wa", "_     ", "oa" , "vx 0  ", "tux"],
+    "Ger": ["cr","co", "Cor "],
+    "kia": ["Zz", "Kia", "oa an", "oo", "Pia i "],
     "tang": ["Tang", "TANG"],
     "utiago": [ "Utiago", "utage", "Utage"],
     "Kanao": ["Kanao","kenao", "Kenao", "Kaneo Sn "],
-    "PeSH": ["PESH","pesh", "Pesh", "NUGZRD", "res  "],
+    "PeSH": ["PESH","pesh", "Pesh", "NUGZRD", "res  ", "rest Sm"],
     "Haru_Urara": ["tangHaru_Urara"],
     "Aurora": ["jurors"],
-    "Ino": ["ro"],
+    "Ino": ["ro", "Lino"],
     "Snowers": ["cnowers mm "],
+    "Hela": ["Het mag  "],
+    "Cosmos": ["If cosmos amy"],
+    "Carlinhozz": ["Bcartinnozz"]
 }
 
 CORRECOES_OCR_NOMES = {
@@ -109,7 +112,8 @@ CORRECOES_OCR_NOMES = {
     "ast": "カミナリ",
     "tangHaru_Urara": "Haru_Urara",
     "net ae ": "カミナリ",
-    "res  ": "PeSH"
+    "res  ": "PeSH",
+    "vx 0  ": "Lux"
 }
 
 # ============================================================
@@ -259,6 +263,9 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img3.jpeg", 5): {"nome": "カミナリ", "frequencia": "21/21", "dano": 4097292708},
         ("img3.jpeg", 6): {"nome": "ヴァルディネイ", "frequencia": "15/21", "dano": 3911443163},
     },
+    139: {
+        ("img4.jpeg", 3): {"nome": "Ger ", "frequencia": "12/21", "dano": 2989838881}
+    }
 }
 # ============================================================
 # CONFIGURAÇÃO DE SAÍDA
