@@ -265,7 +265,18 @@ CORRECOES_LINHAS_POR_RAID = {
     },
     139: {
         ("img4.jpeg", 3): {"nome": "Ger ", "frequencia": "12/21", "dano": 2989838881}
-    }
+    },
+    140: {
+        # Conferidas contra os screenshots oficiais da Raid 140.
+        ("img1.jpeg", 2): {"nome": "Cley", "frequencia": "21/21", "dano": 7383779125},
+        ("img1.jpeg", 3): {"nome": "Hela", "frequencia": "21/21", "dano": 7379804574},
+        ("img1.jpeg", 4): {"nome": "Krelian", "frequencia": "21/21", "dano": 7248804896},
+        ("img1.jpeg", 6): {"nome": "Gashak", "frequencia": "21/21", "dano": 6818276427},
+        ("img2.jpeg", 2): {"nome": "Lux", "frequencia": "21/21", "dano": 6689637922},
+        ("img3.jpeg", 2): {"nome": "Kanao", "frequencia": "21/21", "dano": 5402781781},
+        ("img5.jpeg", 4): {"nome": "kia", "frequencia": "15/21", "dano": 1799751784},
+        ("img5.jpeg", 5): {"nome": "PeSH", "frequencia": "12/21", "dano": 1381414224},
+    },
 }
 # ============================================================
 # CONFIGURAÇÃO DE SAÍDA

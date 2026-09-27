@@ -162,9 +162,21 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
     metadata = metadata or {}
     normalizados = [normalizar_registro(r) for r in registros_brutos]
 
-    # Remove linhas claramente vazias/ruído sem nome útil ou nomes fora do cadastro oficial.
-    # A lista oficial é a fonte de verdade para evitar que "wa", "cr" ou ruídos
-    # virem membros falsos no JSON final.
+    status_problematicos = {STATUS_REVISAR, STATUS_DANO_SUSPEITO, STATUS_FREQUENCIA_SUSPEITA}
+    # Pendências de revisão são contadas ANTES do filtro de cadastro oficial:
+    # um nome que o OCR não conseguiu casar com ninguém do roster ainda é
+    # uma pendência de verdade — não pode ser descartado silenciosamente e
+    # fazer o membro real correspondente aparecer como "ausente" sem que
+    # ninguém seja avisado pra revisar.
+    pendentes_revisao = [
+        r for r in normalizados
+        if any(st in (r.get("status") or "").split(";") for st in status_problematicos)
+    ]
+
+    # Remove linhas claramente vazias/ruído sem nome útil ou nomes fora do cadastro
+    # oficial. A lista oficial é a fonte de verdade para evitar que "wa", "cr" ou
+    # ruídos virem membros falsos no JSON final — a pendência de revisão já foi
+    # registrada acima, antes desse corte.
     normalizados = [
         r for r in normalizados
         if r.get("nome") and r.get("nome") in NOMES_VALIDOS
@@ -179,11 +191,6 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
     dano_total = sum(r.get("dano", 0) for r in consolidados)
     participantes = [r for r in consolidados if r.get("dano", 0) > 0]
     ausentes = [r for r in consolidados if r.get("status_participacao") == "ausente"]
-    status_problematicos = {STATUS_REVISAR, STATUS_DANO_SUSPEITO, STATUS_FREQUENCIA_SUSPEITA}
-    revisar = [
-        r for r in consolidados
-        if any(st in (r.get("status") or "").split(";") for st in status_problematicos)
-    ]
 
     gerado_em = datetime.now().isoformat(timespec="seconds")
     resumo = {
@@ -198,7 +205,7 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
         "vagas_estimadas": max(CAPACIDADE_GUILDA - len(NOMES_VALIDOS), 0),
         "participantes": len(participantes),
         "ausentes": len(ausentes),
-        "registros_revisar": len(revisar),
+        "registros_revisar": len(pendentes_revisao),
         "duplicados_detectados": len(duplicados),
         "duplicados_conflitantes": sum(1 for d in duplicados if d.get("conflitante")),
         "dano_total_guilda": dano_total,
@@ -214,6 +221,7 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
         "resumo": resumo,
         "membros": consolidados,
         "duplicados": duplicados,
+        "pendentes_revisao": pendentes_revisao,
         "raw_normalizado": normalizados,
     }
 
@@ -240,11 +248,10 @@ def validar_dados_tratados(dados: dict) -> list[str]:
     if desconhecidos:
         erros.append("Nomes fora do elenco oficial: " + ", ".join(desconhecidos))
 
-    status_problematicos = {STATUS_REVISAR, STATUS_DANO_SUSPEITO, STATUS_FREQUENCIA_SUSPEITA}
+    pendentes_revisao = dados.get("pendentes_revisao", [])
     pendentes = [
-        m.get("nome") or f"linha {m.get('linha')}"
-        for m in membros
-        if any(st in (m.get("status") or "").split(";") for st in status_problematicos)
+        p.get("nome") or f"{p.get('imagem_origem') or 'linha'} {p.get('linha')}"
+        for p in pendentes_revisao
     ]
     if pendentes:
         erros.append("Registros pendentes de revisão: " + ", ".join(pendentes))

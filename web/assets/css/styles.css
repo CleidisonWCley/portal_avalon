@@ -718,6 +718,18 @@ tr:hover .member-name-cell,
   align-items: stretch;
 }
 
+.hall-card-download-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.4rem;
+}
+
+.hall-card-download-wrap .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .podium-card {
   position: relative;
   overflow: hidden;

@@ -844,6 +844,240 @@ function renderHall() {
   renderOutsideHall();
 }
 
+const HALL_CARD_THEME = Object.freeze({
+  width: 1200,
+  rowHeight: 148,
+  headerHeight: 250,
+  footerHeight: 96,
+  colors: Object.freeze({
+    gold: '#f2c766',
+    goldGlow: 'rgba(255,226,126,0.55)',
+    silverGlow: 'rgba(226,237,255,0.5)',
+    bronzeGlow: 'rgba(232,154,92,0.5)',
+    defaultGlow: 'rgba(242,199,102,0.32)',
+    text: '#f4f0e6',
+    textSoft: 'rgba(215,217,226,0.84)',
+    textFaint: 'rgba(215,217,226,0.55)',
+    panel: 'rgba(255,255,255,0.055)',
+    panelBorder: 'rgba(216,222,233,0.15)',
+    positive: '#7be08a',
+    negative: '#ef8686'
+  })
+});
+
+function hallCanvasLoadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function hallCanvasRoundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function hallCanvasGlowColor(position) {
+  const colors = HALL_CARD_THEME.colors;
+  if (position === 1) return colors.goldGlow;
+  if (position === 2) return colors.silverGlow;
+  if (position === 3) return colors.bronzeGlow;
+  return colors.defaultGlow;
+}
+
+function drawHallCanvasBackground(ctx, width, height) {
+  const bg = ctx.createLinearGradient(0, 0, width, height);
+  bg.addColorStop(0, '#071126');
+  bg.addColorStop(0.55, '#080b15');
+  bg.addColorStop(1, '#1a1308');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  const ambient = ctx.createRadialGradient(width / 2, 190, 60, width / 2, 190, width * 0.7);
+  ambient.addColorStop(0, HALL_CARD_THEME.colors.gold);
+  ambient.addColorStop(0.4, 'rgba(242,199,102,0.16)');
+  ambient.addColorStop(1, 'transparent');
+  ctx.fillStyle = ambient;
+  ctx.fillRect(0, 0, width, height);
+  ctx.restore();
+
+  ctx.strokeStyle = 'rgba(242,199,102,0.55)';
+  ctx.lineWidth = 4;
+  hallCanvasRoundedRect(ctx, 30, 28, width - 60, height - 56, 30);
+  ctx.stroke();
+}
+
+function drawHallCanvasHeader(ctx, width) {
+  const colors = HALL_CARD_THEME.colors;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = colors.gold;
+  ctx.font = '800 46px Georgia, "Times New Roman", serif';
+  ctx.fillText('Hall da Evolução', width / 2, 96);
+
+  ctx.fillStyle = colors.textSoft;
+  ctx.font = '500 24px Inter, Arial, sans-serif';
+  const raidNumber = state.atual?.raid?.number;
+  const subtitle = raidNumber
+    ? `Guilda Avalon • Top 10 após a Raid ${raidNumber}`
+    : 'Guilda Avalon • Top 10 do Hall';
+  ctx.fillText(subtitle, width / 2, 134);
+
+  ctx.font = '400 18px Inter, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(215,217,226,0.6)';
+  const generatedAt = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  ctx.fillText(`Gerado em ${generatedAt}`, width / 2, 164);
+
+  ctx.strokeStyle = 'rgba(242,199,102,0.35)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(90, HALL_CARD_THEME.headerHeight - 30);
+  ctx.lineTo(width - 90, HALL_CARD_THEME.headerHeight - 30);
+  ctx.stroke();
+}
+
+async function drawHallCanvasRow(ctx, position, rowX, rowWidth, rowY) {
+  const theme = HALL_CARD_THEME;
+  const colors = theme.colors;
+  const member = memberAtHallPosition(position);
+  const badgeId = member?.hallBadgeId || HallRules.badgeForPosition(position);
+
+  ctx.save();
+  ctx.fillStyle = colors.panel;
+  hallCanvasRoundedRect(ctx, rowX, rowY + 8, rowWidth, theme.rowHeight - 20, 20);
+  ctx.fill();
+  ctx.strokeStyle = colors.panelBorder;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+
+  const badgeCenterX = rowX + 84;
+  const badgeCenterY = rowY + theme.rowHeight / 2 - 2;
+  const badgeRadius = 58;
+
+  ctx.save();
+  const glow = ctx.createRadialGradient(badgeCenterX, badgeCenterY, 6, badgeCenterX, badgeCenterY, badgeRadius + 22);
+  glow.addColorStop(0, hallCanvasGlowColor(position));
+  glow.addColorStop(1, 'transparent');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(badgeCenterX, badgeCenterY, badgeRadius + 22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  try {
+    const img = await hallCanvasLoadImage(getBadgeImage(badgeId, 'export'));
+    const size = badgeRadius * 2;
+    ctx.drawImage(img, badgeCenterX - badgeRadius, badgeCenterY - badgeRadius, size, size);
+  } catch (error) {
+    // Segue sem a imagem caso ela falhe ao carregar — o restante da linha
+    // ainda é exibido normalmente.
+  }
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = colors.gold;
+  ctx.font = '800 30px Georgia, "Times New Roman", serif';
+  ctx.fillText(`#${position}`, rowX + 168, rowY + 46);
+
+  const textX = rowX + 168;
+  if (!member) {
+    ctx.fillStyle = colors.textFaint;
+    ctx.font = '700 28px Inter, Arial, sans-serif';
+    ctx.fillText('Trono vago', textX, rowY + 84);
+    ctx.font = '400 18px Inter, Arial, sans-serif';
+    ctx.fillStyle = 'rgba(215,217,226,0.4)';
+    ctx.fillText(getBadgeName(badgeId), textX, rowY + 112);
+    return;
+  }
+
+  ctx.fillStyle = colors.text;
+  ctx.font = '700 30px Inter, Arial, sans-serif';
+  ctx.fillText(member.nome, textX, rowY + 84);
+
+  ctx.font = '400 18px Inter, Arial, sans-serif';
+  ctx.fillStyle = colors.textSoft;
+  ctx.fillText(getBadgeName(badgeId), textX, rowY + 112);
+
+  const statsX = rowX + rowWidth - 30;
+  ctx.textAlign = 'right';
+  ctx.font = '700 24px Inter, Arial, sans-serif';
+  ctx.fillStyle = colors.text;
+  ctx.fillText(formatDamageShort(member.danoAtual), statsX, rowY + 56);
+  ctx.font = '400 15px Inter, Arial, sans-serif';
+  ctx.fillStyle = colors.textFaint;
+  ctx.fillText('Dano atual', statsX, rowY + 76);
+
+  ctx.font = '700 22px Inter, Arial, sans-serif';
+  ctx.fillStyle = member.evolucao > 0 ? colors.positive : (member.evolucao < 0 ? colors.negative : colors.textSoft);
+  ctx.fillText(formatPercent(member.percentualEvolutivo), statsX, rowY + 106);
+  ctx.font = '400 15px Inter, Arial, sans-serif';
+  ctx.fillStyle = colors.textFaint;
+  ctx.fillText('Evolução', statsX, rowY + 124);
+}
+
+async function buildHallTop10Canvas() {
+  const theme = HALL_CARD_THEME;
+  const width = theme.width;
+  const height = theme.headerHeight + theme.rowHeight * 10 + theme.footerHeight;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+
+  drawHallCanvasBackground(ctx, width, height);
+  drawHallCanvasHeader(ctx, width);
+
+  const rowX = 70;
+  const rowWidth = width - 140;
+  for (let position = 1; position <= 10; position += 1) {
+    const rowY = theme.headerHeight + (position - 1) * theme.rowHeight;
+    // eslint-disable-next-line no-await-in-loop
+    await drawHallCanvasRow(ctx, position, rowX, rowWidth, rowY);
+  }
+
+  ctx.textAlign = 'center';
+  ctx.font = '600 18px Inter, Arial, sans-serif';
+  ctx.fillStyle = HALL_CARD_THEME.colors.textFaint;
+  ctx.fillText('Portal Avalon • Hall da Evolução', width / 2, height - 46);
+
+  return canvas;
+}
+
+async function downloadHallTop10Card() {
+  const button = $('#download-hall-top10');
+  const originalLabel = button ? button.innerHTML : '';
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = 'Gerando imagem…';
+  }
+  try {
+    const canvas = await buildHallTop10Canvas();
+    const raidNumber = state.atual?.raid?.number || 'atual';
+    const link = document.createElement('a');
+    link.download = `hall-top10-avalon-raid-${raidNumber}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (error) {
+    console.error('Falha ao gerar imagem do Top 10 do Hall', error);
+    window.alert('Não foi possível gerar a imagem agora. Tente novamente.');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = originalLabel;
+    }
+  }
+}
+
 
 function memberCardTemplate(member) {
   const badge = member.hallBadgeId || member.lifecycleBadgeId;
@@ -1455,6 +1689,11 @@ function bindGalleryButtons() {
 }
 
 function bindEvents() {
+  const downloadHallTop10Button = $('#download-hall-top10');
+  if (downloadHallTop10Button) {
+    downloadHallTop10Button.addEventListener('click', downloadHallTop10Card);
+  }
+
   const navToggle = $('.nav-toggle');
   const nav = $('.main-nav');
   if (navToggle && nav) {
