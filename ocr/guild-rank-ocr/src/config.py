@@ -57,13 +57,13 @@ NOMES_VALIDOS = [
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
 # somente em correspondência exata e nunca entram no fuzzy matching.
 ALIASES_MEMBROS = {
-    "Cley": ["cley", "ley" , "SESH", "oey ime"],
+    "Cley": ["cley", "ley" , "SESH", "oey ime," , "Cey"],
     "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen", "MisBMcQueen ff", "ie memcquer"],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
     "CAPETTINI": ["Capettini", "capettini"],
-    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", "Eee eeed", "slornse " ],
-    "カミナリ": ["Kaminari", "737", "757", "ast", "net ae ", "lossy "],
-    "Lux": ["LUX", "wa", "_     ", "oa" , "vx 0  ", "tux"],
+    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", "Eee eeed", "slornse ", "Freda " ],
+    "カミナリ": ["Kaminari", "737", "757", "ast", "net ae ", "lossy ", "7st SS"],
+    "Lux": ["LUX", "wa", "_     ", "oa" , "vx 0  ", "tux" , "or"],
     "Ger": ["cr","co", "Cor "],
     "kia": ["Zz", "Kia", "oa an", "oo", "Pia i "],
     "tang": ["Tang", "TANG"],
@@ -76,7 +76,8 @@ ALIASES_MEMBROS = {
     "Snowers": ["cnowers mm "],
     "Hela": ["Het mag  "],
     "Cosmos": ["If cosmos amy"],
-    "Carlinhozz": ["Bcartinnozz"]
+    "Carlinhozz": ["Bcartinnozz", "carlinhoz Sm"],
+    "Gashak": ["Goshok  "]
 }
 
 CORRECOES_OCR_NOMES = {
