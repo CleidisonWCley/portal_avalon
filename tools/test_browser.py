@@ -16,7 +16,6 @@ PAGES = [
     "pages/hall.html",
     "pages/oraculo.html",
     "pages/registro.html",
-    "pages/raid.html",
     "pages/galeria.html",
     "pages/liga.html",
 ]
@@ -135,21 +134,6 @@ def test_pages(browser) -> None:
 
                 if relative == "pages/liga.html":
                     assert page.locator("#league-mode-grid").evaluate("el => el.children.length") > 0
-
-                if relative == "pages/raid.html":
-                    assert page.locator("#raid-boss-combobox").count() == 1
-                    assert page.locator("#raid-element-combobox").count() == 1
-                    assert page.locator("#raid-search-button").count() == 1
-                    assert page.locator("#raid-refresh-button").count() == 1
-                    assert page.locator("#raid-clear-button").count() == 1
-                    assert page.locator("#raid-status").count() == 1
-                    assert page.locator("#raid-results-section").count() == 1
-                    assert page.locator("#raid-guild-evolution").count() == 0
-                    assert page.locator(".raid-evolution-metric").count() == 0
-                    history_requests = page.evaluate(
-                        "performance.getEntriesByType('resource').map(entry => entry.name).filter(name => name.includes('raid_history.json')).length"
-                    )
-                    assert history_requests == 0, (label, history_requests)
 
                 results.append(label)
                 page.close()

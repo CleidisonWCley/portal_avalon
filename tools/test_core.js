@@ -304,8 +304,8 @@ test('participante não recebe controles administrativos nem arquivos locais', (
 test('interface global preserva loader, feedback, reveal e botão de topo', () => {
   const css = read('web/assets/css/styles.css');
   const ui = read('web/assets/js/ui.js');
-  const pagesWithBackTop = ['hall', 'registro', 'raid', 'liga'];
-  const allPages = ['hall', 'oraculo', 'registro', 'raid', 'galeria', 'liga'];
+  const pagesWithBackTop = ['hall', 'registro', 'liga'];
+  const allPages = ['hall', 'oraculo', 'registro', 'galeria', 'liga'];
 
   pagesWithBackTop.forEach(page => {
     const html = read(`web/pages/${page}.html`);
@@ -328,7 +328,7 @@ test('interface global preserva loader, feedback, reveal e botão de topo', () =
 test('HTML e código funcional usam caminhos canônicos sem versão de release', () => {
   const htmlFiles = [
     'web/index.html',
-    ...['hall', 'oraculo', 'registro', 'raid', 'galeria', 'liga'].map(page => `web/pages/${page}.html`)
+    ...['hall', 'oraculo', 'registro', 'galeria', 'liga'].map(page => `web/pages/${page}.html`)
   ];
   htmlFiles.forEach(file => {
     const html = read(file);
@@ -337,7 +337,7 @@ test('HTML e código funcional usam caminhos canônicos sem versão de release',
     assert(/ui\.js["']/.test(html), `${file}: ui.js canônico ausente`);
   });
 
-  ['web/assets/js/app.js', 'web/assets/js/raid.js', 'web/assets/js/liga.js', 'web/assets/js/ui.js']
+  ['web/assets/js/app.js', 'web/assets/js/liga.js', 'web/assets/js/ui.js']
     .forEach(file => assert(!/PORTAL_VERSION/.test(read(file)), `${file}: versão embutida no código`));
 });
 

@@ -29,7 +29,6 @@ Núcleo compartilhado
 └── web/assets/js/app.js
 
 Módulos independentes
-├── web/assets/js/raid.js
 ├── web/assets/js/registro-evolution.js
 ├── web/assets/js/liga.js
 ├── web/assets/js/liga-firebase.js
@@ -71,7 +70,6 @@ Testes nomeados por versão foram absorvidos por `test_regressions.py`. Novas pr
 | Hall | `web/pages/hall.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | raid atual e histórico |
 | Buscar | `web/pages/oraculo.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | membros consolidados |
 | Registro | `web/pages/registro.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js`, `registro-evolution.js` | raid atual e histórico |
-| Raid | `web/pages/raid.html` | `ui.js`, `raid.js` | API externa + cache local |
 | Galeria | `web/pages/galeria.html` | `ui.js`, `data.js`, `hall-rules.js`, `app.js` | `gallery/eventos.json` |
 | Liga | `web/pages/liga.html` | `ui.js`, `liga.js` | arenas, raid atual e Firebase |
 
@@ -122,14 +120,6 @@ Testes nomeados por versão foram absorvidos por `test_regressions.py`. Novas pr
 - mantém um único modal bloqueante e cacheia a apresentação por membro/viewport;
 - compartilha o mesmo motor SVG entre evolução individual e coletiva;
 - reorganiza a tabela coletiva sem recalcular ou recarregar os dados.
-
-
-### `raid.js`
-
-- consulta `https://avalon-raid-api.cleidisonlima20.workers.dev`;
-- usa assets e links de `gtales.top`;
-- mantém cache local por seis horas;
-- preserva mensagens, fallback e última consulta.
 
 
 ### `liga.js`

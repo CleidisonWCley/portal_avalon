@@ -278,6 +278,47 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img5.jpeg", 4): {"nome": "kia", "frequencia": "15/21", "dano": 1799751784},
         ("img5.jpeg", 5): {"nome": "PeSH", "frequencia": "12/21", "dano": 1381414224},
     },
+    142: {
+        # Conferidas linha a linha contra os 4 screenshots oficiais da Raid 142.
+        # Todas as 28 linhas lidas foram cadastradas (e não só as que o OCR errou)
+        # porque a leitura bruta varia conforme a versão do Tesseract/SO — ex.:
+        # Aurora foi lida como "PeSH" em um ambiente. Assim o resultado final
+        # não depende do ambiente. O CSV bruto continua preservado antes disso.
+        #
+        # A img4 chegou ao fim do ranking (última posição = 26), então a rolagem
+        # recuou e ela repete as posições 20 e 21 já vistas na img3. As linhas
+        # repetidas trazem os mesmos dados da img3 e caem como duplicata
+        # não conflitante. Posições 27-29 não existem no ranking: Ino, CAPETTINI
+        # e Algebra não atacaram e entram como ausentes.
+        ("img1.jpeg", 1): {"nome": "Haru_Urara", "frequencia": "21/21", "dano": 8474794396},
+        ("img1.jpeg", 2): {"nome": "Cley", "frequencia": "21/21", "dano": 8144241063},
+        ("img1.jpeg", 3): {"nome": "Hela", "frequencia": "21/21", "dano": 8066410045},
+        ("img1.jpeg", 4): {"nome": "Krelian", "frequencia": "21/21", "dano": 7834263666},
+        ("img1.jpeg", 5): {"nome": "MJ馬McQueen", "frequencia": "21/21", "dano": 7788495381},
+        ("img1.jpeg", 6): {"nome": "Gashak", "frequencia": "21/21", "dano": 7507563519},
+        ("img1.jpeg", 7): {"nome": "Lux", "frequencia": "21/21", "dano": 7369193200},
+        ("img2.jpeg", 1): {"nome": "Dennis", "frequencia": "21/21", "dano": 7272047293},
+        ("img2.jpeg", 2): {"nome": "Leon", "frequencia": "21/21", "dano": 7146336558},
+        ("img2.jpeg", 3): {"nome": "Sr_Mendes", "frequencia": "21/21", "dano": 7079757489},
+        ("img2.jpeg", 4): {"nome": "Aurora", "frequencia": "21/21", "dano": 6231466095},
+        ("img2.jpeg", 5): {"nome": "SirAudino", "frequencia": "18/21", "dano": 5722588128},
+        ("img2.jpeg", 6): {"nome": "Snowers", "frequencia": "21/21", "dano": 5038051861},
+        ("img2.jpeg", 7): {"nome": "Kanao", "frequencia": "18/21", "dano": 4867785141},
+        ("img3.jpeg", 1): {"nome": "Cosmos", "frequencia": "18/21", "dano": 4444379181},
+        ("img3.jpeg", 2): {"nome": "Ger", "frequencia": "15/21", "dano": 4323254708},
+        ("img3.jpeg", 3): {"nome": "カミナリ", "frequencia": "21/21", "dano": 4252314046},
+        ("img3.jpeg", 4): {"nome": "math", "frequencia": "20/21", "dano": 3752611595},
+        ("img3.jpeg", 5): {"nome": "Capibara", "frequencia": "12/21", "dano": 3536958919},
+        ("img3.jpeg", 6): {"nome": "Ramigam", "frequencia": "13/21", "dano": 2994272369},
+        ("img3.jpeg", 7): {"nome": "ヴァルディネイ", "frequencia": "6/21", "dano": 2117618706},
+        ("img4.jpeg", 1): {"nome": "Ramigam", "frequencia": "13/21", "dano": 2994272369},
+        ("img4.jpeg", 2): {"nome": "ヴァルディネイ", "frequencia": "6/21", "dano": 2117618706},
+        ("img4.jpeg", 3): {"nome": "tang", "frequencia": "11/21", "dano": 2065211396},
+        ("img4.jpeg", 4): {"nome": "kia", "frequencia": "15/21", "dano": 1806713445},
+        ("img4.jpeg", 5): {"nome": "Carlinhozz", "frequencia": "10/21", "dano": 1688986959},
+        ("img4.jpeg", 6): {"nome": "PeSH", "frequencia": "12/21", "dano": 1197159836},
+        ("img4.jpeg", 7): {"nome": "utiago", "frequencia": "3/21", "dano": 539999475},
+    },
 }
 # ============================================================
 # CONFIGURAÇÃO DE SAÍDA

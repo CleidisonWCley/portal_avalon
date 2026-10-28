@@ -1,7 +1,7 @@
 {
   "version": "7.8.2",
   "guild": "Avalon",
-  "generatedAt": "2026-10-08T18:22:33Z",
+  "generatedAt": "2026-10-28T17:41:20Z",
   "settings": {
     "maxStoredRaids": 4,
     "baselineSize": 4,
@@ -71,11 +71,263 @@
   },
   "raids": [
     {
+      "id": "raid_142",
+      "raidNumber": 142,
+      "label": "Raid 142",
+      "role": "current",
+      "order": 0,
+      "source": "ocr",
+      "confidence": "oficial",
+      "generatedAt": "2026-10-28T03:43:05",
+      "endedAt": "2026-10-21",
+      "maxAttacks": 21,
+      "summary": {
+        "totalDamage": 131262474470,
+        "participants": 26,
+        "absent": 3,
+        "registeredMembers": 29
+      },
+      "members": [
+        {
+          "name": "Haru_Urara",
+          "damage": 8474794396,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Cley",
+          "damage": 8144241063,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Hela",
+          "damage": 8066410045,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Krelian",
+          "damage": 7834263666,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "MJ馬McQueen",
+          "damage": 7788495381,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Gashak",
+          "damage": 7507563519,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Lux",
+          "damage": 7369193200,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Dennis",
+          "damage": 7272047293,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Leon",
+          "damage": 7146336558,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Sr_Mendes",
+          "damage": 7079757489,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Aurora",
+          "damage": 6231466095,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "SirAudino",
+          "damage": 5722588128,
+          "frequency": "18/21",
+          "attacks": 18,
+          "status_participacao": "participou_bem",
+          "source": "ocr"
+        },
+        {
+          "name": "Snowers",
+          "damage": 5038051861,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "Kanao",
+          "damage": 4867785141,
+          "frequency": "18/21",
+          "attacks": 18,
+          "status_participacao": "participou_bem",
+          "source": "ocr"
+        },
+        {
+          "name": "Cosmos",
+          "damage": 4444379181,
+          "frequency": "18/21",
+          "attacks": 18,
+          "status_participacao": "participou_bem",
+          "source": "ocr"
+        },
+        {
+          "name": "Ger",
+          "damage": 4323254708,
+          "frequency": "15/21",
+          "attacks": 15,
+          "status_participacao": "participou_bem",
+          "source": "ocr"
+        },
+        {
+          "name": "カミナリ",
+          "damage": 4252314046,
+          "frequency": "21/21",
+          "attacks": 21,
+          "status_participacao": "completo",
+          "source": "ocr"
+        },
+        {
+          "name": "math",
+          "damage": 3752611595,
+          "frequency": "20/21",
+          "attacks": 20,
+          "status_participacao": "participou_bem",
+          "source": "ocr"
+        },
+        {
+          "name": "Capibara",
+          "damage": 3536958919,
+          "frequency": "12/21",
+          "attacks": 12,
+          "status_participacao": "baixa_participacao",
+          "source": "ocr"
+        },
+        {
+          "name": "Ramigam",
+          "damage": 2994272369,
+          "frequency": "13/21",
+          "attacks": 13,
+          "status_participacao": "baixa_participacao",
+          "source": "ocr"
+        },
+        {
+          "name": "ヴァルディネイ",
+          "damage": 2117618706,
+          "frequency": "6/21",
+          "attacks": 6,
+          "status_participacao": "quase_ausente",
+          "source": "ocr"
+        },
+        {
+          "name": "tang",
+          "damage": 2065211396,
+          "frequency": "11/21",
+          "attacks": 11,
+          "status_participacao": "baixa_participacao",
+          "source": "ocr"
+        },
+        {
+          "name": "kia",
+          "damage": 1806713445,
+          "frequency": "15/21",
+          "attacks": 15,
+          "status_participacao": "participou_bem",
+          "source": "ocr"
+        },
+        {
+          "name": "Carlinhozz",
+          "damage": 1688986959,
+          "frequency": "10/21",
+          "attacks": 10,
+          "status_participacao": "baixa_participacao",
+          "source": "ocr"
+        },
+        {
+          "name": "PeSH",
+          "damage": 1197159836,
+          "frequency": "12/21",
+          "attacks": 12,
+          "status_participacao": "baixa_participacao",
+          "source": "ocr"
+        },
+        {
+          "name": "utiago",
+          "damage": 539999475,
+          "frequency": "3/21",
+          "attacks": 3,
+          "status_participacao": "quase_ausente",
+          "source": "ocr"
+        },
+        {
+          "name": "Ino",
+          "damage": 0,
+          "frequency": "0/21",
+          "attacks": 0,
+          "status_participacao": "ausente",
+          "source": "ocr"
+        },
+        {
+          "name": "CAPETTINI",
+          "damage": 0,
+          "frequency": "0/21",
+          "attacks": 0,
+          "status_participacao": "ausente",
+          "source": "ocr"
+        },
+        {
+          "name": "Algebra",
+          "damage": 0,
+          "frequency": "0/21",
+          "attacks": 0,
+          "status_participacao": "ausente",
+          "source": "ocr"
+        }
+      ]
+    },
+    {
       "id": "raid_141",
       "raidNumber": 141,
       "label": "Raid 141",
-      "role": "current",
-      "order": 0,
+      "role": "previous",
+      "order": 1,
       "source": "ocr",
       "confidence": "oficial",
       "generatedAt": "2026-10-08T15:05:54",
@@ -327,7 +579,7 @@
       "raidNumber": 140,
       "label": "Raid 140",
       "role": "previous",
-      "order": 1,
+      "order": 2,
       "source": "ocr",
       "confidence": "oficial",
       "generatedAt": "2026-09-26T02:40:03",
@@ -579,7 +831,7 @@
       "raidNumber": 139,
       "label": "Raid 139",
       "role": "previous",
-      "order": 2,
+      "order": 3,
       "source": "ocr",
       "confidence": "oficial",
       "generatedAt": "2026-09-14T11:47:11",
@@ -821,242 +1073,6 @@
           "damage": 826383928,
           "frequency": "3/21",
           "attacks": 3,
-          "status_participacao": "quase_ausente",
-          "source": "ocr"
-        }
-      ]
-    },
-    {
-      "id": "raid_138",
-      "raidNumber": 138,
-      "label": "Raid 138",
-      "role": "previous",
-      "order": 3,
-      "source": "ocr",
-      "confidence": "oficial",
-      "generatedAt": "2026-08-27T15:34:55",
-      "endedAt": "2026-08-26",
-      "maxAttacks": 21,
-      "summary": {
-        "totalDamage": 127845598237,
-        "participants": 27,
-        "absent": 2,
-        "registeredMembers": 27
-      },
-      "members": [
-        {
-          "name": "Haru_Urara",
-          "damage": 7559924606,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Cley",
-          "damage": 7407688538,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Hela",
-          "damage": 7285905689,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Krelian",
-          "damage": 7231809226,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Dennis",
-          "damage": 7126226172,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "MJ馬McQueen",
-          "damage": 6913539313,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Gashak",
-          "damage": 6865983465,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "ヴァルディネイ",
-          "damage": 6621388068,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Leon",
-          "damage": 6586698591,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Kanao",
-          "damage": 5815671107,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Lux",
-          "damage": 5465893810,
-          "frequency": "18/21",
-          "attacks": 18,
-          "status_participacao": "participou_bem",
-          "source": "ocr"
-        },
-        {
-          "name": "Aurora",
-          "damage": 5358709934,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Sr_Mendes",
-          "damage": 5355701001,
-          "frequency": "18/21",
-          "attacks": 18,
-          "status_participacao": "participou_bem",
-          "source": "ocr"
-        },
-        {
-          "name": "SirAudino",
-          "damage": 5207682711,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "CAPETTINI",
-          "damage": 4270204960,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "Ramigam",
-          "damage": 4221231068,
-          "frequency": "18/21",
-          "attacks": 18,
-          "status_participacao": "participou_bem",
-          "source": "ocr"
-        },
-        {
-          "name": "Snowers",
-          "damage": 4216741895,
-          "frequency": "17/21",
-          "attacks": 17,
-          "status_participacao": "participou_bem",
-          "source": "ocr"
-        },
-        {
-          "name": "カミナリ",
-          "damage": 3993996566,
-          "frequency": "21/21",
-          "attacks": 21,
-          "status_participacao": "completo",
-          "source": "ocr"
-        },
-        {
-          "name": "math",
-          "damage": 3550445208,
-          "frequency": "17/21",
-          "attacks": 17,
-          "status_participacao": "participou_bem",
-          "source": "ocr"
-        },
-        {
-          "name": "Capibara",
-          "damage": 3261764287,
-          "frequency": "12/21",
-          "attacks": 12,
-          "status_participacao": "baixa_participacao",
-          "source": "ocr"
-        },
-        {
-          "name": "tang",
-          "damage": 2756414189,
-          "frequency": "15/21",
-          "attacks": 15,
-          "status_participacao": "participou_bem",
-          "source": "ocr"
-        },
-        {
-          "name": "Cosmos",
-          "damage": 2659114625,
-          "frequency": "12/21",
-          "attacks": 12,
-          "status_participacao": "baixa_participacao",
-          "source": "ocr"
-        },
-        {
-          "name": "Ger",
-          "damage": 2605401294,
-          "frequency": "11/21",
-          "attacks": 11,
-          "status_participacao": "baixa_participacao",
-          "source": "ocr"
-        },
-        {
-          "name": "kia",
-          "damage": 2126326406,
-          "frequency": "18/21",
-          "attacks": 18,
-          "status_participacao": "participou_bem",
-          "source": "ocr"
-        },
-        {
-          "name": "Ino",
-          "damage": 1687609149,
-          "frequency": "9/21",
-          "attacks": 9,
-          "status_participacao": "baixa_participacao",
-          "source": "ocr"
-        },
-        {
-          "name": "utiago",
-          "damage": 1027380823,
-          "frequency": "6/21",
-          "attacks": 6,
-          "status_participacao": "quase_ausente",
-          "source": "ocr"
-        },
-        {
-          "name": "PeSH",
-          "damage": 666145536,
-          "frequency": "6/21",
-          "attacks": 6,
           "status_participacao": "quase_ausente",
           "source": "ocr"
         }

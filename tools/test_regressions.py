@@ -177,14 +177,18 @@ def test_ocr_and_history() -> None:
 
 
 def test_raid_cleanup() -> None:
-    section("Raid estratégica sem dashboard legado")
-    raid_html = read("web/pages/raid.html")
-    legacy_script = WEB / "assets/js/raid-evolution.js"
+    section("Página Raid removida sem restos no portal")
     styles = read("web/assets/css/styles.css")
-    check('id="raid-guild-evolution"' not in raid_html, "página Raid não contém dashboard coletivo")
-    check("raid-evolution.js" not in raid_html, "página Raid não carrega o script legado")
-    check(not legacy_script.exists(), "script legado da evolução na Raid foi removido")
+    check(not (WEB / "pages/raid.html").exists(), "página Raid foi removida")
+    check(not (WEB / "assets/js/raid.js").exists(), "script raid.js foi removido")
+    check(not (WEB / "assets/js/raid-evolution.js").exists(), "script legado da evolução na Raid foi removido")
     check(".raid-evolution-" not in styles, "CSS legado da evolução na Raid foi removido")
+    dangling = [
+        html.relative_to(ROOT).as_posix()
+        for html in PAGES
+        if re.search(r"pages/raid\.html|raid\.js", html.read_text(encoding="utf-8"))
+    ]
+    check(not dangling, "nenhuma página aponta para a Raid removida" if not dangling else f"links para Raid removida: {dangling}")
 
 
 def test_registro_evolution() -> None:
@@ -342,7 +346,6 @@ def test_project_structure() -> None:
         "pages/hall.html": 130 * 1024,
         "pages/oraculo.html": 130 * 1024,
         "pages/registro.html": 130 * 1024,
-        "pages/raid.html": 130 * 1024,
         "pages/galeria.html": 150 * 1024,
         "pages/liga.html": 150 * 1024,
     }

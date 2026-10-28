@@ -13,7 +13,7 @@ A suíte protege:
 - JSONs publicados e histórico;
 - Registro, evolução individual e coletiva;
 - casos especiais como retorno à batalha e ausência de dados;
-- Raid estratégica sem dependência do histórico da guilda;
+- ausência de restos da antiga página Raid (arquivos e links);
 - Liga, Firebase e separação de papéis;
 - referências locais, assets, documentação e higiene do repositório;
 - carregamento real, acessibilidade e responsividade em navegador.
@@ -160,11 +160,11 @@ O arquivo é dividido por responsabilidade:
 - quinta imagem limitada às posições 29 e 30;
 - Raid 133 atual, Raid 132 anterior e histórico com quatro entradas.
 
-#### Limpeza da Raid
+#### Remoção da página Raid
 
-- ausência do dashboard coletivo em `raid.html`;
-- ausência de `raid-evolution.js`;
+- ausência de `web/pages/raid.html`, `raid.js` e `raid-evolution.js`;
 - ausência de CSS `.raid-evolution-*`;
+- nenhuma página do portal aponta para `raid.html` ou `raid.js`;
 - evolução coletiva restrita ao Registro.
 
 #### Registro
@@ -190,12 +190,10 @@ O arquivo é dividido por responsabilidade:
 
 ### `test_browser.py`
 
-- sete páginas em celular, tablet e desktop;
+- seis páginas em celular, tablet e desktop;
 - loader e imagens críticas;
 - ausência de erros JavaScript e overflow horizontal;
 - Registro em onze larguras, modal, foco, casos sem histórico e ordenação;
-- Raid restrita a boss, elemento, times e resultados;
-- ausência de requisição a `raid_history.json` na página Raid;
 - Liga e botão global de retorno ao topo.
 
 ### `validate_raid_history.py`
@@ -212,11 +210,7 @@ O arquivo é dividido por responsabilidade:
 
 ### Raid
 
-É exclusiva para consulta estratégica de bosses, elementos, composições, equipamentos, chains, vídeos e cache da API. Não deve carregar:
-
-- `raid-evolution.js`;
-- `raid_history.json`;
-- cards ou gráficos coletivos da guilda.
+A página Raid foi removida do portal. Nenhum HTML deve apontar para `raid.html` e `raid.js`/`raid-evolution.js` não devem existir.
 
 ## 10. Antes do commit
 
@@ -290,9 +284,9 @@ python -m playwright install chromium
 python -m http.server 8000 --directory web
 ```
 
-### Teste da Raid encontra histórico
+### Teste da Raid falha por arquivo ausente
 
-Confirme que `raid.html` não referencia `raid-evolution.js` e que `raid.js` não solicita `raid_history.json`.
+Se algum teste ainda tentar ler `web/pages/raid.html`, ele ficou desatualizado: a página foi removida. Atualize o teste em vez de recriar a página.
 
 ## 15. Política de manutenção
 
