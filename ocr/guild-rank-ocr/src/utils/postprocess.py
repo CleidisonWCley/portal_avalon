@@ -271,6 +271,35 @@ def validar_dados_tratados(dados: dict) -> list[str]:
     return erros
 
 
+def verificar_ordem_ranking(registros: list[dict]) -> list[str]:
+    """Confere se os danos seguem a ordem decrescente do ranking do jogo.
+
+    O ranking é ordenado por dano, então, lendo as imagens em ordem, o dano
+    nunca pode aumentar. Um dígito a mais ou a menos (ex.: 352.257.517 lido
+    como 3.522.575.117) fica fora de ordem e era aceito em silêncio, pois o
+    valor ainda cabia no limite "plausível". Linhas idênticas repetidas entre
+    prints (o scroll recua no fim da lista) são ignoradas.
+    """
+    avisos: list[str] = []
+    vistos: set[tuple[int, str]] = set()
+    anterior: dict | None = None
+
+    for registro in registros:
+        dano = parse_int(registro.get("dano"))
+        chave = (dano, str(registro.get("frequencia", "")))
+        if dano <= 0 or chave in vistos:
+            continue
+        vistos.add(chave)
+        if anterior is not None and dano > anterior["dano"]:
+            avisos.append(
+                f"Ranking fora de ordem: {registro.get('imagem_origem')} linha {registro.get('linha')} "
+                f"({dano}) é maior que {anterior['imagem_origem']} linha {anterior['linha']} ({anterior['dano']}); "
+                "provável dígito lido errado."
+            )
+        anterior = {"dano": dano, "imagem_origem": registro.get("imagem_origem"), "linha": registro.get("linha")}
+    return avisos
+
+
 def salvar_json(dados: dict, caminho: str | Path) -> Path:
     caminho = Path(caminho)
     caminho.parent.mkdir(parents=True, exist_ok=True)

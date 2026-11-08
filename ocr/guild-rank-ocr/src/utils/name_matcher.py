@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from rapidfuzz import fuzz, process
 
 from src.config import (
@@ -14,6 +16,7 @@ def _normalizar_chave(texto: str) -> str:
     return limpar_nome(texto).casefold()
 
 
+@lru_cache(maxsize=1)
 def _mapa_aliases() -> dict[str, str]:
     mapa = {}
     for nome in NOMES_VALIDOS:
@@ -56,6 +59,18 @@ def corrigir_nome(texto_ocr: str) -> tuple[str, str]:
         nome = mapa_alias[chave]
         status = "" if _normalizar_chave(nome) == chave else STATUS_NOME_CORRIGIDO
         return (nome, status)
+
+    # Ruído de borda do recorte (ex.: "| Gashak", "PPeSH ."): se, descartando
+    # palavras soltas de 1 caractere nas pontas, sobra um nome exato do elenco,
+    # ele é aceito. Só vale para correspondência exata, nunca para fuzzy.
+    palavras = texto_limpo.split()
+    while len(palavras) > 1 and len(palavras[0]) == 1:
+        palavras = palavras[1:]
+    while len(palavras) > 1 and len(palavras[-1]) == 1:
+        palavras = palavras[:-1]
+    aparada = _normalizar_chave(" ".join(palavras))
+    if aparada != chave and len(aparada) > 2 and aparada in mapa_alias:
+        return (mapa_alias[aparada], STATUS_NOME_CORRIGIDO)
 
     if len(chave) <= 2:
         return (texto_limpo, STATUS_REVISAR)

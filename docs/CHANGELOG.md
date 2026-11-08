@@ -2,6 +2,17 @@
 
 O histórico detalhado permanece no Git. Este arquivo registra apenas as mudanças relevantes para compreensão e manutenção do estado atual.
 
+## OCR — Correção da leitura da Raid 143 (sem mudar a versão do Portal)
+
+- linhas do perfil tablet passam a ser ancoradas pela pílula de dano, corrigindo o desalinhamento causado pelo scroll diferente em cada print e pelo passo de 113 px (o real é ~115 px);
+- recorte do nome termina no badge "Nv.", resolvendo `Carlinhozz`, `Ramigam`, `PeSH` e `pato_loko`;
+- dano exige o agrupamento de milhares íntegro; o PeSH deixa de ser lido como 3.522.575.117 (correto: 352.257.517) e o dano total da raid 143 passa a 124.168.766.008;
+- nova checagem de ordem do ranking impede que um dígito errado passe como "validada";
+- nomes em japonês e com kanji passam a ser reconhecidos por modelos visuais (`assets/nomes/`), sem depender de aliases com lixo de OCR;
+- moldura do recorte na cor do fundo, corrigindo `21/21` lido como `2/21` nas linhas de fundo claro;
+- overrides manuais da raid 143 removidos (o OCR lê as 27 posições sem eles) e alias inválido `"Kia "` corrigido;
+- fixture e gabarito da raid 143 adicionados à suíte de regressão.
+
 ## V7.9.0.2 — Automação do ciclo de novos e retornantes
 
 - ciclo dos guardiões passa a inferir automaticamente **Defensor em Início de Jornada** quando há raid válida sem histórico anterior suficiente;

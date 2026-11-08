@@ -160,6 +160,13 @@ O arquivo é dividido por responsabilidade:
 - quinta imagem limitada às posições 29 e 30;
 - Raid 133 atual, Raid 132 anterior e histórico com quatro entradas.
 
+#### OCR: alinhamento e gabarito da Raid 143
+
+- conflitos entre aliases de membros e correções de nome inválidas;
+- ordem decrescente do ranking e rejeição de dígito extra no dano;
+- 7 pílulas por print, passo ≈115 px e scroll diferente em cada print;
+- OCR real sobre `ocr/guild-rank-ocr/tests/fixtures/raid_143/` comparado ao `gabarito.json` (27 membros, 28 linhas, dano total). Essa etapa é ignorada com aviso se o Tesseract não estiver instalado.
+
 #### Remoção da página Raid
 
 - ausência de `web/pages/raid.html`, `raid.js` e `raid-evolution.js`;

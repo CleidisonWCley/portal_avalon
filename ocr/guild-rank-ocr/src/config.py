@@ -44,14 +44,12 @@ NOMES_VALIDOS = [
     "math",
     "kia",
     "Ramigam",
-    "CAPETTINI",
     "PeSH",
     "utiago",
     "Carlinhozz",
     "MJ馬McQueen",
     "tang",
-    "Haru_Urara",
-    "Algebra"
+    "pato_loko"
 ]
 
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
@@ -60,24 +58,24 @@ ALIASES_MEMBROS = {
     "Cley": ["cley", "ley" , "SESH", "oey ime," , "Cey"],
     "MJ馬McQueen": ["MJ_McQueen", "MJ McQueen", "MJMcQueen", "MyiBMcQueen", "MisBMcQueen ff", "ie memcquer"],
     "Sr_Mendes": ["Sr Mendes", "Sr-Mendes", "SrMendes"],
-    "CAPETTINI": ["Capettini", "capettini"],
-    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", "Eee eeed", "slornse ", "Freda " ],
+    "ヴァルディネイ": ["Valdinei", "Valdiney", "ValdineI", "Sry Heg", "ornee et   ", "areca", "Eee eeed", "slornse ", "Freda ", "Ci eaed "],
     "カミナリ": ["Kaminari", "737", "757", "ast", "net ae ", "lossy ", "7st SS"],
-    "Lux": ["LUX", "wa", "_     ", "oa" , "vx 0  ", "tux" , "or"],
+    "Lux": ["LUX", "wa", "_     ", "oa" , "vx 0  ", "tux" , "or", "vc  ", "pet "],
     "Ger": ["cr","co", "Cor "],
-    "kia": ["Zz", "Kia", "oa an", "oo", "Pia i "],
+    "kia": ["Zz", "Kia", "oa an", "oo", "Pia i ", "oa ae "],
     "tang": ["Tang", "TANG"],
     "utiago": [ "Utiago", "utage", "Utage"],
     "Kanao": ["Kanao","kenao", "Kenao", "Kaneo Sn "],
-    "PeSH": ["PESH","pesh", "Pesh", "NUGZRD", "res  ", "rest Sm"],
-    "Haru_Urara": ["tangHaru_Urara"],
+    "PeSH": ["PESH","pesh", "Pesh", "PPeSH", "Pe5H", "NUGZRD", "res  ", "rest Sm", "pes"],
+    "pato_loko": ["pato loko", "patoloko", "pato-loko", "Pato_Loko", "pato_Ioko", "pato_1oko"],
     "Aurora": ["jurors"],
     "Ino": ["ro", "Lino"],
     "Snowers": ["cnowers mm "],
-    "Hela": ["Het mag  "],
+    "Hela": ["Het mag  ", "Hels "],
     "Cosmos": ["If cosmos amy"],
-    "Carlinhozz": ["Bcartinnozz", "carlinhoz Sm"],
-    "Gashak": ["Goshok  "]
+    "Carlinhozz": ["Bcartinnozz", "carlinhoz Sm", "Carlinhozz Sm"],
+    "Gashak": ["Goshok  "],
+    "Ramigam": ["ramicam Sm "],
 }
 
 CORRECOES_OCR_NOMES = {
@@ -107,7 +105,7 @@ CORRECOES_OCR_NOMES = {
     "cnowers mm": "Snowers",
     "jurors": "Aurora",
     "ro": "Ino",
-    "io": "Kia ",
+    "io": "kia",
     "areca": "ヴァルディネイ",
     "Kaneo Sn ": "Kanao",
     "ast": "カミナリ",
@@ -166,7 +164,11 @@ REGIOES_BASE_PIXELS_TABLET = {
     "dano": (1190, 68, 310, 62),
 }
 
-INCREMENTO_Y_BASE_TABLET = 113
+# Passo medido nos screenshots oficiais: 114,5–116 px (média ≈ 114,9). O valor
+# antigo (113) acumulava ~2 px de erro por linha e ~12 px na 7ª linha. Hoje o
+# passo só é usado como reserva, pois as linhas são ancoradas pelas pílulas de
+# dano (ver ANCORAGEM_TABLET).
+INCREMENTO_Y_BASE_TABLET = 115
 NUMERO_LINHAS_TABLET = 7
 
 # --- Perfil CELULAR (calibrado em print de celular 2340x1080, deitado) ---
@@ -183,6 +185,57 @@ INCREMENTO_Y_BASE_CELULAR = 138
 # No celular, a lista de ranking mostra menos linhas por print que no
 # tablet (o card de cada membro ocupa proporcionalmente mais altura).
 NUMERO_LINHAS_CELULAR = 6
+
+# --- ANCORAGEM DAS LINHAS (perfil TABLET/DESKTOP) ---
+# O scroll da lista NÃO para no mesmo ponto em cada print (img3 chega ~16 px
+# mais baixa que img1; img4 ~7 px). Uma grade fixa fazia os recortes pegarem
+# pedaços de duas linhas. Agora cada linha é localizada pela sua pílula escura
+# de dano, comparando uma faixa dentro da pílula com uma faixa de fundo do
+# cartão no mesmo Y (o contraste local funciona apesar do degradê do fundo).
+# Valores em pixels da imagem de referência 1599x999 e escalados pela resolução.
+ANCORAGEM_TABLET = {
+    "coluna_pilula": (1185, 1215),   # dentro da pílula, entre o ícone e os dígitos
+    "coluna_cartao": (1455, 1468),   # fundo do cartão, à direita da pílula
+    "contraste_minimo": 12,          # cartão − pílula (escala de cinza)
+    "altura_minima_pilula": 30,      # ignora pílulas cortadas na borda da lista
+    "limite_rosa": 20,               # R − B acima disso = cartão rosa "minha posição"
+    "tolerancia_passo": 0.25,        # fração do passo para casar âncora detectada x esperada
+}
+
+# Regiões relativas ao centro Y da pílula (referência 1599x999).
+# "nome" termina no badge roxo "Nv.", detectado em cada linha (nomes têm
+# larguras diferentes); BADGE_NIVEL_TABLET descreve essa busca.
+REGIOES_ANCORADAS_TABLET = {
+    "nome": {"x": 611, "dy": -35, "h": 36},
+    "frequencia": {"x": 1035, "w": 95, "dy": -24, "h": 48},
+    "dano": {"x": 1190, "w": 270, "dy": -26, "h": 52},
+}
+
+BADGE_NIVEL_TABLET = {
+    "busca_x": (630, 900),
+    "x_fim_padrao": 800,     # usado se o badge não for encontrado
+    "margem": 4,
+    "matiz": (122, 148),     # H do OpenCV (0-179); o fundo arroxeado das linhas de baixo fica em ~115
+    "saturacao_min": 110,
+    "valor_min": 190,        # badge ≈ 255; o fundo das linhas fica abaixo de ~170
+    "pixels_por_coluna_min": 8,
+    "largura_min": 15,
+}
+
+# --- MODELOS VISUAIS DE NOMES ---
+# O Tesseract (idioma "eng") não lê japonês nem o kanji de MJ馬McQueen. Em vez
+# de acumular aliases com lixo de OCR, esses nomes são reconhecidos por
+# comparação visual com um recorte de referência (assets/nomes/*.png).
+# Para gerar/atualizar: python -m src.gerar_modelos_nomes --help
+DIR_MODELOS_NOMES = Path(__file__).resolve().parent.parent / "assets" / "nomes"
+MODELOS_NOMES = {
+    "ヴァルディネイ": "valdinei.png",
+    "カミナリ": "kaminari.png",
+    "MJ馬McQueen": "mj_mcqueen.png",
+}
+LIMIAR_MODELO_NOME = 0.88          # correlação mínima (1.0 = idêntico)
+MARGEM_MODELO_NOME = 0.10          # vantagem mínima sobre o 2º melhor modelo
+ALTURA_NORMALIZADA_NOME = 32
 
 # Proporção largura/altura a partir da qual uma imagem é tratada como
 # print de celular. Tablet fica perto de 1.6; celular deitado normalmente
@@ -319,6 +372,13 @@ CORRECOES_LINHAS_POR_RAID = {
         ("img4.jpeg", 6): {"nome": "PeSH", "frequencia": "12/21", "dano": 1197159836},
         ("img4.jpeg", 7): {"nome": "utiago", "frequencia": "3/21", "dano": 539999475},
     },
+    143: {
+        # Sem correções manuais: com as linhas ancoradas pelas pílulas, o OCR
+        # lê as 27 posições exatamente como nos 4 screenshots oficiais (inclui
+        # PeSH 352.257.517 e pato_loko 150.857.989). O gabarito conferido linha
+        # a linha fica em tests/fixtures/raid_143/gabarito.json e é verificado
+        # pela suíte (tools/test_regressions.py).
+    }
 }
 # ============================================================
 # CONFIGURAÇÃO DE SAÍDA

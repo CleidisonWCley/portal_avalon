@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+from collections import Counter
 from pathlib import Path
 
 import cv2
@@ -9,9 +10,12 @@ import pytesseract
 
 from src.utils.text_cleaning import limpar_campo
 from src.utils.name_matcher import corrigir_nome
+from src.ocr.modelos_nomes import identificar_nome_visual
 from src.config import (
     ALTURA_BASE_CELULAR,
     ALTURA_BASE_TABLET,
+    ANCORAGEM_TABLET,
+    BADGE_NIVEL_TABLET,
     DANO_MAXIMO_PLAUSIVEL,
     DANO_MINIMO_PARA_VALIDACAO,
     DEBUG_DIR,
@@ -25,6 +29,7 @@ from src.config import (
     INCREMENTO_Y_BASE_CELULAR,
     INCREMENTO_Y_BASE_TABLET,
     OCR_LANG,
+    REGIOES_ANCORADAS_TABLET,
     REGIOES_BASE_PIXELS_CELULAR,
     REGIOES_BASE_PIXELS_TABLET,
     STATUS_DANO_SUSPEITO,
@@ -128,25 +133,36 @@ def recortar_area(img, x: int, y: int, w: int, h: int):
 
 
 def preparar_variantes(recorte):
-    """Gera poucas variações de pré-processamento para manter o OCR rápido."""
+    """Gera poucas variações de pré-processamento para manter o OCR rápido.
+
+    A ordem importa: o OCR para na primeira variante válida. A moldura em
+    volta do recorte usa a cor do próprio fundo; uma moldura preta fixa
+    reduzia a leitura da frequência de 28/28 para 21/28 nas linhas de fundo
+    mais claro (o dígito inicial de "21/21" se perdia e virava "2/21").
+    """
     if recorte is None or recorte.size == 0:
         return []
 
-    gray = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY) if recorte.ndim == 3 else recorte
+    cor_fundo = int(np.median(np.concatenate([gray[0], gray[-1]])))
     variantes = []
 
-    # Variante 1: cinza ampliado. Geralmente funciona melhor nos números do GT.
-    up_gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-    up_gray = cv2.copyMakeBorder(up_gray, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=0)
-    variantes.append(("gray2x", up_gray))
+    # Variantes 1 e 2: cinza ampliado 2x e 3x, moldura na cor do fundo.
+    for fator, moldura in ((2, 10), (3, 12)):
+        ampliada = cv2.resize(gray, None, fx=fator, fy=fator, interpolation=cv2.INTER_CUBIC)
+        ampliada = cv2.copyMakeBorder(
+            ampliada, moldura, moldura, moldura, moldura, cv2.BORDER_CONSTANT, value=cor_fundo
+        )
+        variantes.append((f"gray{fator}x", ampliada))
 
-    # Variante 2: binarização OTSU ampliada. Ajuda quando o fundo confunde o OCR.
+    # Variante 3: binarização OTSU ampliada. Ajuda quando o fundo confunde o OCR.
     _, binaria = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     up_bin = cv2.resize(binaria, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     up_bin = cv2.copyMakeBorder(up_bin, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=0)
     variantes.append(("otsu2x", up_bin))
 
     return variantes
+
 
 def _somente_digitos(texto: str) -> str:
     return re.sub(r"\D", "", texto or "")
@@ -159,6 +175,17 @@ def _frequencia_valida(freq: str) -> bool:
     feitos = int(m.group(1))
     total = int(m.group(2))
     return total == 21 and 0 <= feitos <= 21
+
+
+# O dano aparece no jogo sempre agrupado de três em três dígitos (7.695.963.918).
+# Um dígito a mais ou a menos (ex.: 352.257.517 lido como 3522575117) quebra
+# esse agrupamento quando o texto bruto é preservado, e é o que permite
+# rejeitar a leitura em vez de aceitar um dano 10x maior.
+_PADRAO_DANO_AGRUPADO = re.compile(r"\d{1,3}(?:[.,\s]\d{3})+")
+
+
+def _dano_estrutura_valida(texto_bruto: str) -> bool:
+    return bool(_PADRAO_DANO_AGRUPADO.fullmatch((texto_bruto or "").strip()))
 
 
 def _dano_valido(dano: str) -> bool:
@@ -191,31 +218,42 @@ def escolher_melhor_texto(campo: str, resultados: list[str]) -> str:
         return limpos[0]
 
     if campo == "dano":
-        candidatos = []
-        for r in resultados:
-            dano = limpar_campo("dano", r)
-            dig = _somente_digitos(dano)
-            if dig:
-                candidatos.append(dig)
+        # 1) Leituras com o agrupamento 1.234.567.890 íntegro são as confiáveis.
+        agrupadas = [
+            _somente_digitos(r) for r in resultados
+            if _dano_estrutura_valida(r) and _dano_valido(_somente_digitos(r))
+        ]
+        if agrupadas:
+            return Counter(agrupadas).most_common(1)[0][0]
+        # 2) Sem nenhuma leitura íntegra, vale o voto da maioria entre as
+        # variantes (empate: a primeira, que vem da variante mais confiável).
+        # Preferir "mais dígitos" aqui era o que aceitava 3522575117.
+        candidatos = [_somente_digitos(limpar_campo("dano", r)) for r in resultados]
+        candidatos = [c for c in candidatos if c]
         if not candidatos:
             return "0"
-        # Preferir danos plausíveis com mais dígitos.
-        plausiveis = [c for c in candidatos if _dano_valido(c)]
-        if plausiveis:
-            return max(plausiveis, key=lambda x: (len(x), int(x)))
-        return max(candidatos, key=lambda x: (len(x), int(x or 0)))
+        plausiveis = [c for c in candidatos if _dano_valido(c)] or candidatos
+        contagem = Counter(plausiveis)
+        melhor = max(contagem.values())
+        return next(c for c in plausiveis if contagem[c] == melhor)
 
     # nome: preferir texto mais informativo, depois o matcher decide.
     return max(resultados, key=len)
 
 
-def ocr_recorte(recorte, campo: str) -> str:
-    """Executa a segunda variante somente quando a primeira não é suficiente."""
+def ocr_recorte_detalhado(recorte, campo: str) -> tuple[str, bool]:
+    """Lê um campo e informa se a leitura é confiável.
+
+    Devolve ``(texto, confiavel)``. Para o dano, "confiável" exige o
+    agrupamento de milhares íntegro; para frequência, o formato N/21; para
+    nome, correspondência com o elenco sem precisar de revisão.
+    """
     if recorte is None or recorte.size == 0:
-        return ""
+        return "", False
 
     if campo == "nome":
-        configs = ["--psm 8"]
+        # psm 7 (linha única) foi o que mais acertou; psm 8 fica como reserva.
+        configs = ["--psm 7", "--psm 8"]
     elif campo == "frequencia":
         configs = ["--psm 7 -c tessedit_char_whitelist=0123456789/"]
     elif campo == "dano":
@@ -235,15 +273,22 @@ def ocr_recorte(recorte, campo: str) -> str:
             resultados.append(texto)
 
             if campo == "frequencia" and _frequencia_valida(limpar_campo(campo, texto)):
-                return limpar_campo(campo, texto)
-            if campo == "dano" and _dano_valido(limpar_campo(campo, texto)):
-                return limpar_campo(campo, texto)
+                return limpar_campo(campo, texto), True
+            if campo == "dano" and _dano_estrutura_valida(texto) and _dano_valido(limpar_campo(campo, texto)):
+                return limpar_campo(campo, texto), True
             if campo == "nome":
                 _, status = corrigir_nome(texto)
                 if status != STATUS_REVISAR:
-                    return texto
+                    return texto, True
 
-    return escolher_melhor_texto(campo, resultados)
+    escolhido = escolher_melhor_texto(campo, resultados)
+    return escolhido, False
+
+
+def ocr_recorte(recorte, campo: str) -> str:
+    """Compatibilidade: devolve só o texto lido (ver ``ocr_recorte_detalhado``)."""
+    return ocr_recorte_detalhado(recorte, campo)[0]
+
 
 def salvar_debug_crop(nome_imagem: str, linha: int, campo: str, recorte) -> None:
     if not GERAR_DEBUG_CROPS or recorte is None:
@@ -321,6 +366,194 @@ def detectar_deslocamento_y(img, regiao_dano_escalada: tuple, escala_y: float) -
     return y_texto_detectado - y_texto_esperado
 
 
+# ============================================================
+# PERFIL TABLET: LINHAS ANCORADAS PELAS PÍLULAS DE DANO
+# ============================================================
+
+def _faixas(mascara) -> list[tuple[int, int]]:
+    """Intervalos contínuos (inicio, fim) onde a máscara 1-D é verdadeira."""
+    faixas, inicio = [], None
+    for indice, valor in enumerate(mascara):
+        if valor and inicio is None:
+            inicio = indice
+        elif not valor and inicio is not None:
+            faixas.append((inicio, indice - 1))
+            inicio = None
+    if inicio is not None:
+        faixas.append((inicio, len(mascara) - 1))
+    return faixas
+
+
+def detectar_ancoras_linhas(img) -> list[int]:
+    """Localiza o centro Y de cada linha visível pela pílula escura do dano.
+
+    Compara, em cada Y, uma faixa dentro da pílula com uma faixa do fundo do
+    cartão logo ao lado. A diferença (contraste local) é positiva só onde há
+    pílula, mesmo com o degradê que clareia as linhas de baixo. Pílulas
+    cortadas na borda da lista e o cartão rosa fixo "minha posição" (última
+    linha da tela, repete o ranking do próprio jogador) são descartados.
+    """
+    altura_img, largura_img = img.shape[:2]
+    escala_x = largura_img / LARGURA_BASE_TABLET
+    escala_y = altura_img / ALTURA_BASE_TABLET
+    cfg = ANCORAGEM_TABLET
+
+    p0, p1 = (int(round(v * escala_x)) for v in cfg["coluna_pilula"])
+    c0, c1 = (int(round(v * escala_x)) for v in cfg["coluna_cartao"])
+    if p1 <= p0 or c1 <= c0 or c1 > largura_img:
+        return []
+
+    cor = img.astype(np.float32)
+    cinza = cor.mean(axis=2)
+    contraste = cinza[:, c0:c1].mean(axis=1) - cinza[:, p0:p1].mean(axis=1)
+    # OpenCV usa BGR: canal 2 = vermelho, canal 0 = azul.
+    rosado = (cor[:, c0:c1, 2] - cor[:, c0:c1, 0]).mean(axis=1)
+
+    altura_minima = cfg["altura_minima_pilula"] * escala_y
+    ancoras = []
+    for inicio, fim in _faixas(contraste > cfg["contraste_minimo"]):
+        if (fim - inicio + 1) < altura_minima:
+            continue
+        centro = (inicio + fim) // 2
+        if rosado[centro] > cfg["limite_rosa"]:
+            continue
+        ancoras.append(int(round((inicio + fim) / 2)))
+    return ancoras
+
+
+def regularizar_ancoras(
+    ancoras: list[int], numero_linhas: int, passo: float, limite_superior: float = 75.0
+) -> tuple[list[int], int]:
+    """Garante ``numero_linhas`` âncoras igualmente espaçadas a partir da primeira.
+
+    Cada posição esperada é trocada pela âncora detectada mais próxima (dentro
+    da tolerância); se uma pílula não foi detectada, a posição esperada é
+    mantida. ``limite_superior`` é o menor Y de centro de pílula que ainda fica
+    totalmente visível sob o cabeçalho da lista. Devolve (âncoras, quantas
+    foram estimadas e não detectadas).
+    """
+    if not ancoras:
+        return [], 0
+    tolerancia = passo * ANCORAGEM_TABLET["tolerancia_passo"]
+    primeira = ancoras[0]
+    resultado, estimadas = [], 0
+    # Se a primeira pílula detectada está tão abaixo que caberia outra linha
+    # inteira acima dela, a pílula daquela linha não foi detectada: recua até
+    # a primeira posição realmente visível para não deslocar a numeração.
+    while primeira - passo >= limite_superior:
+        primeira -= passo
+        estimadas += 1
+    for indice in range(numero_linhas):
+        esperada = primeira + passo * indice
+        proxima = min(ancoras, key=lambda a: abs(a - esperada))
+        if abs(proxima - esperada) <= tolerancia:
+            resultado.append(int(proxima))
+        else:
+            resultado.append(int(round(esperada)))
+            estimadas += 1
+    return resultado, estimadas
+
+
+def _inicio_do_badge_nivel(hsv, centro_y: int, escala_x: float, escala_y: float):
+    """X (em pixels da imagem) onde começa o badge roxo "Nv.", ou None."""
+    cfg = BADGE_NIVEL_TABLET
+    x0, x1 = (int(round(v * escala_x)) for v in cfg["busca_x"])
+    reg = REGIOES_ANCORADAS_TABLET["nome"]
+    y0 = max(0, centro_y + int(round(reg["dy"] * escala_y)))
+    y1 = min(hsv.shape[0], y0 + int(round(reg["h"] * escala_y)))
+    faixa = hsv[y0:y1, x0:x1]
+    if faixa.size == 0:
+        return None
+    matiz_min, matiz_max = cfg["matiz"]
+    roxo = (
+        (faixa[..., 0] > matiz_min) & (faixa[..., 0] < matiz_max)
+        & (faixa[..., 1] > cfg["saturacao_min"]) & (faixa[..., 2] > cfg["valor_min"])
+    )
+    colunas = roxo.sum(axis=0) >= cfg["pixels_por_coluna_min"]
+    for inicio, fim in _faixas(colunas):
+        if (fim - inicio + 1) >= cfg["largura_min"] * escala_x:
+            return x0 + inicio
+    return None
+
+
+def recortes_da_linha_tablet(img, hsv, centro_y: int) -> dict:
+    """Recortes (nome, frequência, dano) de uma linha a partir do centro da pílula."""
+    altura_img, largura_img = img.shape[:2]
+    escala_x = largura_img / LARGURA_BASE_TABLET
+    escala_y = altura_img / ALTURA_BASE_TABLET
+    regioes = REGIOES_ANCORADAS_TABLET
+
+    def caixa(x, w, dy, h):
+        return (
+            int(round(x * escala_x)),
+            centro_y + int(round(dy * escala_y)),
+            int(round(w * escala_x)),
+            int(round(h * escala_y)),
+        )
+
+    nome = regioes["nome"]
+    x_nome = int(round(nome["x"] * escala_x))
+    inicio_badge = _inicio_do_badge_nivel(hsv, centro_y, escala_x, escala_y)
+    if inicio_badge is not None:
+        x_fim = inicio_badge - int(round(BADGE_NIVEL_TABLET["margem"] * escala_x))
+    else:
+        x_fim = int(round(BADGE_NIVEL_TABLET["x_fim_padrao"] * escala_x))
+
+    caixas = {
+        "nome": (x_nome, centro_y + int(round(nome["dy"] * escala_y)), max(1, x_fim - x_nome),
+                 int(round(nome["h"] * escala_y))),
+        "frequencia": caixa(**{k: regioes["frequencia"][k] for k in ("x", "w", "dy", "h")}),
+        "dano": caixa(**{k: regioes["dano"][k] for k in ("x", "w", "dy", "h")}),
+    }
+    return {campo: recortar_area(img, *valores) for campo, valores in caixas.items()}
+
+
+def _ler_linha(nome_imagem: str, indice_linha: int, recortes: dict) -> dict:
+    """OCR de uma linha já recortada (compartilhado entre os dois perfis)."""
+    linha_dados = {"imagem_origem": nome_imagem, "linha": indice_linha}
+    suspeitas = []
+
+    for campo in ("nome", "frequencia", "dano"):
+        recorte = recortes.get(campo)
+        salvar_debug_crop(nome_imagem, indice_linha, campo, recorte)
+
+        if campo == "nome":
+            # Nomes que o Tesseract não lê (japonês, kanji) são reconhecidos
+            # visualmente antes de qualquer tentativa de OCR de texto.
+            visual = None
+            if recorte is not None and recorte.size:
+                cinza = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY) if recorte.ndim == 3 else recorte
+                visual = identificar_nome_visual(cinza)
+            if visual:
+                linha_dados["nome"], linha_dados["status"] = visual[0], ""
+                continue
+
+        texto, confiavel = ocr_recorte_detalhado(recorte, campo)
+        if campo == "nome":
+            nome_corrigido, status = corrigir_nome(texto)
+            linha_dados["nome"] = nome_corrigido
+            linha_dados["status"] = status
+        else:
+            linha_dados[campo] = limpar_campo(campo, texto)
+            if campo == "dano" and not confiavel:
+                suspeitas.append(STATUS_DANO_SUSPEITO)
+
+    linha_dados = validar_linha(linha_dados)
+    for status in suspeitas:
+        linha_dados["status"] = juntar_status(linha_dados.get("status", ""), status)
+    return linha_dados
+
+
+def _imprimir_linha(linha_dados: dict) -> None:
+    status_display = f" [{linha_dados['status']}]" if linha_dados.get("status") else ""
+    print(
+        f"{linha_dados.get('nome', 'VAZIO'):14} | "
+        f"{linha_dados.get('frequencia', 'N/A'):5} | "
+        f"{linha_dados.get('dano', '0'):15}"
+        f"{status_display}"
+    )
+
+
 def processar_imagem(caminho_imagem: str, numero_linhas: int = NUMERO_LINHAS) -> list[dict]:
     img = cv2.imread(caminho_imagem)
     if img is None:
@@ -328,9 +561,33 @@ def processar_imagem(caminho_imagem: str, numero_linhas: int = NUMERO_LINHAS) ->
         return []
 
     altura_img, largura_img = img.shape[:2]
-    regioes_escaladas, incremento_y = escalar_regioes(largura_img, altura_img)
-
     proporcao = largura_img / altura_img if altura_img else 0
+    nome_imagem = Path(caminho_imagem).name
+    print(f"\nProcessando: {nome_imagem} ({largura_img}x{altura_img})")
+
+    dados_extraidos = []
+
+    if proporcao < LIMIAR_PROPORCAO_CELULAR:
+        # TABLET/DESKTOP: cada linha é ancorada pela sua pílula de dano.
+        ancoras = detectar_ancoras_linhas(img)
+        if ancoras:
+            escala_y = altura_img / ALTURA_BASE_TABLET
+            passo = INCREMENTO_Y_BASE_TABLET * escala_y
+            if len(ancoras) >= 2:
+                passo = float(np.median(np.diff(ancoras)))
+            ancoras, estimadas = regularizar_ancoras(ancoras, numero_linhas, passo, 75.0 * escala_y)
+            if estimadas:
+                print(f"  [AVISO] {estimadas} linha(s) sem pílula detectada: posição estimada pelo passo")
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+            for indice_linha, centro_y in enumerate(ancoras, start=1):
+                recortes = recortes_da_linha_tablet(img, hsv, centro_y)
+                linha_dados = _ler_linha(nome_imagem, indice_linha, recortes)
+                dados_extraidos.append(linha_dados)
+                _imprimir_linha(linha_dados)
+            return dados_extraidos
+        print("  [AVISO] nenhuma pílula de dano detectada: usando a grade fixa de reserva")
+
+    regioes_escaladas, incremento_y = escalar_regioes(largura_img, altura_img)
     if proporcao >= LIMIAR_PROPORCAO_CELULAR:
         escala_y = altura_img / ALTURA_BASE_CELULAR
         deslocamento_y = detectar_deslocamento_y(img, regioes_escaladas["dano"], escala_y)
@@ -341,41 +598,14 @@ def processar_imagem(caminho_imagem: str, numero_linhas: int = NUMERO_LINHAS) ->
                 for campo, (x, y, w, h) in regioes_escaladas.items()
             }
 
-    dados_extraidos = []
-    nome_imagem = Path(caminho_imagem).name
-
-    print(f"\nProcessando: {nome_imagem} ({largura_img}x{altura_img})")
-
     for indice_linha in range(1, numero_linhas + 1):
         i = indice_linha - 1
-        linha_dados = {
-            "imagem_origem": nome_imagem,
-            "linha": indice_linha,
+        recortes = {
+            campo: recortar_area(img, x, y + (incremento_y * i), w, h)
+            for campo, (x, y, w, h) in regioes_escaladas.items()
         }
-
-        for campo, (x, y, w, h) in regioes_escaladas.items():
-            y_atual = y + (incremento_y * i)
-            recorte = recortar_area(img, x, y_atual, w, h)
-            salvar_debug_crop(nome_imagem, indice_linha, campo, recorte)
-
-            texto = ocr_recorte(recorte, campo)
-
-            if campo == "nome":
-                nome_corrigido, status = corrigir_nome(texto)
-                linha_dados["nome"] = nome_corrigido
-                linha_dados["status"] = status
-            else:
-                linha_dados[campo] = limpar_campo(campo, texto)
-
-        linha_dados = validar_linha(linha_dados)
+        linha_dados = _ler_linha(nome_imagem, indice_linha, recortes)
         dados_extraidos.append(linha_dados)
-
-        status_display = f" [{linha_dados['status']}]" if linha_dados.get("status") else ""
-        print(
-            f"{linha_dados.get('nome', 'VAZIO'):14} | "
-            f"{linha_dados.get('frequencia', 'N/A'):5} | "
-            f"{linha_dados.get('dano', '0'):15}"
-            f"{status_display}"
-        )
+        _imprimir_linha(linha_dados)
 
     return dados_extraidos

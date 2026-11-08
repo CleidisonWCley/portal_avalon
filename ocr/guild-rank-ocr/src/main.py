@@ -16,7 +16,12 @@ from src.config import (
 )
 from src.ocr.extractor import numero_linhas_padrao_para_imagem, processar_imagem
 from src.utils.export import exportar_csv
-from src.utils.postprocess import salvar_json, tratar_dados_ocr, validar_dados_tratados
+from src.utils.postprocess import (
+    salvar_json,
+    tratar_dados_ocr,
+    validar_dados_tratados,
+    verificar_ordem_ranking,
+)
 from src.utils.review import aplicar_correcoes_raid, correcoes_da_raid
 
 
@@ -145,6 +150,7 @@ def main() -> int:
     }
     dados_tratados = tratar_dados_ocr(registros_revisados, metadata=metadata)
     erros = validar_dados_tratados(dados_tratados)
+    erros.extend(verificar_ordem_ranking(registros_revisados))
 
     exportar_csv(
         dados_tratados["membros"],

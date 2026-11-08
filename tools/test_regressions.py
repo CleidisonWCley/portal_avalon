@@ -176,6 +176,91 @@ def test_ocr_and_history() -> None:
                   "correções de uma raid não vazam para outra raid")
 
 
+def test_ocr_alignment_and_raid_143_fixture() -> None:
+    section("OCR: alinhamento por pílula, dano estruturado e gabarito da Raid 143")
+
+    sys.path.insert(0, str(OCR_ROOT))
+    import src.config as ocr_config  # noqa: E402
+    from src.utils.name_matcher import corrigir_nome  # noqa: E402
+    from src.utils.postprocess import verificar_ordem_ranking  # noqa: E402
+    from src.utils.text_cleaning import limpar_nome  # noqa: E402
+
+    # Aliases/correções não podem apontar a mesma chave para membros diferentes
+    # (um alias de lixo como "oa" para Lux roubou a linha do kia no OCR antigo).
+    owners: dict[str, set[str]] = {}
+    for name in ocr_config.NOMES_VALIDOS:
+        owners.setdefault(limpar_nome(name).casefold(), set()).add(name)
+    for name, aliases in ocr_config.ALIASES_MEMBROS.items():
+        owners.setdefault(limpar_nome(name).casefold(), set()).add(name)
+        for alias in aliases:
+            owners.setdefault(limpar_nome(alias).casefold(), set()).add(name)
+    conflicts = {k: v for k, v in owners.items() if len(v) > 1}
+    check(not conflicts, f"aliases não conflitam entre membros {conflicts or ''}")
+    invalid = [v for v in ocr_config.CORRECOES_OCR_NOMES.values() if v != v.strip()]
+    check(not invalid, "correções de nome não têm espaços sobrando")
+    check(corrigir_nome("pato loko")[0] == "pato_loko", "pato_loko é reconhecido")
+    check(corrigir_nome("PPeSH")[0] == "PeSH", "PeSH tolera ruído de borda")
+    check(corrigir_nome("| Gashak")[0] == "Gashak", "caractere solto na borda é descartado")
+
+    # Ordem do ranking: o dano nunca aumenta; linhas repetidas entre prints são ignoradas.
+    base = [
+        {"imagem_origem": "a", "linha": 1, "dano": "500", "frequencia": "21/21"},
+        {"imagem_origem": "a", "linha": 2, "dano": "400", "frequencia": "21/21"},
+        {"imagem_origem": "b", "linha": 1, "dano": "400", "frequencia": "21/21"},
+    ]
+    check(verificar_ordem_ranking(base) == [], "ordem do ranking válida (com linha repetida) passa")
+    check(
+        bool(verificar_ordem_ranking(base + [{"imagem_origem": "b", "linha": 2, "dano": "3522575117", "frequencia": "3/21"}])),
+        "dígito a mais no dano (3522575117 após 400) é barrado",
+    )
+
+    try:
+        import cv2  # noqa: E402
+        from src.ocr import extractor  # noqa: E402
+    except ImportError as error:
+        print(f"SKIP | OCR por imagem não executado (dependência ausente: {error})")
+        return
+
+    fixture = OCR_ROOT / "tests" / "fixtures" / "raid_143"
+    gabarito = load_json(fixture / "gabarito.json")
+    check(len(gabarito["linhas"]) == 28 and gabarito["membros_total"] == 27, "gabarito da Raid 143 tem 27 membros e 28 linhas")
+
+    # Geometria: 7 pílulas por print, centros espaçados ~115 px, scroll diferente em cada print.
+    firsts = []
+    for number in range(1, 5):
+        image = cv2.imread(str(fixture / f"img{number}.jpeg"))
+        anchors = extractor.detectar_ancoras_linhas(image)
+        check(len(anchors) == 7, f"img{number}: 7 linhas detectadas (cartão rosa fixo ignorado)")
+        steps = [b - a for a, b in zip(anchors, anchors[1:])]
+        check(all(113 <= step <= 117 for step in steps), f"img{number}: passo entre linhas ≈115 px")
+        firsts.append(anchors[0])
+    check(len(set(firsts)) == 4, "cada print tem deslocamento de scroll próprio (a grade fixa não servia)")
+
+    try:
+        import pytesseract  # noqa: E402
+
+        pytesseract.get_tesseract_version()
+    except Exception as error:  # binário ausente ou módulo ausente
+        print(f"SKIP | OCR por imagem não executado (Tesseract indisponível: {error})")
+        return
+
+    expected = {(row["imagem"], row["linha"]): row for row in gabarito["linhas"]}
+    raw_rows: list[dict] = []
+    for number in range(1, 5):
+        raw_rows.extend(extractor.processar_imagem(str(fixture / f"img{number}.jpeg"), 7))
+    check(len(raw_rows) == 28, "OCR produziu 28 linhas")
+    divergences = []
+    for row in raw_rows:
+        want = expected[(row["imagem_origem"], row["linha"])]
+        got = (row.get("nome"), row.get("frequencia"), int(row.get("dano") or 0))
+        if got != (want["nome"], want["frequencia"], want["dano"]):
+            divergences.append(f"{row['imagem_origem']}#{row['linha']}: {got} != {(want['nome'], want['frequencia'], want['dano'])}")
+    check(not divergences, "OCR bate com o gabarito nas 28 linhas" if not divergences else "divergências:\n" + "\n".join(divergences))
+    check(not verificar_ordem_ranking(raw_rows), "OCR da Raid 143 respeita a ordem do ranking")
+    unique = {row["nome"]: int(row["dano"]) for row in raw_rows}
+    check(len(unique) == 27 and sum(unique.values()) == gabarito["dano_total"], "27 membros e dano total fiel ao gabarito")
+
+
 def test_raid_cleanup() -> None:
     section("Página Raid removida sem restos no portal")
     styles = read("web/assets/css/styles.css")
@@ -421,6 +506,7 @@ def test_suite_consolidation() -> None:
 
 def main() -> None:
     test_ocr_and_history()
+    test_ocr_alignment_and_raid_143_fixture()
     test_raid_cleanup()
     test_registro_evolution()
     test_registro_modal_and_performance()

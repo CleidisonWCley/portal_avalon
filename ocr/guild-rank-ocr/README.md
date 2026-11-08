@@ -127,6 +127,25 @@ output/
 - **`raid_133.json`:** fonte validada usada na promoção;
 - **`raid_133_relatorio.json`:** resumo de imagens, correções, pendências e promoção.
 
+## Alinhamento das linhas e leitura dos campos
+
+No perfil tablet/desktop, cada linha é localizada pela **pílula escura de dano** (contraste local entre a pílula e o fundo do cartão), e não por uma grade fixa. O scroll da lista para em pontos diferentes em cada print, e uma grade fixa fazia os recortes pegarem pedaços de duas linhas. O cartão rosa fixo "minha posição" (última linha da tela) é ignorado. Se uma pílula não for detectada, a posição é estimada pelo passo (~115 px) e o console avisa.
+
+- **Nome:** o recorte termina no badge roxo "Nv.", então o nível e o cargo ("Mestre da Guilda") não entram no OCR.
+- **Dano:** a leitura só é confiável com o agrupamento de milhares íntegro (`7.695.963.918`). Um dígito a mais ou a menos é rejeitado e, sem leitura íntegra, vale a maioria entre as variantes. Se mesmo assim ficar incerto, a linha recebe `dano_suspeito`.
+- **Ordem do ranking:** o dano nunca pode aumentar de uma posição para a próxima. Se aumentar, o relatório lista o erro e a raid fica em revisão pendente. Linhas repetidas entre prints (scroll que recua no fim) são ignoradas.
+
+## Nomes que o Tesseract não lê
+
+Nomes em japonês e com kanji (`ヴァルディネイ`, `カミナリ`, `MJ馬McQueen`) são reconhecidos **visualmente**, comparando o recorte com modelos em `assets/nomes/`. O modelo só vale com correlação alta e margem sobre o segundo colocado; na dúvida, o fluxo normal (OCR de texto e revisão) continua. Para cadastrar ou atualizar um modelo, inclua o nome em `MODELOS_NOMES` (`src/config.py`) e rode:
+
+```bash
+python -m src.gerar_modelos_nomes --imagem images/img2.jpeg --linha 2 --nome ヴァルディネイ
+python -m src.gerar_modelos_nomes --listar
+```
+
+Os modelos foram feitos para screenshots do mesmo aparelho/escala dos oficiais.
+
 ## Reconhecimento de nomes
 
 A lista oficial permanece em `NOMES_VALIDOS`.

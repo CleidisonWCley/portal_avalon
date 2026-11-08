@@ -1,0 +1,921 @@
+GUIA — COMO ATUALIZAR UMA NOVA RAID NO PORTAL AVALON
+=================================================================
+Sistema: Windows + VS Code + PowerShell
+Projeto: C:\Users\Claudio\Desktop\raid_hall
+Ambiente Python: C:\Users\Claudio\Documents\AmbientesPython\raid_hall_venv
+
+OBJETIVO DESTE GUIA
+-------------------
+
+Este arquivo explica, passo a passo e sem pular etapas, o processo que você deverá
+repetir sempre que uma nova Raid terminar:
+
+1. preparar o projeto;
+2. revisar membros da guilda;
+3. colocar as imagens;
+4. executar o OCR;
+5. conferir e corrigir dados;
+6. promover a nova Raid;
+7. testar o Portal;
+8. fazer commit;
+9. enviar para o GitHub;
+10. verificar o deploy.
+
+REGRA DE OURO
+-------------
+
+Nunca faça a promoção da nova Raid antes de conferir:
+
+- o CSV bruto;
+- o CSV revisado;
+- o relatório JSON;
+- os nomes;
+- as frequências;
+- os danos;
+- se existem pendências.
+
+O sistema é automatizado, mas a conferência humana continua sendo a trava final de
+segurança.
+
+
+=================================================================
+PARTE 1 — ENTENDENDO AS PASTAS MAIS IMPORTANTES
+=================================================================
+
+PASTA PRINCIPAL DO PROJETO
+
+C:\Users\Claudio\Desktop\raid_hall
+
+Esta é a pasta que você abre no VS Code.
+
+
+AMBIENTE VIRTUAL DO PYTHON
+
+C:\Users\Claudio\Documents\AmbientesPython\raid_hall_venv
+
+O ambiente virtual fica fora do projeto para não aparecer nos testes de higiene
+e não entrar no Git.
+
+
+PASTA DAS IMAGENS DO OCR
+
+ocr\guild-rank-ocr\images
+
+É aqui que você coloca os screenshots da nova Raid.
+
+
+CONFIGURAÇÃO DE MEMBROS, ALIASES E CORREÇÕES
+
+ocr\guild-rank-ocr\src\config.py
+
+Neste arquivo ficam:
+
+- NOMES_VALIDOS;
+- ALIASES_MEMBROS;
+- correções específicas de cada Raid;
+- limites e configurações do OCR.
+
+
+RESULTADOS GERADOS PELO OCR
+
+ocr\guild-rank-ocr\output\csv
+ocr\guild-rank-ocr\output\json
+
+
+DADOS PUBLICADOS NO PORTAL
+
+web\data\raids\raid_atual.json
+web\data\raids\raid_anterior.json
+web\data\raids\raid_history.json
+
+
+TESTES OFICIAIS
+
+tools\run_tests.py
+
+Você não precisa executar cada teste separadamente. O runner chama a suíte oficial.
+
+
+=================================================================
+PARTE 2 — ABRINDO O PROJETO E ATIVANDO O PYTHON
+=================================================================
+
+1. Abra a pasta raid_hall no VS Code.
+
+2. Abra o terminal PowerShell dentro do VS Code.
+
+3. Confirme que o terminal está na pasta do projeto. Deve aparecer algo parecido:
+
+PS C:\Users\Claudio\Desktop\raid_hall>
+
+4. Ative o ambiente virtual que está nos Documentos:
+
+& "$env:USERPROFILE\Documents\AmbientesPython\raid_hall_venv\Scripts\Activate.ps1"
+
+Depois disso, o terminal deve mostrar:
+
+(raid_hall_venv) PS C:\Users\Claudio\Desktop\raid_hall>
+
+5. Confirme que o Python correto está ativo:
+
+python -c "import sys; print(sys.executable)"
+
+O resultado deve apontar para:
+
+C:\Users\Claudio\Documents\AmbientesPython\raid_hall_venv\Scripts\python.exe
+
+
+SE O POWERSHELL BLOQUEAR A ATIVAÇÃO
+
+Execute:
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+Depois tente ativar novamente:
+
+& "$env:USERPROFILE\Documents\AmbientesPython\raid_hall_venv\Scripts\Activate.ps1"
+
+fechar ambiente virtual:
+deactivate
+
+
+SE APARECER ERRO DE CV2 OU OPENCV
+
+Instale novamente as dependências no ambiente ativo:
+
+python -m pip install -r ocr\guild-rank-ocr\requirements.txt
+
+Confirme:
+
+python -c "import cv2; print(cv2.__version__)"
+
+
+SE O PLAYWRIGHT NÃO ESTIVER INSTALADO
+
+python -m pip install playwright
+python -m playwright install chromium
+
+
+=================================================================
+PARTE 3 — SEGURANÇA ANTES DE COMEÇAR UMA NOVA RAID
+=================================================================
+
+Antes de alterar imagens, membros ou dados, execute:
+
+git status
+
+O ideal é aparecer:
+
+nothing to commit, working tree clean
+
+Se o projeto estiver limpo, atualize a branch local:
+
+git pull origin main
+
+Depois confirme novamente:
+
+git status
+
+
+NÃO CONTINUE AUTOMATICAMENTE SE EXISTIREM ALTERAÇÕES QUE VOCÊ NÃO RECONHECE.
+
+Primeiro descubra de onde vieram essas alterações.
+
+Também é recomendado manter uma cópia ZIP da versão aprovada antes de iniciar uma
+nova atualização.
+
+
+=================================================================
+PARTE 4 — REVISANDO OS MEMBROS ANTES DO OCR
+=================================================================
+
+Antes de cada nova Raid, verifique:
+
+- entrou algum membro novo?
+- alguém saiu?
+- alguém mudou de nick?
+- existe algum nome que o OCR costuma ler errado?
+
+
+---------------------------------------------------------------
+CASO A — NENHUMA MUDANÇA DE MEMBRO
+---------------------------------------------------------------
+
+Não altere o config.py.
+
+Pode seguir diretamente para as imagens.
+
+
+---------------------------------------------------------------
+CASO B — ENTROU UM MEMBRO NOVO
+---------------------------------------------------------------
+
+Abra:
+
+ocr\guild-rank-ocr\src\config.py
+
+Localize:
+
+NOMES_VALIDOS = [
+
+Adicione o nick oficial exatamente como aparece no jogo.
+
+Exemplo:
+
+NOMES_VALIDOS = [
+    "Cley",
+    "Hela",
+    "NovoMembro",
+]
+
+Se o nome tiver formas que o OCR pode confundir, adicione aliases em:
+
+ALIASES_MEMBROS = {
+
+Exemplo:
+
+ALIASES_MEMBROS = {
+    "NovoMembro": ["Novo Membro", "Novo-Membro"],
+}
+
+IMPORTANTE:
+
+- o nome principal deve ser o nick oficial;
+- aliases são apenas variações de leitura;
+- não invente danos antigos para o membro novo;
+- ele ficará sem base histórica até acumular raids válidas;
+- isso é esperado e correto.
+
+
+---------------------------------------------------------------
+CASO C — UM MEMBRO SAIU OU FOI BANIDO
+---------------------------------------------------------------
+
+Somente depois de confirmar a saída, abra:
+
+ocr\guild-rank-ocr\src\config.py
+
+Remova o nome de:
+
+NOMES_VALIDOS
+
+Não apague manualmente danos antigos dos JSONs.
+
+Na próxima promoção, o sistema trabalhará com o elenco atual e reorganizará o
+histórico conforme as regras do Portal.
+
+
+---------------------------------------------------------------
+CASO D — UM MEMBRO MUDOU DE NICK
+---------------------------------------------------------------
+
+Este caso exige mais cuidado porque o nick antigo pode existir nas raids históricas.
+
+Procedimento seguro:
+
+1. Faça backup ou confirme que o Git está limpo.
+2. Em NOMES_VALIDOS, troque o nick antigo pelo novo.
+3. Em ALIASES_MEMBROS, use o novo nick como nome principal e adicione o antigo
+   como alias.
+
+Exemplo:
+
+"NovoNick": ["NickAntigo", "Outra variação"]
+
+4. Antes de promover, revise os arquivos históricos que ainda possuem o nick antigo:
+
+web\data\raids\raid_atual.json
+web\data\raids\raid_anterior.json
+web\data\raids\raid_history.json
+web\data\raids\raid_manual_overrides.json
+
+5. Altere somente o campo de nome, mantendo danos e frequências intactos.
+6. Execute todos os testes.
+
+ATENÇÃO:
+
+Não faça uma substituição cega no projeto inteiro.
+Não altere danos, frequência ou posição para “combinar” com o novo nick.
+Se houver dúvida em uma mudança de nick, pare e peça uma revisão antes da promoção.
+
+
+---------------------------------------------------------------
+CORREÇÕES HISTÓRICAS MANUAIS
+---------------------------------------------------------------
+
+O arquivo:
+
+web\data\raids\raid_manual_overrides.json
+
+serve somente para correções históricas comprovadas, como uma frequência antiga
+que você sabe com certeza.
+
+Não use esse arquivo para:
+
+- aumentar dano;
+- melhorar evolução;
+- favorecer patente;
+- corrigir a Raid atual do OCR.
+
+A Raid atual deve ser corrigida pelo bloco específico da Raid em config.py.
+
+
+=================================================================
+PARTE 5 — PREPARANDO AS IMAGENS DA NOVA RAID
+=================================================================
+
+Abra:
+
+ocr\guild-rank-ocr\images
+
+Remova ou substitua os screenshots da Raid anterior.
+
+Use estes nomes:
+
+img1.jpeg
+img2.jpeg
+img3.jpeg
+img4.jpeg
+img5.jpeg
+
+Regras:
+
+- img1: primeiras posições;
+- img2: continuação;
+- img3: continuação;
+- img4: continuação;
+- img5: somente se houver posições 29 e 30;
+- não deixe lacunas;
+- não use img6;
+- não deixe imagens antigas extras na pasta;
+- extensões aceitas: jpeg, jpg e png.
+
+Com 28 membros, normalmente serão usadas 4 imagens.
+
+Com 29 ou 30 membros, será necessária a quinta imagem.
+
+
+CHECKLIST DAS IMAGENS
+
+[ ] Ranking inteiro aparece
+[ ] Nome do membro está visível
+[ ] Frequência está visível
+[ ] Dano está visível
+[ ] Nenhuma linha está cortada
+[ ] As imagens estão na ordem correta
+[ ] Não existem screenshots antigos sobrando
+
+
+=================================================================
+PARTE 6 — EXECUTANDO O OCR
+=================================================================
+
+Na raiz do projeto, entre na pasta do OCR:
+
+cd ocr\guild-rank-ocr
+
+Execute:
+
+python -m src.main --raid 143 --ended-at 2026-11-04 --source official
+
+
+Para uma Raid normal extraída dos screenshots oficiais, use sempre:
+
+--source official
+
+
+ARQUIVOS GERADOS
+
+Para a Raid 134, serão criados:
+
+output\csv\raid_134_bruto.csv
+output\csv\raid_134_revisado.csv
+output\json\raid_134.json
+output\json\raid_134_relatorio.json
+
+
+SIGNIFICADO DOS ARQUIVOS
+
+raid_134_bruto.csv
+Resultado original do Tesseract. Serve para descobrir o que o OCR leu.
+
+raid_134_revisado.csv
+Resultado depois das correções e normalizações.
+
+raid_134.json
+Arquivo validado que será usado na promoção.
+
+raid_134_relatorio.json
+Resumo da coleta: participantes, dano total, correções e pendências.
+
+
+=================================================================
+PARTE 7 — CONFERINDO O OCR
+=================================================================
+
+Abra lado a lado:
+
+- screenshots;
+- raid_N_bruto.csv;
+- raid_N_revisado.csv;
+- raid_N_relatorio.json.
+
+Confira membro por membro:
+
+[ ] nome
+[ ] frequência
+[ ] dano
+[ ] posição
+[ ] duplicidade
+[ ] ausentes
+[ ] total de participantes
+
+
+NO RELATÓRIO, PROCURE:
+
+"status": "validada"
+"registrosPendentes": 0
+"duplicadosDetectados": 0
+
+Se houver pendências, não promova.
+
+
+=================================================================
+PARTE 8 — CORRIGINDO LINHAS QUE O OCR ERROU
+=================================================================
+
+Abra:
+
+ocr\guild-rank-ocr\src\config.py
+
+Localize:
+
+CORRECOES_LINHAS_POR_RAID = {
+
+Crie um bloco somente para a nova Raid.
+
+Exemplo:
+
+CORRECOES_LINHAS_POR_RAID = {
+    134: {
+        ("img1.jpeg", 3): {
+            "nome": "Cley",
+            "frequencia": "21/21",
+            "dano": 6418524181,
+        },
+        ("img2.jpeg", 4): {
+            "nome": "Ger",
+            "frequencia": "21/21",
+            "dano": 5432498592,
+        },
+    }
+}
+
+COMO ENTENDER A LINHA
+
+("img2.jpeg", 4)
+
+significa:
+
+- imagem img2.jpeg;
+- quarta linha visível dentro daquela imagem.
+
+Não significa posição geral número 4 da guilda.
+
+
+REGRAS DAS CORREÇÕES
+
+- crie correções somente para linhas realmente erradas;
+- copie os dados conferidos diretamente do screenshot;
+- não copie o bloco de correção de uma Raid anterior;
+- cada Raid tem seu próprio bloco;
+- mantenha o CSV bruto como evidência.
+
+
+REPROCESSANDO APÓS CORRIGIR
+
+Como os arquivos da Raid já existem, use --force conscientemente:
+
+python -m src.main --raid 143 --ended-at 2026-08-26 --source official --force
+
+Use --force somente depois de conferir que está reprocessando a mesma Raid.
+
+Repita a conferência até o relatório ficar validado e sem pendências.
+
+
+=================================================================
+PARTE 9 — VOLTANDO PARA A RAIZ DO PROJETO
+=================================================================
+
+Depois do OCR:
+
+cd ..\..
+
+Confirme que voltou para:
+
+C:\Users\Claudio\Desktop\raid_hall
+
+
+=================================================================
+PARTE 10 — PROMOVENDO A NOVA RAID
+=================================================================
+
+python tools\promote_raid_history.py `
+  --new-current ocr\guild-rank-ocr\output\json\raid_143.json `
+  --history web\data\raids\raid_history.json `
+  --published-current web\data\raids\raid_atual.json `
+  --published-previous web\data\raids\raid_anterior.json `
+  --report ocr\guild-rank-ocr\output\json\raid_143_relatorio.json
+
+O PowerShell usa o caractere de crase ` no final da linha para continuar o comando.
+
+
+O QUE A PROMOÇÃO FAZ
+
+- Raid X vira a atual;
+- Raid Y vira anterior;
+- histórico é rotacionado;
+- limite de raids armazenadas é respeitado;
+- raid_atual.json é atualizado;
+- raid_anterior.json é atualizado;
+- raid_history.json é atualizado;
+- relatório registra que a Raid foi promovida.
+
+
+A PROMOÇÃO SERÁ BLOQUEADA SE:
+
+- relatório não estiver validado;
+- houver pendências;
+- número da Raid estiver ausente;
+- número for igual ou menor que a Raid atual.
+
+=================================================================
+PARTE 11 — VALIDANDO OS DADOS APÓS A PROMOÇÃO
+=================================================================
+
+Execute:
+
+python tools\validate_raid_history.py `
+  --history web\data\raids\raid_history.json `
+  --current web\data\raids\raid_atual.json
+
+Resultado esperado:
+
+erros: 0
+
+Avisos podem aparecer por:
+
+- base estimada;
+- frequência antiga abaixo de 15/21;
+- membro ausente em base antiga.
+
+Avisos esperados não bloqueiam.
+Erros bloqueiam o commit.
+
+
+=================================================================
+PARTE 12 — EXECUTANDO TODOS OS TESTES
+=================================================================
+
+SUÍTE RÁPIDA
+
+python tools\run_tests.py --quick
+
+Ela verifica:
+
+- sintaxe JavaScript;
+- regras do Hall;
+- OCR;
+- JSONs;
+- histórico;
+- Registro;
+- Raid;
+- documentação;
+- referências;
+- higiene do projeto.
+
+
+SUÍTE DE NAVEGADOR
+
+python tools\run_tests.py --browser
+
+Ela verifica:
+
+- desktop;
+- tablet;
+- celular;
+- modais;
+- overflow;
+- loader;
+- console;
+- interações;
+- responsividade.
+
+
+REGRA SIMPLES
+
+Se os dois comandos passarem, a parte automática está aprovada:
+
+python tools\run_tests.py --quick
+python tools\run_tests.py --browser
+
+
+NÃO EXECUTE AUTOMATICAMENTE
+
+promote_raid_history.py
+seed_raid_history_from_xlsx.py
+
+Esses dois alteram ou geram dados.
+Execute somente quando estiver realizando conscientemente a tarefa correspondente.
+
+
+=================================================================
+PARTE 13 — TESTE VISUAL LOCAL
+=================================================================
+
+Você pode usar o Live Server do VS Code.
+
+Ou iniciar um servidor pelo terminal:
+
+python -m http.server 8000 --directory web
+
+Acesse:
+
+http://localhost:8000
+
+
+CONFIRA PRINCIPALMENTE
+
+[ ] Hall atualizado
+[ ] Registro atualizado
+[ ] Raid atual correta
+[ ] Raid anterior correta
+[ ] Evolução individual
+[ ] Evolução coletiva
+[ ] nomes dos membros
+[ ] danos
+[ ] frequências
+[ ] mobile
+[ ] desktop
+[ ] console sem erros vermelhos
+
+
+Nunca abra o Portal apenas com file:// para testar JSON.
+Use Live Server ou servidor HTTP.
+
+
+=================================================================
+PARTE 14 — SEGURANÇA ANTES DO COMMIT
+=================================================================
+
+Primeiro veja o que mudou:
+
+git status
+git diff --stat
+git diff --check
+
+Confira se não aparecem:
+
+- .venv;
+- __pycache__;
+- screenshots;
+- arquivos temporários;
+- senhas;
+- caches;
+- imagens brutas;
+- arquivos que você não reconhece.
+
+
+SE APARECER SOMENTE AVISO DE FINAL DE LINHA
+
+Mensagens como:
+
+LF will be replaced by CRLF
+
+normalmente são avisos do Windows, não erros.
+
+Mas evite incluir arquivos que só mudaram por final de linha sem necessidade.
+
+
+=================================================================
+PARTE 15 — PREPARANDO O COMMIT
+=================================================================
+
+Adicione todas as alterações, inclusões e remoções:
+
+git add -A
+
+Revise o que está preparado:
+
+git status
+Get-ChildItem tools -File | Sort-Object Name | Select-Object -ExpandProperty Name
+git diff --cached --stat
+git diff --cached --check
+
+Se git diff --cached --check não mostrar erros, faça o commit.
+
+Exemplo:
+
+git commit -m "Promovendo Raid 142 e atualizando o Portal Avalon"
+
+Confirme:
+
+git status
+git log -1 --oneline
+
+O esperado:
+
+nothing to commit, working tree clean
+
+
+=================================================================
+PARTE 16 — ENVIANDO AO GITHUB E INICIANDO O DEPLOY
+=================================================================
+
+Envie para a branch principal:
+
+git push origin main
+
+Depois confirme:
+
+git status
+
+O esperado:
+
+Your branch is up to date with 'origin/main'.
+nothing to commit, working tree clean
+
+
+DEPLOY
+
+O Cloudflare Pages deve iniciar o deploy automaticamente após o push para main.
+
+Configuração esperada:
+
+- branch: main;
+- diretório publicado: web;
+- build: vazio, pois o projeto é estático.
+
+
+=================================================================
+PARTE 17 — CONFERÊNCIA APÓS O DEPLOY
+=================================================================
+
+Depois que o deploy concluir:
+
+1. abra o Portal em janela anônima;
+2. use Ctrl + F5 para evitar cache antigo;
+3. abra Hall;
+4. abra Registro;
+5. abra Buscar;
+6. abra Raid;
+7. confira desktop;
+8. confira celular;
+9. verifique o console e Network se algo falhar.
+
+
+CHECKLIST FINAL DO DEPLOY
+
+[ ] Raid correta aparece
+[ ] Histórico correto aparece
+[ ] Hall atualizado
+[ ] Registro atualizado
+[ ] Membros novos aparecem
+[ ] Membros removidos não aparecem nas áreas atuais
+[ ] Nenhum erro vermelho no console
+[ ] Nenhum arquivo antigo sendo solicitado
+[ ] Git limpo
+[ ] GitHub sincronizado
+
+
+=================================================================
+PARTE 18 — PROBLEMAS COMUNS
+=================================================================
+
+ERRO: No module named cv2
+
+Solução:
+
+& "$env:USERPROFILE\Documents\AmbientesPython\raid_hall_venv\Scripts\Activate.ps1"
+python -m pip install -r ocr\guild-rank-ocr\requirements.txt
+
+
+ERRO: Playwright não instalado
+
+Solução:
+
+python -m pip install playwright
+python -m playwright install chromium
+
+
+ERRO: .venv encontrada no repositório
+
+Solução:
+
+Não crie .venv dentro de raid_hall.
+Use:
+
+C:\Users\Claudio\Documents\AmbientesPython\raid_hall_venv
+
+
+ERRO: A Raid já possui arquivos processados
+
+Isso é uma proteção.
+
+Primeiro confira os arquivos existentes.
+Use --force apenas se deseja conscientemente reprocessar a mesma Raid.
+
+
+ERRO: Promoção bloqueada
+
+Confira:
+
+- relatório validado;
+- registrosPendentes igual a zero;
+- número da Raid;
+- se a Raid é superior à atual.
+
+
+ERRO: JSON não aparece no site
+
+Use Live Server ou:
+
+python -m http.server 8000 --directory web
+
+Não use file://.
+
+
+ERRO: OCR não reconhece um nome
+
+1. confira se o nome está em NOMES_VALIDOS;
+2. adicione alias quando fizer sentido;
+3. corrija a linha dentro do bloco da Raid;
+4. reexecute com --force;
+5. confira novamente bruto, revisado e relatório.
+
+
+=================================================================
+PARTE 19 — CHECKLIST CURTO PARA TODA NOVA RAID
+=================================================================
+
+ANTES
+
+[ ] Git limpo
+[ ] git pull origin main
+[ ] ambiente virtual ativo
+[ ] membros revisados
+[ ] imagens img1 até img4/img5 corretas
+
+
+OCR
+
+[ ] executar python -m src.main
+[ ] conferir CSV bruto
+[ ] conferir CSV revisado
+[ ] conferir relatório
+[ ] corrigir linhas necessárias
+[ ] reprocessar com --force, se necessário
+[ ] status validada
+[ ] pendências zero
+
+
+PROMOÇÃO
+
+[ ] voltar à raiz
+[ ] executar promote_raid_history.py
+[ ] executar validate_raid_history.py
+[ ] erros zero
+
+
+TESTES
+
+[ ] python tools\run_tests.py --quick
+[ ] python tools\run_tests.py --browser
+[ ] teste visual no Live Server
+
+
+GIT E DEPLOY
+
+[ ] git status
+[ ] git diff --stat
+[ ] git diff --check
+[ ] git add -A
+[ ] git diff --cached --stat
+[ ] git diff --cached --check
+[ ] git commit
+[ ] git push origin main
+[ ] conferir deploy
+[ ] testar Portal em janela anônima
+
+
+O objetivo deste arquivo é você seguir a ordem, uma etapa de cada vez.
+
+Quando estiver em dúvida:
+
+1. não use --force impulsivamente;
+2. não edite JSON de dano manualmente;
+3. não promova com pendência;
+4. não faça commit sem testes;
+5. não faça push sem revisar o Git.
+
+Com repetição, esse fluxo vai se tornar natural.

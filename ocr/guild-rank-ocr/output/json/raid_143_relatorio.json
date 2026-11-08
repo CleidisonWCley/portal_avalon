@@ -1,0 +1,25 @@
+{
+  "raidNumber": 143,
+  "endedAt": "2026-11-04",
+  "source": "official",
+  "status": "validada",
+  "promovida": true,
+  "imagens": [
+    "img1.jpeg",
+    "img2.jpeg",
+    "img3.jpeg",
+    "img4.jpeg"
+  ],
+  "linhasProcessadas": 28,
+  "participantes": 27,
+  "ausentes": 0,
+  "danoTotal": 124168766008,
+  "registrosCorrigidos": 0,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 1,
+  "erros": [],
+  "correcoesAplicadas": [],
+  "promovidaEm": "2026-11-08T00:10:39Z",
+  "raidAnterior": 142,
+  "historicoArmazenado": 4
+}
