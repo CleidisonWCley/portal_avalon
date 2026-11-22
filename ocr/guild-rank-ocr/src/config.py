@@ -21,7 +21,15 @@ MAXIMO_IMAGENS = 5
 # ============================================================
 # MEMBROS OFICIAIS DA GUILDA
 # ============================================================
-
+# ATENÇÃO: a partir da V7.9.1 o elenco de cada raid NÃO é mais mantido à mão.
+# Ele é calculado automaticamente por ``src/utils/elenco.py`` comparando o
+# ranking lido com o histórico das raids anteriores (permanecem / saíram /
+# novos / retornantes). Entradas e saídas nunca exigem editar esta lista.
+#
+# ``NOMES_VALIDOS`` virou somente a BASE DE PARTIDA: o elenco da última raid
+# promovida. Ela só é usada (a) quando não existe nenhum histórico para
+# comparar e (b) por ferramentas/testes que precisam de um elenco de referência.
+# Elenco base = Raid 143 (última promovida).
 NOMES_VALIDOS = [
     "Cley",
     "Hela",
@@ -49,7 +57,7 @@ NOMES_VALIDOS = [
     "Carlinhozz",
     "MJ馬McQueen",
     "tang",
-    "pato_loko"
+    "pato_loko",
 ]
 
 # Apelidos e variações conhecidas. Aliases de 1 ou 2 caracteres são aceitos
@@ -142,6 +150,7 @@ STATUS_DANO_SUSPEITO = "dano_suspeito"
 STATUS_FREQUENCIA_SUSPEITA = "frequencia_suspeita"
 STATUS_LINHA_CORRIGIDA = "linha_corrigida"
 STATUS_NOME_CORRIGIDO = "nome_corrigido"
+STATUS_NOVO_MEMBRO = "novo_membro"
 
 # ============================================================
 # ============================================================
@@ -222,6 +231,94 @@ BADGE_NIVEL_TABLET = {
     "largura_min": 15,
 }
 
+# --- ANCORAGEM DAS LINHAS (perfil CELULAR, referência 2340x1080) ---
+# Mesma ideia do tablet: cada linha é localizada pela pílula escura de dano, e
+# não por uma grade fixa. Na grade fixa o recorte do nome pegava o badge "Nv."
+# e partes de outras linhas; os modelos visuais (ヴァルディネイ etc.) caíam para
+# correlação 0 e o fuzzy chutava nomes errados (ex.: "Ger" no lugar de
+# ヴァルディネイ, "kia" no lugar de Lux). Valores medidos nos prints oficiais
+# de celular da Raid 144 (passo de linha = 138 px, pílula com 51 px de altura).
+ANCORAGEM_CELULAR = {
+    "coluna_pilula": (1537, 1582),   # dentro da pílula, entre o ícone e os dígitos
+    "coluna_cartao": (1858, 1874),   # fundo do cartão, à direita da pílula
+    "contraste_minimo": 12,
+    "altura_minima_pilula": 30,
+    "limite_rosa": 20,               # cartão rosa fixo "minha posição"
+    "tolerancia_passo": 0.25,
+}
+# Menor Y de centro de pílula que ainda fica visível sob o cabeçalho da lista.
+LIMITE_SUPERIOR_LINHA_CELULAR = 90.0
+LIMITE_SUPERIOR_LINHA_TABLET = 75.0
+
+REGIOES_ANCORADAS_CELULAR = {
+    "nome": {"x": 846, "dy": -38, "h": 44},
+    "frequencia": {"x": 1358, "w": 112, "dy": -24, "h": 48},
+    "dano": {"x": 1595, "w": 250, "dy": -26, "h": 52},
+}
+
+BADGE_NIVEL_CELULAR = {
+    # A busca começa depois da moldura do avatar (que também é roxa em algumas
+    # contas e gerava um falso "badge" em x≈780).
+    "busca_x": (870, 1300),
+    "x_fim_padrao": 1015,    # usado se o badge não for encontrado
+    "margem": 6,
+    "matiz": (122, 148),     # badge roxo padrão (H ≈ 132)
+    "saturacao_min": 110,
+    "valor_min": 190,
+    # Alguns jogadores têm o badge "Nv." em outra cor (DuckDolnad: verde-água,
+    # H ≈ 95). Cada item é (matiz_min, matiz_max, saturacao_min, valor_min).
+    "matizes_extras": [(85, 105, 110, 120)],
+    "pixels_por_coluna_min": 10,
+    "largura_min": 22,
+}
+
+# ============================================================
+# ELENCO DINÂMICO (membros atuais / saíram / novos / retornantes)
+# ============================================================
+# Onde procurar o histórico de raids anteriores (relativo ao subprojeto).
+DIR_JSON_RAIDS = Path(__file__).resolve().parent.parent / "output" / "json"
+DIR_DADOS_WEB_RAIDS = Path(__file__).resolve().parent.parent.parent.parent / "web" / "data" / "raids"
+
+# Para aceitar automaticamente um nome que não existe no histórico (membro
+# novo), o texto lido precisa se repetir em pelo menos N leituras do Tesseract
+# (3 variantes de imagem x 2 modos). Abaixo disso a linha fica pendente.
+VOTOS_MINIMOS_NOME_NOVO = 2
+TAMANHO_NOME_MIN = 3
+TAMANHO_NOME_MAX = 20
+
+# Sugestão (nunca aplicada sozinha) de "troca de nick": quem saiu e quem
+# entrou com dano parecido na raid anterior/atual podem ser a mesma pessoa.
+LIMITE_TROCA_NICK = 0.30
+
+# Rede de segurança permanente: membros que continuam na guilda mesmo quando não
+# aparecem no ranking (não atacaram na raid). Se um nome desta lista sumir do
+# ranking, ele entra como AUSENTE (0/21) em vez de ser classificado como "saiu".
+# O código não tem como saber sozinho que alguém só faltou, então use esta lista
+# para os casos raros em que você sabe que o membro continua na guilda.
+# Quando o membro realmente sair, remova o nome daqui ou confirme a saída em
+# ELENCO_MANUAL_POR_RAID ("saidas_confirmadas"), que tem precedência.
+MEMBROS_SEMPRE_NO_ELENCO: list[str] = [
+    # "NomeExato",
+]
+
+# Correções de elenco vinculadas à raid, no mesmo espírito de
+# CORRECOES_LINHAS_POR_RAID: só o bloco da raid executada é carregado.
+#   "manter_ausentes": membros que NÃO aparecem no ranking mas continuam na
+#                      guilda (0 ataques). Sem isso, quem some do ranking é
+#                      tratado como "saiu".
+#   "renomear_novos":  {"lido": "correto"} quando a grafia lida de um membro
+#                      novo precisa de ajuste manual.
+#   "nao_e_novo":      {"lido": "Nome Existente"} quando uma leitura foi
+#                      confundida com um membro novo (nick conhecido).
+#   "saidas_confirmadas": saídas que o líder confirmou (deixam de ser "inferidas").
+#   "novos_confirmados":  membros novos cuja grafia foi conferida no jogo.
+ELENCO_MANUAL_POR_RAID = {
+    144: {
+        "saidas_confirmadas": ["Snowers"],
+        "novos_confirmados": ["KAELINA", "DuckDolnad"],
+    },
+}
+
 # --- MODELOS VISUAIS DE NOMES ---
 # O Tesseract (idioma "eng") não lê japonês nem o kanji de MJ馬McQueen. Em vez
 # de acumular aliases com lixo de OCR, esses nomes são reconhecidos por
@@ -232,6 +329,10 @@ MODELOS_NOMES = {
     "ヴァルディネイ": "valdinei.png",
     "カミナリ": "kaminari.png",
     "MJ馬McQueen": "mj_mcqueen.png",
+    # Fonte estilizada em versaletes: o Tesseract lê "tux", "vux", "wa", "oa"...
+    # conforme a versão. O modelo visual torna a leitura estável.
+    # Um nome pode ter um modelo por aparelho (tablet x celular).
+    "Lux": ["lux.png", "lux_tablet.png"],
 }
 LIMIAR_MODELO_NOME = 0.88          # correlação mínima (1.0 = idêntico)
 MARGEM_MODELO_NOME = 0.10          # vantagem mínima sobre o 2º melhor modelo

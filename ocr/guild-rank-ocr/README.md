@@ -127,6 +127,33 @@ output/
 - **`raid_133.json`:** fonte validada usada na promoção;
 - **`raid_133_relatorio.json`:** resumo de imagens, correções, pendências e promoção.
 
+## Elenco dinâmico: permanecem, saíram, novos e retornantes
+
+O elenco de cada raid é calculado a partir do histórico, sem editar `NOMES_VALIDOS` (que é só a base de partida):
+
+| Categoria | Regra |
+| --- | --- |
+| permanecem | estavam na raid anterior e aparecem no ranking |
+| saíram | estavam na raid anterior e não aparecem no ranking |
+| novos | aparecem no ranking e nunca estiveram em raid anterior |
+| retornantes | aparecem, não estavam na raid anterior, mas já estiveram antes (ex.: tang na Raid 136) |
+
+**Atenção:** o ranking do jogo não lista quem não atacou, então "saiu" é sempre uma inferência. Se o membro só faltou, rode de novo com `--manter-ausente NOME` (ele entra como 0/21). Há três formas de dizer que alguém continua na guilda mesmo sem aparecer no ranking:
+
+- `--manter-ausente NOME` na linha de comando (vale só para aquela execução);
+- `ELENCO_MANUAL_POR_RAID[N]["manter_ausentes"]` em `src/config.py` (vale só para a raid N);
+- `MEMBROS_SEMPRE_NO_ELENCO` em `src/config.py` (rede de segurança permanente: sempre que o nome sumir do ranking entra como ausente 0/21).
+
+Quando o membro realmente sair, remova-o de `MEMBROS_SEMPRE_NO_ELENCO` ou confirme a saída em `ELENCO_MANUAL_POR_RAID[N]["saidas_confirmadas"]`, que tem precedência. As demais decisões fixas de uma raid (`renomear_novos`, `nao_e_novo`, `saidas_confirmadas`, `novos_confirmados`) também ficam em `ELENCO_MANUAL_POR_RAID`.
+
+```bash
+python -m src.main --raid 144 --ended-at 2026-11-18 --force
+python -m src.main --raid 144 --ended-at 2026-11-18 --force --manter-ausente Snowers
+python -m src.utils.elenco --raid 143      # audita uma raid já processada
+```
+
+Confira sempre a grafia dos novos no recorte salvo em `output/revisao/raid_N/` (campo `grafiaConfirmada` fica `false` no JSON). Nomes em outro alfabeto (kana, hangul) o Tesseract não lê: a linha fica pendente e precisa de um modelo visual (`gerar_modelos_nomes`) ou de `renomear_novos`.
+
 ## Alinhamento das linhas e leitura dos campos
 
 No perfil tablet/desktop, cada linha é localizada pela **pílula escura de dano** (contraste local entre a pílula e o fundo do cartão), e não por uma grade fixa. O scroll da lista para em pontos diferentes em cada print, e uma grade fixa fazia os recortes pegarem pedaços de duas linhas. O cartão rosa fixo "minha posição" (última linha da tela) é ignorado. Se uma pílula não for detectada, a posição é estimada pelo passo (~115 px) e o console avisa.

@@ -15,6 +15,7 @@ from src.config import (
     PADRAO_NOME_IMAGEM,
 )
 from src.ocr.extractor import numero_linhas_padrao_para_imagem, processar_imagem
+from src.utils.elenco import analisar_elenco, construir_contexto, imprimir_resumo
 from src.utils.export import exportar_csv
 from src.utils.postprocess import (
     salvar_json,
@@ -35,6 +36,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--images-dir", type=Path, default=Path("images"))
     parser.add_argument("--output-dir", type=Path, default=Path("output"))
     parser.add_argument("--force", action="store_true", help="Sobrescreve arquivos já existentes da mesma raid")
+    parser.add_argument(
+        "--manter-ausente",
+        action="append",
+        default=[],
+        metavar="NOME",
+        help="Membro que não aparece no ranking mas continua na guilda (0/21). Repita para vários. "
+             "Sem isso, quem estava na raid anterior e some do ranking é classificado como 'saiu'.",
+    )
     return parser.parse_args()
 
 
@@ -90,11 +99,15 @@ def caminhos_saida(output_dir: Path, raid_numero: int) -> dict[str, Path]:
         "revisado": output_dir / "csv" / f"{prefixo}_revisado.csv",
         "json": output_dir / "json" / f"{prefixo}.json",
         "relatorio": output_dir / "json" / f"{prefixo}_relatorio.json",
+        "revisao": output_dir / "revisao" / prefixo,   # recortes de nomes novos/ilegíveis
     }
 
 
 def garantir_saida_livre(caminhos: dict[str, Path], force: bool) -> None:
-    existentes = [str(caminho) for caminho in caminhos.values() if caminho.exists()]
+    existentes = [
+        str(caminho) for chave, caminho in caminhos.items()
+        if chave != "revisao" and caminho.exists()
+    ]
     if existentes and not force:
         raise FileExistsError(
             "A raid já possui arquivos processados. Use --force somente após conferir:\n- "
@@ -124,11 +137,30 @@ def main() -> int:
     else:
         print(f"Nenhuma correção revisada cadastrada para a Raid {args.raid}.")
 
+    # Elenco: o que sabemos da guilda ANTES de ler o ranking (raid anterior e histórico).
+    contexto = construir_contexto(args.raid, manter_ausentes=args.manter_ausente, dir_json=args.output_dir / "json")
+    if contexto.fonte_elenco == "historico":
+        print(
+            f"Elenco anterior: Raid {contexto.raid_anterior} ({len(contexto.roster_anterior)} membros); "
+            f"{len(contexto.nomes_historicos)} nome(s) mais antigo(s) no histórico para detectar retornantes."
+        )
+    for aviso in contexto.avisos:
+        print(f"[AVISO] {aviso}")
+
+    if saidas["revisao"].exists() and args.force:
+        for antigo in saidas["revisao"].glob("*.png"):
+            antigo.unlink()
+
     todos_dados = []
     numero_linhas_pagina = numero_linhas_padrao_para_imagem(str(imagens[0])) if imagens else NUMERO_LINHAS
     for imagem in imagens:
         pagina = numero_pagina(imagem)
-        dados = processar_imagem(str(imagem), numero_linhas=linhas_da_pagina(pagina, numero_linhas_pagina))
+        dados = processar_imagem(
+            str(imagem),
+            numero_linhas=linhas_da_pagina(pagina, numero_linhas_pagina),
+            resolver_nome=contexto.resolver_nome,
+            pasta_revisao=saidas["revisao"],
+        )
         todos_dados.extend(dados)
         print()
 
@@ -148,9 +180,16 @@ def main() -> int:
         "endedAt": ended_at,
         "source": args.source,
     }
-    dados_tratados = tratar_dados_ocr(registros_revisados, metadata=metadata)
-    erros = validar_dados_tratados(dados_tratados)
-    erros.extend(verificar_ordem_ranking(registros_revisados))
+
+    print("-" * 70)
+    print("ELENCO (permanecem / saíram / novos / retornantes)")
+    analise = analisar_elenco(registros_revisados, contexto)
+    imprimir_resumo(analise.elenco)
+
+    dados_tratados = tratar_dados_ocr(analise.registros, metadata=metadata, roster=analise.roster, elenco=analise.elenco)
+    erros = validar_dados_tratados(dados_tratados, roster=analise.roster)
+    erros.extend(verificar_ordem_ranking(analise.registros))
+    erros.extend(analise.erros)
 
     exportar_csv(
         dados_tratados["membros"],
@@ -174,6 +213,17 @@ def main() -> int:
         "registrosCorrigidos": len(correcoes_aplicadas),
         "registrosPendentes": resumo["registros_revisar"],
         "duplicadosDetectados": resumo["duplicados_detectados"],
+        "elenco": {
+            "raidAnterior": analise.elenco["raidAnterior"],
+            "fonteElenco": analise.elenco["fonteElenco"],
+            "contagens": analise.elenco["contagens"],
+            "saidos": [item["nome"] for item in analise.elenco["saidos"]],
+            "novos": [item["nome"] for item in analise.elenco["novos"]],
+            "retornantes": [item["nome"] for item in analise.elenco["retornantes"]],
+            "mantidosAusentes": analise.elenco["mantidosAusentes"],
+            "sugestoes": analise.elenco["sugestoes"],
+            "avisos": analise.elenco["avisos"],
+        },
         "erros": erros,
         "correcoesAplicadas": correcoes_aplicadas,
     }
@@ -188,6 +238,7 @@ def main() -> int:
     print(f"Dano total: {resumo['dano_total_guilda']}")
     print(f"Registros corrigidos: {len(correcoes_aplicadas)}")
     print(f"Registros pendentes: {resumo['registros_revisar']}")
+    print(f"Membros no elenco: {resumo['membros_cadastrados']}")
     print(f"Status: {relatorio['status']}")
     print(f"JSON oficial: {saidas['json']}")
 

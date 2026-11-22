@@ -1,0 +1,53 @@
+{
+  "raidNumber": 144,
+  "endedAt": "2026-11-18",
+  "source": "official",
+  "status": "validada",
+  "promovida": true,
+  "imagens": [
+    "img1.jpg",
+    "img2.jpg",
+    "img3.jpg",
+    "img4.jpg",
+    "img5.jpg"
+  ],
+  "linhasProcessadas": 30,
+  "participantes": 28,
+  "ausentes": 0,
+  "danoTotal": 122214654495,
+  "registrosCorrigidos": 0,
+  "registrosPendentes": 0,
+  "duplicadosDetectados": 2,
+  "elenco": {
+    "raidAnterior": 143,
+    "fonteElenco": "historico",
+    "contagens": {
+      "atuais": 28,
+      "permanecem": 26,
+      "saidos": 1,
+      "novos": 2,
+      "retornantes": 0,
+      "mantidosAusentes": 0
+    },
+    "saidos": [
+      "Snowers"
+    ],
+    "novos": [
+      "KAELINA",
+      "DuckDolnad"
+    ],
+    "retornantes": [],
+    "mantidosAusentes": [],
+    "sugestoes": [],
+    "avisos": [
+      "SAIU (confirmado): Snowers estava na Raid 143.",
+      "NOVO (grafia confirmada): KAELINA (posição 13, 21/21).",
+      "NOVO (grafia confirmada): DuckDolnad (posição 28, 21/21)."
+    ]
+  },
+  "erros": [],
+  "correcoesAplicadas": [],
+  "promovidaEm": "2026-11-22T03:10:54Z",
+  "raidAnterior": 143,
+  "historicoArmazenado": 4
+}

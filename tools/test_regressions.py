@@ -29,6 +29,7 @@ EXPECTED_DOCS = {
     "MANUTENCAO_E_DEPLOY.md",
     "TESTES.md",
     "CHANGELOG.md",
+    "guia_portal_Avalon.txt",  # guia operacional passo a passo (Windows/PowerShell)
 }
 
 
@@ -261,6 +262,98 @@ def test_ocr_alignment_and_raid_143_fixture() -> None:
     check(len(unique) == 27 and sum(unique.values()) == gabarito["dano_total"], "27 membros e dano total fiel ao gabarito")
 
 
+def test_ocr_elenco_dinamico_and_raid_144_fixture() -> None:
+    section("OCR: elenco dinâmico (permanecem/saíram/novos/retornantes) e gabarito da Raid 144 (celular)")
+
+    sys.path.insert(0, str(OCR_ROOT))
+    import src.config as ocr_config  # noqa: E402
+    from src.utils.elenco import analisar_elenco, auditar_raid, construir_contexto  # noqa: E402
+    from src.utils.name_matcher import corrigir_nome  # noqa: E402
+
+    # Regressão da vírgula faltando: "pato_loko" "DuckDonald" virou um nome só.
+    nomes = ocr_config.NOMES_VALIDOS
+    check(len(nomes) == len(set(nomes)), "NOMES_VALIDOS sem duplicatas")
+    colados = [a + b for a in nomes for b in nomes if a != b and (a + b) in nomes]
+    check(not colados, "NOMES_VALIDOS sem nomes colados por vírgula faltando" if not colados else f"nomes colados: {colados}")
+
+    # O matcher respeita o elenco informado e não confunde membro novo com outro.
+    check(corrigir_nome("KAELINA", ["Cley", "kia", "KAELINA"]) == ("KAELINA", ""), "matcher aceita membro do elenco informado")
+    check(corrigir_nome("KAELINA")[1] == "revisar", "membro desconhecido não vira 'kia' (fica para revisão)")
+
+    # Histórico real: a auditoria reproduz saídas, entradas e retornos já conhecidos.
+    e136 = auditar_raid(136)
+    check([i["nome"] for i in e136["retornantes"]] == ["tang"], "Raid 136: tang é retornante (saiu na 135)")
+    e143 = auditar_raid(143)
+    check(sorted(i["nome"] for i in e143["saidos"]) == ["Algebra", "CAPETTINI", "Haru_Urara"], "Raid 143: saíram Algebra, CAPETTINI e Haru_Urara")
+    check([i["nome"] for i in e143["novos"]] == ["pato_loko"], "Raid 143: pato_loko é novo")
+
+    fixture = OCR_ROOT / "tests/fixtures/raid_144"
+    gabarito = load_json(fixture / "gabarito.json")
+    check(len(gabarito["linhas"]) == 30 and gabarito["membros_total"] == 28, "gabarito da Raid 144 tem 28 membros e 30 linhas")
+
+    import cv2  # noqa: E402
+    from src.ocr import extractor  # noqa: E402
+
+    for number in range(1, 6):
+        image = cv2.imread(str(fixture / f"img{number}.jpg"))
+        anchors = extractor.detectar_ancoras_linhas(image, "celular")
+        check(len(anchors) == 6, f"celular img{number}: 6 linhas detectadas (cartão rosa fixo ignorado)")
+        steps = [b - a for a, b in zip(anchors, anchors[1:])]
+        check(all(136 <= step <= 140 for step in steps), f"celular img{number}: passo entre linhas ≈138 px")
+
+    try:
+        import pytesseract  # noqa: E402
+
+        pytesseract.get_tesseract_version()
+    except Exception as error:
+        print(f"SKIP | OCR da Raid 144 não executado (Tesseract indisponível: {error})")
+        return
+
+    contexto = construir_contexto(144, dir_json=OCR_ROOT / "output/json", dir_web=WEB / "data/raids")
+    check(contexto.raid_anterior == 143 and contexto.fonte_elenco == "historico", "elenco anterior vem da Raid 143 (histórico)")
+
+    expected = {(row["imagem"], row["linha"]): row for row in gabarito["linhas"]}
+    raw_rows: list[dict] = []
+    for number in range(1, 6):
+        raw_rows.extend(extractor.processar_imagem(str(fixture / f"img{number}.jpg"), 6, contexto.resolver_nome, None))
+    divergences = []
+    for row in raw_rows:
+        want = expected[(row["imagem_origem"], row["linha"])]
+        got_freq, got_dano = row.get("frequencia"), int(row.get("dano") or 0)
+        got_nome = row.get("nome_candidato") if "revisar" in (row.get("status") or "") else row.get("nome")
+        if (got_nome, got_freq, got_dano) != (want["nome"], want["frequencia"], want["dano"]):
+            divergences.append(f"{row['imagem_origem']}#{row['linha']}: {(got_nome, got_freq, got_dano)} != {(want['nome'], want['frequencia'], want['dano'])}")
+    check(len(raw_rows) == 30, "OCR produziu 30 linhas")
+    check(not divergences, "OCR de celular bate com o gabarito nas 30 linhas" if not divergences else "divergências:\n" + "\n".join(divergences))
+
+    analise = analisar_elenco(raw_rows, contexto)
+    esperado = gabarito["elenco_esperado"]
+    check([i["nome"] for i in analise.elenco["saidos"]] == esperado["saidos"], "Snowers detectado como saída (inferida)")
+    check([i["nome"] for i in analise.elenco["novos"]] == esperado["novos"], "KAELINA e DuckDolnad detectados como membros novos")
+    check(not analise.elenco["retornantes"] and not analise.erros, "sem retornantes e sem erros de elenco")
+    check(len(analise.roster) == 28, "elenco da Raid 144 tem 28 membros")
+    check(not analise.elenco["saidos"][0]["inferido"], "saída de Snowers está confirmada (não é mais inferida)")
+    confirmada = {i["nome"]: i["grafiaConfirmada"] for i in analise.elenco["novos"]}
+    check(confirmada == {"KAELINA": True, "DuckDolnad": True}, "KAELINA e DuckDolnad são novos com grafia confirmada")
+
+    # Decisão manual reversível: --manter-ausente devolve Snowers como ausente (0/21).
+    manual = construir_contexto(144, manter_ausentes=["Snowers"], dir_json=OCR_ROOT / "output/json", dir_web=WEB / "data/raids")
+    reverso = analisar_elenco(raw_rows, manual)
+    check(not reverso.elenco["saidos"] and "Snowers" in reverso.roster and len(reverso.roster) == 29, "--manter-ausente mantém Snowers no elenco")
+    check(any("Saída confirmada" in e for e in reverso.erros), "--manter-ausente contradiz saída confirmada e é sinalizado")
+    # Rede de segurança no config: sem saída confirmada, quem some do ranking fica como ausente.
+    dirs = {"dir_json": OCR_ROOT / "output/json", "dir_web": WEB / "data/raids"}
+    sem_confirmar = analisar_elenco(raw_rows, construir_contexto(144, sempre_no_elenco=["Snowers"], manual={}, **dirs))
+    check(not sem_confirmar.elenco["saidos"] and "Snowers" in sem_confirmar.roster and len(sem_confirmar.roster) == 29, "MEMBROS_SEMPRE_NO_ELENCO mantém o ausente no elenco (0/21), sem marcá-lo como saída")
+    check(sem_confirmar.elenco["mantidosAusentes"] == ["Snowers"] and not sem_confirmar.erros, "ausente mantido por config não gera erro")
+    confirmada_vence = analisar_elenco(raw_rows, construir_contexto(144, sempre_no_elenco=["Snowers"], manual={"saidas_confirmadas": ["Snowers"]}, **dirs))
+    check([i["nome"] for i in confirmada_vence.elenco["saidos"]] == ["Snowers"] and "Snowers" not in confirmada_vence.roster, "saída confirmada tem precedência sobre MEMBROS_SEMPRE_NO_ELENCO")
+    invalido = analisar_elenco(raw_rows, construir_contexto(144, sempre_no_elenco=["Snowrs"], manual={}, **dirs))
+    check(any("desconhecido" in e for e in invalido.erros), "nome inválido em MEMBROS_SEMPRE_NO_ELENCO é rejeitado")
+    erro = analisar_elenco(raw_rows, construir_contexto(144, manter_ausentes=["Snowrs"], dir_json=OCR_ROOT / "output/json", dir_web=WEB / "data/raids"))
+    check(any("desconhecido" in e for e in erro.erros), "nome digitado errado em --manter-ausente é rejeitado")
+
+
 def test_raid_cleanup() -> None:
     section("Página Raid removida sem restos no portal")
     styles = read("web/assets/css/styles.css")
@@ -423,7 +516,7 @@ def test_project_structure() -> None:
 
     files = {item.name for item in DOCS.iterdir() if item.is_file()}
     directories = [item.name for item in DOCS.iterdir() if item.is_dir()]
-    check(files == EXPECTED_DOCS, "documentação permanece consolidada em sete arquivos")
+    check(files == EXPECTED_DOCS, "documentação permanece consolidada (sete documentos Markdown + guia operacional)")
     check(not directories, "docs não possui subpastas redundantes")
 
     limits = {
@@ -507,6 +600,7 @@ def test_suite_consolidation() -> None:
 def main() -> None:
     test_ocr_and_history()
     test_ocr_alignment_and_raid_143_fixture()
+    test_ocr_elenco_dinamico_and_raid_144_fixture()
     test_raid_cleanup()
     test_registro_evolution()
     test_registro_modal_and_performance()

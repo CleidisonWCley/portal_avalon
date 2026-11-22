@@ -66,9 +66,9 @@ def status_participacao(freq: str, dano: int) -> str:
     return "ausente"
 
 
-def normalizar_registro(registro: dict) -> dict:
+def normalizar_registro(registro: dict, roster: list[str] | None = None) -> dict:
     nome_ocr = registro.get("nome", "")
-    nome, status_nome = corrigir_nome(nome_ocr)
+    nome, status_nome = corrigir_nome(nome_ocr, roster)
 
     status = registro.get("status", "") or ""
     status = juntar_status(status, status_nome)
@@ -139,11 +139,11 @@ def consolidar_registros(registros: list[dict]) -> tuple[list[dict], list[dict]]
     return consolidados, duplicados
 
 
-def adicionar_ausentes(registros: list[dict]) -> list[dict]:
+def adicionar_ausentes(registros: list[dict], roster: list[str] | None = None) -> list[dict]:
     nomes_presentes = {r.get("nome") for r in registros if r.get("nome")}
     saida = list(registros)
 
-    for nome in NOMES_VALIDOS:
+    for nome in (NOMES_VALIDOS if roster is None else roster):
         if nome not in nomes_presentes:
             saida.append({
                 "imagem_origem": "",
@@ -158,9 +158,21 @@ def adicionar_ausentes(registros: list[dict]) -> list[dict]:
     return saida
 
 
-def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None) -> dict:
+def tratar_dados_ocr(
+    registros_brutos: list[dict],
+    metadata: dict | None = None,
+    roster: list[str] | None = None,
+    elenco: dict | None = None,
+) -> dict:
+    """Normaliza, consolida e resume as linhas do OCR.
+
+    ``roster`` é o elenco DESTA raid (calculado por ``src/utils/elenco.py``);
+    sem ele vale a base ``NOMES_VALIDOS``. ``elenco`` é o bloco de auditoria
+    (permanecem/saíram/novos/retornantes) gravado junto no JSON.
+    """
     metadata = metadata or {}
-    normalizados = [normalizar_registro(r) for r in registros_brutos]
+    nomes_raid = list(NOMES_VALIDOS if roster is None else roster)
+    normalizados = [normalizar_registro(r, nomes_raid) for r in registros_brutos]
 
     status_problematicos = {STATUS_REVISAR, STATUS_DANO_SUSPEITO, STATUS_FREQUENCIA_SUSPEITA}
     # Pendências de revisão são contadas ANTES do filtro de cadastro oficial:
@@ -179,11 +191,11 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
     # registrada acima, antes desse corte.
     normalizados = [
         r for r in normalizados
-        if r.get("nome") and r.get("nome") in NOMES_VALIDOS
+        if r.get("nome") and r.get("nome") in nomes_raid
     ]
 
     consolidados, duplicados = consolidar_registros(normalizados)
-    consolidados = adicionar_ausentes(consolidados)
+    consolidados = adicionar_ausentes(consolidados, nomes_raid)
 
     if ORDENAR_POR_DANO:
         consolidados.sort(key=lambda r: r.get("dano", 0), reverse=True)
@@ -201,8 +213,8 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
         "gerado_em": gerado_em,
         "generatedAt": gerado_em,
         "capacidade_guilda": CAPACIDADE_GUILDA,
-        "membros_cadastrados": len(NOMES_VALIDOS),
-        "vagas_estimadas": max(CAPACIDADE_GUILDA - len(NOMES_VALIDOS), 0),
+        "membros_cadastrados": len(nomes_raid),
+        "vagas_estimadas": max(CAPACIDADE_GUILDA - len(nomes_raid), 0),
         "participantes": len(participantes),
         "ausentes": len(ausentes),
         "registros_revisar": len(pendentes_revisao),
@@ -211,7 +223,7 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
         "dano_total_guilda": dano_total,
     }
 
-    return {
+    resultado = {
         "raid": {
             "number": resumo.get("raidNumber"),
             "endedAt": resumo.get("endedAt"),
@@ -224,11 +236,15 @@ def tratar_dados_ocr(registros_brutos: list[dict], metadata: dict | None = None)
         "pendentes_revisao": pendentes_revisao,
         "raw_normalizado": normalizados,
     }
+    if elenco is not None:
+        resultado["elenco"] = elenco
+    return resultado
 
 
-def validar_dados_tratados(dados: dict) -> list[str]:
+def validar_dados_tratados(dados: dict, roster: list[str] | None = None) -> list[str]:
     """Retorna erros críticos que impedem a promoção da raid."""
     erros = []
+    nomes_raid = list(NOMES_VALIDOS if roster is None else roster)
     resumo = dados.get("resumo", {})
     membros = dados.get("membros", [])
 
@@ -239,12 +255,12 @@ def validar_dados_tratados(dados: dict) -> list[str]:
         erros.append("Data de encerramento ausente.")
 
     nomes = [m.get("nome") for m in membros]
-    if len(membros) != len(NOMES_VALIDOS):
-        erros.append(f"Quantidade de membros inválida: {len(membros)} de {len(NOMES_VALIDOS)}.")
+    if len(membros) != len(nomes_raid):
+        erros.append(f"Quantidade de membros inválida: {len(membros)} de {len(nomes_raid)}.")
     if len(nomes) != len(set(nomes)):
         erros.append("Existem membros duplicados no resultado revisado.")
 
-    desconhecidos = sorted({nome for nome in nomes if nome not in NOMES_VALIDOS})
+    desconhecidos = sorted({nome for nome in nomes if nome not in nomes_raid})
     if desconhecidos:
         erros.append("Nomes fora do elenco oficial: " + ", ".join(desconhecidos))
 

@@ -1,0 +1,229 @@
+{
+  "raid": 144,
+  "perfil": "celular 2340x1080",
+  "origem": "conferido visualmente nos prints",
+  "membros_total": 28,
+  "dano_total": 122214654495,
+  "linhas": [
+    {
+      "imagem": "img1.jpg",
+      "linha": 1,
+      "nome": "Cley",
+      "frequencia": "21/21",
+      "dano": 7767623162
+    },
+    {
+      "imagem": "img1.jpg",
+      "linha": 2,
+      "nome": "Hela",
+      "frequencia": "21/21",
+      "dano": 7719129274
+    },
+    {
+      "imagem": "img1.jpg",
+      "linha": 3,
+      "nome": "MJ馬McQueen",
+      "frequencia": "21/21",
+      "dano": 7571975213
+    },
+    {
+      "imagem": "img1.jpg",
+      "linha": 4,
+      "nome": "Gashak",
+      "frequencia": "21/21",
+      "dano": 6992839480
+    },
+    {
+      "imagem": "img1.jpg",
+      "linha": 5,
+      "nome": "Sr_Mendes",
+      "frequencia": "21/21",
+      "dano": 6924943924
+    },
+    {
+      "imagem": "img1.jpg",
+      "linha": 6,
+      "nome": "ヴァルディネイ",
+      "frequencia": "21/21",
+      "dano": 6905232448
+    },
+    {
+      "imagem": "img2.jpg",
+      "linha": 1,
+      "nome": "Leon",
+      "frequencia": "21/21",
+      "dano": 6875842055
+    },
+    {
+      "imagem": "img2.jpg",
+      "linha": 2,
+      "nome": "Krelian",
+      "frequencia": "18/21",
+      "dano": 6663525977
+    },
+    {
+      "imagem": "img2.jpg",
+      "linha": 3,
+      "nome": "Lux",
+      "frequencia": "21/21",
+      "dano": 6645907780
+    },
+    {
+      "imagem": "img2.jpg",
+      "linha": 4,
+      "nome": "Kanao",
+      "frequencia": "21/21",
+      "dano": 6270387697
+    },
+    {
+      "imagem": "img2.jpg",
+      "linha": 5,
+      "nome": "Aurora",
+      "frequencia": "21/21",
+      "dano": 6085082765
+    },
+    {
+      "imagem": "img2.jpg",
+      "linha": 6,
+      "nome": "Dennis",
+      "frequencia": "18/21",
+      "dano": 6051682355
+    },
+    {
+      "imagem": "img3.jpg",
+      "linha": 1,
+      "nome": "KAELINA",
+      "frequencia": "21/21",
+      "dano": 5989210005
+    },
+    {
+      "imagem": "img3.jpg",
+      "linha": 2,
+      "nome": "Ramigam",
+      "frequencia": "20/21",
+      "dano": 4936199689
+    },
+    {
+      "imagem": "img3.jpg",
+      "linha": 3,
+      "nome": "Capibara",
+      "frequencia": "15/21",
+      "dano": 4291378096
+    },
+    {
+      "imagem": "img3.jpg",
+      "linha": 4,
+      "nome": "カミナリ",
+      "frequencia": "21/21",
+      "dano": 4061942061
+    },
+    {
+      "imagem": "img3.jpg",
+      "linha": 5,
+      "nome": "SirAudino",
+      "frequencia": "15/21",
+      "dano": 3952650168
+    },
+    {
+      "imagem": "img3.jpg",
+      "linha": 6,
+      "nome": "tang",
+      "frequencia": "15/21",
+      "dano": 2947948857
+    },
+    {
+      "imagem": "img4.jpg",
+      "linha": 1,
+      "nome": "Ino",
+      "frequencia": "12/21",
+      "dano": 2573152283
+    },
+    {
+      "imagem": "img4.jpg",
+      "linha": 2,
+      "nome": "Cosmos",
+      "frequencia": "12/21",
+      "dano": 2363272413
+    },
+    {
+      "imagem": "img4.jpg",
+      "linha": 3,
+      "nome": "kia",
+      "frequencia": "18/21",
+      "dano": 2271815400
+    },
+    {
+      "imagem": "img4.jpg",
+      "linha": 4,
+      "nome": "Ger",
+      "frequencia": "8/21",
+      "dano": 2031252867
+    },
+    {
+      "imagem": "img4.jpg",
+      "linha": 5,
+      "nome": "math",
+      "frequencia": "9/21",
+      "dano": 1895245363
+    },
+    {
+      "imagem": "img4.jpg",
+      "linha": 6,
+      "nome": "PeSH",
+      "frequencia": "12/21",
+      "dano": 1401902736
+    },
+    {
+      "imagem": "img5.jpg",
+      "linha": 1,
+      "nome": "math",
+      "frequencia": "9/21",
+      "dano": 1895245363
+    },
+    {
+      "imagem": "img5.jpg",
+      "linha": 2,
+      "nome": "PeSH",
+      "frequencia": "12/21",
+      "dano": 1401902736
+    },
+    {
+      "imagem": "img5.jpg",
+      "linha": 3,
+      "nome": "utiago",
+      "frequencia": "3/21",
+      "dano": 514984031
+    },
+    {
+      "imagem": "img5.jpg",
+      "linha": 4,
+      "nome": "pato_loko",
+      "frequencia": "15/21",
+      "dano": 248014445
+    },
+    {
+      "imagem": "img5.jpg",
+      "linha": 5,
+      "nome": "Carlinhozz",
+      "frequencia": "1/21",
+      "dano": 213835165
+    },
+    {
+      "imagem": "img5.jpg",
+      "linha": 6,
+      "nome": "DuckDolnad",
+      "frequencia": "21/21",
+      "dano": 47678786
+    }
+  ],
+  "elenco_esperado": {
+    "saidos": [
+      "Snowers"
+    ],
+    "novos": [
+      "KAELINA",
+      "DuckDolnad"
+    ],
+    "retornantes": []
+  }
+}

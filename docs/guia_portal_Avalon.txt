@@ -376,7 +376,7 @@ cd ocr\guild-rank-ocr
 
 Execute:
 
-python -m src.main --raid 143 --ended-at 2026-11-04 --source official
+python -m src.main --raid 144 --ended-at 2026-11-18 --source official
 
 
 Para uma Raid normal extraída dos screenshots oficiais, use sempre:
@@ -521,11 +521,11 @@ PARTE 10 — PROMOVENDO A NOVA RAID
 =================================================================
 
 python tools\promote_raid_history.py `
-  --new-current ocr\guild-rank-ocr\output\json\raid_143.json `
+  --new-current ocr\guild-rank-ocr\output\json\raid_144.json `
   --history web\data\raids\raid_history.json `
   --published-current web\data\raids\raid_atual.json `
   --published-previous web\data\raids\raid_anterior.json `
-  --report ocr\guild-rank-ocr\output\json\raid_143_relatorio.json
+  --report ocr\guild-rank-ocr\output\json\raid_144_relatorio.json
 
 O PowerShell usa o caractere de crase ` no final da linha para continuar o comando.
 
@@ -716,7 +716,7 @@ Se git diff --cached --check não mostrar erros, faça o commit.
 
 Exemplo:
 
-git commit -m "Promovendo Raid 142 e atualizando o Portal Avalon"
+git commit -m "Promovendo Raid 143 e atualizando o Portal Avalon"
 
 Confirme:
 

@@ -351,10 +351,13 @@ test('documentação oficial está consolidada em sete arquivos', () => {
     'REGRAS_E_DADOS.md',
     'TESTES.md'
   ];
-  const actual = fs.readdirSync(DOCS)
+  const files = fs.readdirSync(DOCS)
     .filter(name => fs.statSync(path.join(DOCS, name)).isFile())
     .sort();
-  assert.deepStrictEqual(actual, expected);
+  // Os sete documentos canônicos são Markdown; o guia operacional passo a passo
+  // (Windows/PowerShell) é o único arquivo de texto permitido ao lado deles.
+  assert.deepStrictEqual(files.filter(name => name.endsWith('.md')), expected);
+  assert.deepStrictEqual(files.filter(name => !name.endsWith('.md')), ['guia_portal_Avalon.txt']);
   assert.strictEqual(
     fs.readdirSync(DOCS).filter(name => fs.statSync(path.join(DOCS, name)).isDirectory()).length,
     0,

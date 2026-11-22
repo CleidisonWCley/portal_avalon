@@ -40,8 +40,14 @@ TOLERANCIA_LARGURA = 0.12
 TOLERANCIA_LARGURA_MINIMA_PX = 4
 
 
-def caixa_do_texto(recorte_cinza):
-    """Recorta o retângulo mínimo que contém o texto claro do nome."""
+def caixa_do_texto(recorte_cinza, margem: int = 0):
+    """Recorta o retângulo mínimo que contém o texto claro do nome.
+
+    ``margem`` (px) mantém um pouco de fundo em volta do texto. Ao SALVAR um
+    modelo use margem > 0: um recorte justo de um nome curto (ex.: "Lux") tem
+    mais pixel de texto do que de fundo, e ao recarregar o modelo a mediana
+    passava a ser a do texto, encolhendo o recorte e derrubando a correlação.
+    """
     if recorte_cinza is None or recorte_cinza.size == 0:
         return None
     fundo = float(np.median(recorte_cinza))
@@ -52,7 +58,10 @@ def caixa_do_texto(recorte_cinza):
     ys, xs = np.where(recorte_cinza > limiar)
     if xs.size < PIXELS_TEXTO_MINIMOS:
         return None
-    return recorte_cinza[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    altura, largura = recorte_cinza.shape[:2]
+    y0, y1 = max(0, ys.min() - margem), min(altura, ys.max() + 1 + margem)
+    x0, x1 = max(0, xs.min() - margem), min(largura, xs.max() + 1 + margem)
+    return recorte_cinza[y0:y1, x0:x1]
 
 
 def normalizar_nome(recorte_cinza, altura: int = ALTURA_NORMALIZADA_NOME):
@@ -85,24 +94,41 @@ def correlacao(candidato, modelo) -> float:
     return float((x * y).sum() / denominador)
 
 
+def _arquivos_do_nome(valor) -> list[str]:
+    """Aceita um arquivo (str) ou vários (lista): um por aparelho/escala."""
+    return [valor] if isinstance(valor, str) else list(valor)
+
+
 @lru_cache(maxsize=1)
 def carregar_modelos(diretorio: str | None = None) -> dict:
-    """Carrega os modelos disponíveis. Arquivos ausentes são ignorados sem erro."""
+    """Carrega os modelos disponíveis: ``{nome: [matriz, ...]}``.
+
+    Um nome pode ter mais de um modelo (ex.: tablet e celular renderizam a
+    fonte de forma diferente). Arquivos ausentes são ignorados sem erro.
+    """
     pasta = Path(diretorio) if diretorio else Path(DIR_MODELOS_NOMES)
     modelos = {}
-    for nome, arquivo in MODELOS_NOMES.items():
-        caminho = pasta / arquivo
-        if not caminho.exists():
-            continue
-        imagem = cv2.imread(str(caminho), cv2.IMREAD_GRAYSCALE)
-        normalizado = normalizar_nome(imagem)
-        if normalizado is not None:
-            modelos[nome] = normalizado
+    for nome, arquivos in MODELOS_NOMES.items():
+        variantes = []
+        for arquivo in _arquivos_do_nome(arquivos):
+            caminho = pasta / arquivo
+            if not caminho.exists():
+                continue
+            imagem = cv2.imread(str(caminho), cv2.IMREAD_GRAYSCALE)
+            normalizado = normalizar_nome(imagem)
+            if normalizado is not None:
+                variantes.append(normalizado)
+        if variantes:
+            modelos[nome] = variantes
     return modelos
 
 
 def identificar_nome_visual(recorte_cinza, modelos: dict | None = None) -> tuple[str, float] | None:
-    """Devolve (nome, correlação) quando o recorte casa com um modelo com segurança."""
+    """Devolve (nome, correlação) quando o recorte casa com um modelo com segurança.
+
+    A pontuação de cada nome é a do seu melhor modelo; a margem exigida é sobre
+    o melhor NOME concorrente (variantes do mesmo nome não competem entre si).
+    """
     modelos = carregar_modelos() if modelos is None else modelos
     if not modelos:
         return None
@@ -110,8 +136,13 @@ def identificar_nome_visual(recorte_cinza, modelos: dict | None = None) -> tuple
     if candidato is None:
         return None
 
+    def melhor_variante(variantes) -> float:
+        if not isinstance(variantes, (list, tuple)):
+            variantes = [variantes]
+        return max(correlacao(candidato, modelo) for modelo in variantes)
+
     pontuacoes = sorted(
-        ((correlacao(candidato, modelo), nome) for nome, modelo in modelos.items()),
+        ((melhor_variante(variantes), nome) for nome, variantes in modelos.items()),
         reverse=True,
     )
     melhor_score, melhor_nome = pontuacoes[0]

@@ -2,6 +2,19 @@
 
 O histórico detalhado permanece no Git. Este arquivo registra apenas as mudanças relevantes para compreensão e manutenção do estado atual.
 
+## OCR — Elenco dinâmico e perfil de celular ancorado (Raid 144)
+
+- o elenco de cada raid passa a ser calculado comparando o ranking com o histórico (`output/json` e histórico publicado): **permanecem**, **saíram**, **novos** e **retornantes**; entradas e saídas deixam de exigir edição manual de `NOMES_VALIDOS`;
+- membro novo é aceito automaticamente quando a grafia se repete em pelo menos 2 das 6 leituras do Tesseract; o recorte fica em `output/revisao/raid_N/` para conferência;
+- toda saída é marcada como *inferida*, porque o ranking não lista quem não atacou (Snowers já ficou ausente na Raid 141 e voltou); `--manter-ausente NOME` reverte a decisão;
+- o JSON da raid ganha o bloco `elenco` e o relatório resume as mudanças; a promoção não é afetada;
+- perfil de celular (2340x1080) passa a usar linhas ancoradas pela pílula, como o tablet, com suporte a badge "Nv." de outra cor (DuckDolnad); corrige `ヴァルディネイ` lido como `Ger` e `Lux` lido como `kia`;
+- `NOMES_VALIDOS` tinha uma vírgula faltando que colava `pato_loko` e `DuckDonald`; a grafia correta no jogo é `DuckDolnad`;
+- modelos visuais aceitam vários arquivos por nome (um por aparelho) e são salvos com margem de fundo; novo modelo para `Lux`;
+- `MEMBROS_SEMPRE_NO_ELENCO` no config: rede de segurança para quem não atacou mas continua na guilda (entra como ausente 0/21 em vez de "saiu"); saída confirmada da raid tem precedência; `saidas_confirmadas` e `novos_confirmados` marcam as decisões do líder;
+- novo comando de auditoria: `python -m src.utils.elenco --raid N`;
+- fixture e gabarito da Raid 144 (celular) adicionados à suíte de regressão.
+
 ## OCR — Correção da leitura da Raid 143 (sem mudar a versão do Portal)
 
 - linhas do perfil tablet passam a ser ancoradas pela pílula de dano, corrigindo o desalinhamento causado pelo scroll diferente em cada print e pelo passo de 113 px (o real é ~115 px);
